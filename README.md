@@ -4,6 +4,8 @@
 
 Автор: ev2geny собака gmail.com
 
+Ссылка в системе github https://github.com/Ev2geny/Sberbank2Excel
+
 Ссылка для скачивания скомпилированного файла https://github.com/Ev2geny/Sberbank2Excel/releases/latest
 
 ## Как пользоваться
