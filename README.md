@@ -15,7 +15,7 @@
 ### Подготовка
 #### sberbankPDFtext2ExcelGUI.exe
 
-1. Скачать последнюю версию  **sberbankPDFtext2ExcelGUI** https://github.com/Ev2geny/Sberbank2Excel/releases/latest 
+1. Скачать последнюю версию  **sberbankPDFtext2ExcelGUI.zip** https://github.com/Ev2geny/Sberbank2Excel/releases/latest 
 2. Разархивировать ZIP файл и найти *sberbankPDFtext2ExcelGUI.exe*
 
 #### foxit PDF reader
