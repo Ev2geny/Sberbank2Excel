@@ -8,9 +8,8 @@ foxit PDF reader  https://www.foxitsoftware.com/pdf-reader/
 
 NAME='Конвертер выписки Сбербанка из PDF в Excel'
 AUTHOR='ev2geny@gmail.com'
-PERMANENT_LOCATION='https://github.com/Ev2geny/Sberbank2Excel/releases/'
-VERSION='1.1'
-
+PERMANENT_LOCATION='https://github.com/Ev2geny/Sberbank2Excel/releases/latest'
+VERSION='1.2'
 
 
 
