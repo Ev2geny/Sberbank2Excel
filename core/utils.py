@@ -9,9 +9,10 @@ import pandas as pd
 
 from typing import *
 
-import exceptions
+from core import exceptions
 
-def get_float_from_money(money_str:str,process_no_sign_as_negative=False)->float:
+
+def get_float_from_money(money_str: str, process_no_sign_as_negative=False) -> float:
     """
     Converts string, representing money to a float.
     If process_no_sign_as_negative is set to True, then a number will be negative in case no leading sign is available
@@ -28,7 +29,7 @@ def get_float_from_money(money_str:str,process_no_sign_as_negative=False)->float
     money_float = float(money_str)
 
     if (process_no_sign_as_negative and not leading_plus):
-        money_float =- 1*money_float
+        money_float = -1*money_float
 
     return money_float
 
@@ -56,7 +57,7 @@ def split_text_on_entries(PDF_text:str)->List[str]:
     PDF_text, re.VERBOSE)
     return individual_entries
 
-def decompose_entry_to_dict(entry:str)->Dict:
+def decompose_entry_to_dict(entry:str)-> Dict:
     """
     Выделяем данные из одной записи в dictionary
     
@@ -85,14 +86,14 @@ def decompose_entry_to_dict(entry:str)->Dict:
     for line in sublines:
         line_parts=split_Sberbank_line(line)
         if len(line_parts)!=1:
-            raise exceptions.SberbankPDFtext2ExcelError("Line is expected to have only one part :"+line)
+            raise exceptions.SberbankPDFtext2ExcelError("Line is expected to have only one part :" + line)
         result['description']=result['description']+' '+line_parts[0]
 
     #************* looking at the last line
     line_parts=split_Sberbank_line(lines[-1])
 
     if len(line_parts) <2 or len(line_parts)>3:
-        raise exceptions.SberbankPDFtext2ExcelError("Line is expected to 2 or parts :"+line)
+        raise exceptions.SberbankPDFtext2ExcelError("Line is expected to 2 or parts :" + line)
 
     result['processing_date']=line_parts[0][0:11]
     result['authorisation_code']=line_parts[0][13:]
@@ -104,7 +105,7 @@ def decompose_entry_to_dict(entry:str)->Dict:
             result['value_operational_currency']=get_float_from_money(found.group(1),True)
             result['operational_currency']=found.group(2)
         else:
-            raise exceptions.SberbankPDFtext2ExcelError("Could not process string. Expected something like (33,31 EUR):"+line)
+            raise exceptions.SberbankPDFtext2ExcelError("Could not process string. Expected something like (33,31 EUR):" + line)
 
     return result
 
@@ -151,9 +152,32 @@ def pd_to_Excel(pd_dataframe:pd.DataFrame,russian_headers:List[str],output_Excel
     
     writer.close()
 
+def get_period_balance(PDF_text: str) -> float:
+    """
+    функция ищет в тексте значения "СУММА ПОПОЛНЕНИЙ" и "СУММА СПИСАНИЙ" и возвращает заницу
+    используется для контрольной проверки вычислений
+
+    :param PDF_text:
+    :return:
+    """
+
+    if( res:= re.search(r'СУММА ПОПОЛНЕНИЙ \s{5,}(\d[\d\s]*\,\d\d)', PDF_text, re.MULTILINE) ):
+        summa_popolneniy = res.group(1)
+    else:
+        raise exceptions.SberbankPDFtext2ExcelError('Не найдено значение "СУММА ПОПОЛНЕНИЙ"')
+
+    if( res:= re.search(r'СУММА СПИСАНИЙ  \s{5,}(\d[\d\s]*\,\d\d)', PDF_text, re.MULTILINE) ):
+        summa_spisaniy = res.group(1)
+    else:
+        raise exceptions.SberbankPDFtext2ExcelError('Не найдено значение "СУММА СПИСАНИЙ "')
+
+    summa_popolneniy = get_float_from_money(summa_popolneniy)
+    summa_spisaniy = get_float_from_money(summa_spisaniy)
+
+    return summa_popolneniy - summa_spisaniy
 
 def main():
-    print('This module is not designed for standalone execution')
+    print('this manual is not designed to work standalone')
 
 if __name__=='__main__':
     main()

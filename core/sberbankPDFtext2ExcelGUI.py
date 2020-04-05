@@ -25,7 +25,7 @@ from tkinter import Menu
 from tkinter import messagebox
 import traceback
 
-import sberbankPDFtext2Excel
+from core import sberbankPDFtext2Excel
 
 # defining global variable, which will hold files tuple
 files=()
@@ -58,7 +58,7 @@ def btn_convertFiles_clicked():
     qntFilesConverted=0
     for file in files:
         try:
-            created_excel_files_scrollText.insert(INSERT,sberbankPDFtext2Excel.sberbankPDFtext2Excel(file)+'\n')
+            created_excel_files_scrollText.insert(INSERT, sberbankPDFtext2Excel.sberbankPDFtext2Excel(file) + '\n')
             qntFilesConverted=qntFilesConverted+1
         except:
             print('Error occured, when converting file "'+'file'+'" '+ str(sys.exc_info()[0]))
