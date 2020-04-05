@@ -17,18 +17,18 @@ def get_float_from_money(money_str:str,process_no_sign_as_negative=False)->float
     If process_no_sign_as_negative is set to True, then a number will be negative in case no leading sign is available
     """
     
-    money_str = unidecode.unidecode(money_str)
-    money_str = money_str.replace(' ','')
-    money_str = money_str.replace(',','.')
+    money_str=unidecode.unidecode(money_str)
+    money_str=money_str.replace(' ','')
+    money_str=money_str.replace(',','.')
 
-    leading_plus = False
-    if money_str[0] == '+':
-        leading_plus = True
+    leading_plus=False
+    if money_str[0]=='+':
+        leading_plus=True
 
-    money_float = float(money_str)
+    money_float=float(money_str)
 
     if (process_no_sign_as_negative and not leading_plus):
-        money_float =- 1*money_float
+        money_float=-1*money_float
 
     return money_float
 
