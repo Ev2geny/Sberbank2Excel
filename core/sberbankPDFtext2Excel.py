@@ -22,7 +22,7 @@ import os
 from core import utils
 
 
-def sberbankPDFtext2Excel(input_txt_file_name:str,output_excel_file_name:str=None)->str:
+def sberbankPDFtext2Excel(input_txt_file_name:str,output_excel_file_name:str=None) -> str:
     """
     Функция конвертирует текстовый файл Сбербанка, полученный из выписки PDF помощью конвертации Foxit PDF reader в Excel формат
     Если output_excel_file_name не задан, то он создаётся из input_txt_file_name путём замены расширения файла на xlsx
@@ -43,6 +43,10 @@ def sberbankPDFtext2Excel(input_txt_file_name:str,output_excel_file_name:str=Non
 
     # converting list of dictionaries to pandas dataframe
     df = utils.entries_to_pandas(individual_entries)
+
+    calculated_balance = utils.get_period_balance(file_text)
+
+    utils.check_transactions_balance(df, calculated_balance)
 
     # Defining header in Russian.  
     russian_headers = [
@@ -74,7 +78,6 @@ def main():
         outputFileName=sys.argv[2]
 
     sberbankPDFtext2Excel(sys.argv[1], outputFileName)
-
 
 
 if __name__=='__main__':

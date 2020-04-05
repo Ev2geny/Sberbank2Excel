@@ -176,6 +176,12 @@ def get_period_balance(PDF_text: str) -> float:
 
     return summa_popolneniy - summa_spisaniy
 
+def check_transactions_balance(input_pd: pd.DataFrame, balance: float):
+    calculated_balance = input_pd['value_account_currency'].sum()
+    if (abs(balance-calculated_balance) > 0.01):
+        raise exceptions.SberbankPDFtext2ExcelError("Failed verification of balance")
+
+
 def main():
     print('this manual is not designed to work standalone')
 
