@@ -16,7 +16,7 @@
 #### sberbankPDFtext2ExcelGUI.exe
 
 1. Скачать последнюю версию  **sberbankPDFtext2ExcelGUI.zip** https://github.com/Ev2geny/Sberbank2Excel/releases/latest 
-2. Разархивировать ZIP файл и найти *sberbankPDFtext2ExcelGUI.exe*
+2. Разархивировать ZIP файл в отдельную директорию и найти *sberbankPDFtext2ExcelGUI.bat*
 
 #### foxit PDF reader
 1. Установить foxit PDF reader  https://www.foxitsoftware.com/pdf-reader/
@@ -27,7 +27,7 @@
 
 **Шаг 2** Сохраните файл в текстовом формате (File ==> Save as ==> computer ==> (Выберете папку)). При сохранении выберете формат **TXT files (*.txt)**
 
-**Шаг 3** Запустите **sberbankPDFtext2ExcelGUI.exe**
+**Шаг 3** Запустите **sberbankPDFtext2ExcelGUI.bat**
 
 **Шаг 4** Выберите один или несколько сконвертированных текстовых файлов
 
