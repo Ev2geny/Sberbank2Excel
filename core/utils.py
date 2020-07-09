@@ -46,10 +46,19 @@ def split_text_on_entries(PDF_text:str)->List[str]:
     разделяет текстовый файл на отдельные записи
     """
     # extracting entries (operations) from text file on
+    # individual_entries=re.findall(r"""
+    # \s{40}                                        # 44 white speces
+    # \d\d\.\d\d\.\d\d\d\d                          # Date like 25.04.1991
+    # \s\d\d:\d\d\s{7,18}                           # Time like 21:44, next 7-18 white spaces (the amount of white speces in different places of the document is different
+    # [\s\S]*?                                      # any character, including new line. !!None-greedy!! See URL why [\s\S] is used https://stackoverflow.com/a/33312193
+    # \s{40}\d\d\.\d\d\.\d\d\d\d\s/                 # Again 44 white spaces, followed by like '25.12.2019 /'
+    # .*?\n                                         # everything till end of the line
+    # """,
+    # PDF_text, re.VERBOSE)
     individual_entries=re.findall(r"""
     \s{40}                                        # 44 white speces 
     \d\d\.\d\d\.\d\d\d\d                          # Date like 25.04.1991
-    \s{15,18}                                     # 15-18 white speces (the amount of white speces in different places of the document is different
+    \s\d\d:\d\d\s{6,18}                                     # 15-18 white speces (the amount of white speces in different places of the document is different
     [\s\S]*?                                      # any character, including new line. !!None-greedy!! See URL why [\s\S] is used https://stackoverflow.com/a/33312193
     \s{40}\d\d\.\d\d\.\d\d\d\d\s/                 # Again 44 white spaces, followed by like '25.12.2019 /' 
     .*?\n                                         # everything till end of the line
