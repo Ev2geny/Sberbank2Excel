@@ -1,0 +1,4 @@
+﻿.idea/
+*.txt
+*.xlxs
+**/**/__pycache__/
