@@ -21,7 +21,7 @@
 1. Скачать последнюю версию  **sberbankPDFtext2ExcelGUI.zip** https://github.com/Ev2geny/Sberbank2Excel/releases/latest 
 1. Разархивировать ZIP файл в отдельную директорию и найти `sberbankPDFtext2ExcelGUI.bat`
 
-**Опциональные шаги (проверка программы)**
+**Опциональные шаги (проверка программы на тестовом файле)**
 1. Запустите `sberbankPDFtext2ExcelGUI.bat`
 1. Выбирите тестовый файл `testovaya_vipiska_po_karte_dlinnaya.txt` из папки `Exaples`
 1. Нажмите "Сконвертировать выбранные файлы"
