@@ -17,8 +17,16 @@
 ### Подготовка
 #### sberbankPDFtext2ExcelGUI.exe
 
+**Обязательные шаги**
 1. Скачать последнюю версию  **sberbankPDFtext2ExcelGUI.zip** https://github.com/Ev2geny/Sberbank2Excel/releases/latest 
-2. Разархивировать ZIP файл в отдельную директорию и найти *sberbankPDFtext2ExcelGUI.bat*
+1. Разархивировать ZIP файл в отдельную директорию и найти `sberbankPDFtext2ExcelGUI.bat`
+
+**Опциональные шаги (проверка программы)**
+1. Запустите `sberbankPDFtext2ExcelGUI.bat`
+1. Выбирите тестовый файл `testovaya_vipiska_po_karte_dlinnaya.txt` из папки `Exaples`
+1. Нажмите "Сконвертировать выбранные файлы"
+1. Убедитесь, что программа создаст файл `testovaya_vipiska_po_karte_dlinnaya.xlsx` в тойже папке (`Examples`)
+
 
 #### foxit PDF reader
 1. Установить foxit PDF reader  https://www.foxitsoftware.com/pdf-reader/
@@ -29,7 +37,7 @@
 
 **Шаг 2** Сохраните файл в текстовом формате (File ==> Save as ==> computer ==> (Выберете папку)). При сохранении выберете формат **TXT files (*.txt)**
 
-**Шаг 3** Запустите **sberbankPDFtext2ExcelGUI.bat**
+**Шаг 3** Запустите `sberbankPDFtext2ExcelGUI.bat`
 
 **Шаг 4** Выберите один или несколько сконвертированных текстовых файлов
 
@@ -43,4 +51,4 @@
 
 Сообщите об ошибке разработчику. Желательно сделать это через инструментарий github: https://github.com/Ev2geny/Sberbank2Excel/issues. Либо сообщите об ошибке по электронной почте (ev2geny собака gmail.com)
 
-При информировании об ошибке необходимо приложить входной текстовый файл, с которым произошла ошибка. Т.к. такой файл в изначальном виде будет содержать персональную информацию, то рекомендуется удалить эту информацию используя в качестве примера файл primer_dlya_soobsheniya_ob_oshibkah.txt из папки Examples.
+При информировании об ошибке необходимо приложить входной текстовый файл, с которым произошла ошибка. Т.к. такой файл в изначальном виде будет содержать персональную информацию, то рекомендуется удалить эту информацию используя в качестве примера файл `primer_dlya_soobsheniya_ob_oshibkah.txt` из папки `Examples`.
