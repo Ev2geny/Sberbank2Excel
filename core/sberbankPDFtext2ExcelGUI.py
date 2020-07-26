@@ -27,7 +27,8 @@ import traceback
 from core import sberbankPDFtext2Excel
 
 # defining global variable, which will hold files tuple
-files=()
+files = ()
+
 
 def btn_selectFiles_clicked():
     global files
@@ -36,12 +37,12 @@ def btn_selectFiles_clicked():
 
     SelectedFiles_ScrolledText.configure(state=NORMAL)
     # empty scrollText widget
-    SelectedFiles_ScrolledText.delete('1.0',END)
-    created_excel_files_scrollText.delete('1.0',END)
+    SelectedFiles_ScrolledText.delete('1.0', END)
+    created_excel_files_scrollText.delete('1.0', END)
 
     # Populating SelectedFiles_ScrolledText widget
     for file in files:
-        SelectedFiles_ScrolledText.insert(INSERT,file+'\n')
+        SelectedFiles_ScrolledText.insert(INSERT, file+'\n')
 
     SelectedFiles_ScrolledText.configure(state=DISABLED)
     

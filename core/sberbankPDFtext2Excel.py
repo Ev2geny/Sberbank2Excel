@@ -44,8 +44,10 @@ def sberbankPDFtext2Excel(input_txt_file_name:str,output_excel_file_name:str=Non
     # converting list of dictionaries to pandas dataframe
     df = utils.entries_to_pandas(individual_entries)
 
+    # calculating balance based on the data, extracted from the text file
     calculated_balance = utils.get_period_balance(file_text)
 
+    # checking, if balance, extracted from text file is equal to the balance, found by summing column in Pandas dataframe
     utils.check_transactions_balance(df, calculated_balance)
 
     # Defining header in Russian.  
