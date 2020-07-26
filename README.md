@@ -15,7 +15,7 @@
 **!!! Важно:** программа не будет работать если для конвертации в текстовый режим использовать Adobe Acrobat Reader, т.к. он по-другому конвертирует pdf  в текстовый файл
 
 ### Подготовка
-#### sberbankPDFtext2ExcelGUI.exe
+#### sberbankPDFtext2ExcelGUI
 
 **Обязательные шаги**
 1. Скачать последнюю версию  **sberbankPDFtext2ExcelGUI.zip** https://github.com/Ev2geny/Sberbank2Excel/releases/latest 
