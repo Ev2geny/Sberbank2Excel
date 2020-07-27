@@ -48,8 +48,8 @@ def split_text_on_entries(PDF_text:str)->List[str]:
     # extracting entries (operations) from text file on
     individual_entries=re.findall(r"""
     \s{40}                                        # 44 white speces 
-    \d\d\.\d\d\.\d\d\d\d                          # Date like 25.04.1991
-    \s{15,18}                                     # 15-18 white speces (the amount of white speces in different places of the document is different
+    \d\d\.\d\d\.\d\d\d\d\s\d\d:\d\d               # Date and time like 25.04.1991 18:31                                     
+    \s{8,12}                                     # 8-12 white speces (the amount of white speces in different places of the document is different
     [\s\S]*?                                      # any character, including new line. !!None-greedy!! See URL why [\s\S] is used https://stackoverflow.com/a/33312193
     \s{40}\d\d\.\d\d\.\d\d\d\d\s/                 # Again 44 white spaces, followed by like '25.12.2019 /' 
     .*?\n                                         # everything till end of the line
