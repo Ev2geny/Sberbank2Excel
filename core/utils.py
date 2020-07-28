@@ -100,7 +100,7 @@ def decompose_entry_to_dict(entry:str)-> Dict:
     if len(line_parts) <2 or len(line_parts)>3:
         raise exceptions.SberbankPDFtext2ExcelError("Line is expected to 2 or parts :" + line)
 
-    result['processing_date']=line_parts[0][0:11]
+    result['processing_date']=line_parts[0][0:10]
     result['authorisation_code']=line_parts[0][13:]
     result['category']=line_parts[1]
 
@@ -141,9 +141,9 @@ def entries_to_pandas(individual_entries:List[str])->pd.DataFrame:
         df=df.append(dict_result,ignore_index=True)
 
     # convert to date https://stackoverflow.com/questions/41514173/change-multiple-columns-in-pandas-dataframe-to-datetime
-    #TODO: add explicit format for date and time conversion
-    df['operation_date']=pd.to_datetime(df['operation_date'])
-    df['processing_date']=pd.to_datetime(df['processing_date'])
+    # strftime() and strptime() Format Codes   https://docs.python.org/3/library/datetime.html#strftime-and-strptime-behavior
+    df['operation_date']=pd.to_datetime(df['operation_date'], format="%d.%m.%Y %H:%M")
+    df['processing_date']=pd.to_datetime(df['processing_date'], format="%d.%m.%Y")
 
     return df
 
@@ -152,7 +152,7 @@ def pd_to_Excel(pd_dataframe:pd.DataFrame,russian_headers:List[str],output_Excel
     # Saving pandas dataframe to Excel
     writer = pd.ExcelWriter(output_Excel_file_name,
                             engine='xlsxwriter',
-                            datetime_format='dd.mm.yyyy')
+                            datetime_format='dd.mm.yyyy HH:MM')
     
     pd_dataframe.to_excel(writer,header=russian_headers,sheet_name='Sheet1',index=False)
     
