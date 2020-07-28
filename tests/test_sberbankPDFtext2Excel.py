@@ -18,9 +18,9 @@ class Test(TestCase):
 
     def test_correct_exception_when_converting_testovaya_vipiska_po_karte_dlinnaya_s_oshibkoy(self):
         from core.sberbankPDFtext2Excel import sberbankPDFtext2Excel
-        from core.exceptions import SberbankPDFtext2ExcelError
+        from core.exceptions import BalanceVerificationError
         #pass
-        self.assertRaises(SberbankPDFtext2ExcelError,
+        self.assertRaises(BalanceVerificationError,
                           sberbankPDFtext2Excel,
                           ".\\Example_input_and_output_files\\testovaya_vipiska_po_karte_dlinnaya_s_oshibkoy.txt")
 

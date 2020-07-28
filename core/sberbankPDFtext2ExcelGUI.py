@@ -23,8 +23,11 @@ from tkinter import scrolledtext
 from tkinter import Menu
 from tkinter import messagebox
 import traceback
+import logging
 
 from core import sberbankPDFtext2Excel
+
+
 
 # defining global variable, which will hold files tuple
 files = ()

@@ -6,6 +6,7 @@
 import unidecode
 import re
 import pandas as pd
+import logging
 
 from typing import *
 
@@ -47,14 +48,18 @@ def split_text_on_entries(PDF_text:str)->List[str]:
     """
     # extracting entries (operations) from text file on
     individual_entries=re.findall(r"""
-    \s{40}                                        # 44 white speces 
+    \s{38,42}                                     # Some white speces. Normally 40, but I put 38-42 just in case
     \d\d\.\d\d\.\d\d\d\d\s\d\d:\d\d               # Date and time like 25.04.1991 18:31                                     
     \s{8,12}                                     # 8-12 white speces (the amount of white speces in different places of the document is different
     [\s\S]*?                                      # any character, including new line. !!None-greedy!! See URL why [\s\S] is used https://stackoverflow.com/a/33312193
-    \s{40}\d\d\.\d\d\.\d\d\d\d\s/                 # Again 44 white spaces, followed by like '25.12.2019 /' 
+    \s{38,42}\d\d\.\d\d\.\d\d\d\d\s/              # Again 38-42 white spaces (normally 40, but just in case), followed by like '25.12.2019 /' 
     .*?\n                                         # everything till end of the line
     """,
     PDF_text, re.VERBOSE)
+
+    if len(individual_entries) == 0:
+        raise exceptions.InputFileStructureError("Не обнаружена ожидаемая структора данных: не найдено ни одной трасакции")
+
     return individual_entries
 
 def decompose_entry_to_dict(entry:str)-> Dict:
@@ -105,7 +110,7 @@ def decompose_entry_to_dict(entry:str)-> Dict:
             result['value_operational_currency']=get_float_from_money(found.group(1),True)
             result['operational_currency']=found.group(2)
         else:
-            raise exceptions.SberbankPDFtext2ExcelError("Could not process string. Expected something like (33,31 EUR):" + line)
+            raise exceptions.InputFileStructureError("Ошибка в обработке текста. Ожидалась струтура типа (33,31 EUR), получено: " + line)
 
     return result
 
@@ -136,6 +141,7 @@ def entries_to_pandas(individual_entries:List[str])->pd.DataFrame:
         df=df.append(dict_result,ignore_index=True)
 
     # convert to date https://stackoverflow.com/questions/41514173/change-multiple-columns-in-pandas-dataframe-to-datetime
+    #TODO: add explicit format for date and time conversion
     df['operation_date']=pd.to_datetime(df['operation_date'])
     df['processing_date']=pd.to_datetime(df['processing_date'])
 
@@ -154,7 +160,7 @@ def pd_to_Excel(pd_dataframe:pd.DataFrame,russian_headers:List[str],output_Excel
 
 def get_period_balance(PDF_text: str) -> float:
     """
-    функция ищет в тексте значения "СУММА ПОПОЛНЕНИЙ" и "СУММА СПИСАНИЙ" и возвращает заницу
+    функция ищет в тексте значения "СУММА ПОПОЛНЕНИЙ" и "СУММА СПИСАНИЙ" и возвращает раницу
     используется для контрольной проверки вычислений
 
     :param PDF_text:
@@ -178,8 +184,12 @@ def get_period_balance(PDF_text: str) -> float:
 
 def check_transactions_balance(input_pd: pd.DataFrame, balance: float):
     calculated_balance = input_pd['value_account_currency'].sum()
-    if (abs(balance-calculated_balance) > 0.01):
-        raise exceptions.SberbankPDFtext2ExcelError("Failed verification of balance")
+    if (abs(balance-calculated_balance) >= 0.01):
+        raise exceptions.BalanceVerificationError(f"""
+            Ошибка проверки балланса по трансакциям: 
+                СУММА НАЧИСЛЕНИЙ - СУММА СПИСАНИЙ = {balance}
+                Вычисленный баланс по всем трансакциям = {calculated_balance}
+        """)
 
 
 def main():
