@@ -4,7 +4,7 @@
 
 Примеры уже сконвертированных файлов можно посмтреть [здесь](https://github.com/Ev2geny/Sberbank2Excel/tree/master/Examples). Например [этот](https://github.com/Ev2geny/Sberbank2Excel/raw/master/Examples/testovaya_vipiska_po_karte_dlinnaya_primer_konvertatsii.xlsx)
 
-Автор: ev2geny собака gmail.com
+**Автор:** ev2geny собака gmail.com
 
 Ссылка на утилиту в системе github https://github.com/Ev2geny/Sberbank2Excel
 
