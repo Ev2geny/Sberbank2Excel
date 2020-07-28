@@ -53,4 +53,4 @@
 
 Сообщите об ошибке разработчику. Желательно сделать это через инструментарий github: https://github.com/Ev2geny/Sberbank2Excel/issues. Либо сообщите об ошибке по электронной почте (ev2geny собака gmail.com)
 
-При информировании об ошибке необходимо приложить входной текстовый файл, с которым произошла ошибка. Т.к. такой файл в изначальном виде будет содержать персональную информацию, то рекомендуется удалить эту информацию используя в качестве примера файл `primer_dlya_soobsheniya_ob_oshibkah.txt` из папки `Examples`.
+При информировании об ошибке необходимо приложить входной текстовый файл, с которым произошла ошибка. Т.к. такой файл в изначальном виде будет содержать персональную информацию, то рекомендуется удалить эту информацию используя в качестве примера файл [primer_dlya_soobsheniya_ob_oshibkah.txt](https://github.com/Ev2geny/Sberbank2Excel/blob/master/Examples/primer_dlya_soobsheniya_ob_oshibkah.txt) из папки [Examples](https://github.com/Ev2geny/Sberbank2Excel/tree/master/Examples)
