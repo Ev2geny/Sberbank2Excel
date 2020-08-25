@@ -36,9 +36,9 @@ def get_float_from_money(money_str: str, process_no_sign_as_negative=False) -> f
 
 def split_Sberbank_line(line:str)->List[str]:
     """
-    Разделяем Сбербанковсую строчку на кусочки данных. Разделяем используя три и более пробела в качестве разделителя
+    Разделяем Сбербанковсую строчку на кусочки данных. Разделяем используя пять пробелов в качестве разделителя
     """
-    line_parts=re.split(r'\s\s\s+',line)
+    line_parts=re.split(r'\s\s\s\s\s',line)
     line_parts=list(filter(None,line_parts))
     return line_parts
 
@@ -48,11 +48,9 @@ def split_text_on_entries(PDF_text:str)->List[str]:
     """
     # extracting entries (operations) from text file on
     individual_entries=re.findall(r"""
-    \s{38,42}                                     # Some white speces. Normally 40, but I put 38-42 just in case
-    \d\d\.\d\d\.\d\d\d\d\s\d\d:\d\d               # Date and time like 25.04.1991 18:31                                     
-    \s{8,12}                                     # 8-12 white speces (the amount of white speces in different places of the document is different
+    \d\d\.\d\d\.\d\d\d\d\s\d\d:\d\d               # Date and time like 25.04.1991 18:31                                        
     [\s\S]*?                                      # any character, including new line. !!None-greedy!! See URL why [\s\S] is used https://stackoverflow.com/a/33312193
-    \s{38,42}\d\d\.\d\d\.\d\d\d\d\s/              # Again 38-42 white spaces (normally 40, but just in case), followed by like '25.12.2019 /' 
+    \d\d\.\d\d\.\d\d\d\d\s/                       # date with forward stash like '25.12.2019 /' 
     .*?\n                                         # everything till end of the line
     """,
     PDF_text, re.VERBOSE)
@@ -65,15 +63,18 @@ def split_text_on_entries(PDF_text:str)->List[str]:
 def decompose_entry_to_dict(entry:str)-> Dict:
     """
     Выделяем данные из одной записи в dictionary
-    
-    Example of individual entry
+
+    примет одной записи
     ---------------------------------------------------------------------------------------------------------
-                                                 29.08.2019                GETT                                                             1 189,40             8 087,13 
-
-
-
-                                                29.08.2019 / 278484       Отдых и развлечения 
+    29.08.2019 10:04     GETT     1 189,40     8 087,13
+    29.08.2019 / 278484     Отдых и развлечения
     ----------------------------------------------------------------------------------------------------------
+    ещё один пример (с 3 линиями)
+    ---------------------------------------------------------------------------------------------------------
+    26.07.2019 02:04      ПЛАТА ЗА ОБСЛУЖИВАНИЕ БАНКОВСКОЙ     750,00     -750,00
+    КАРТЫ  (ЗА ПЕРВЫЙ ГОД)
+    05.08.2019 / -     Прочие операции
+    ---------------------------------------------------------------------------------------------------------
     """
     lines=entry.split('\n')
     lines=list(filter(None,lines))
@@ -167,12 +168,12 @@ def get_period_balance(PDF_text: str) -> float:
     :return:
     """
 
-    if( res:= re.search(r'СУММА ПОПОЛНЕНИЙ \s{5,}(\d[\d\s]*\,\d\d)', PDF_text, re.MULTILINE) ):
+    if( res:= re.search(r'СУММА ПОПОЛНЕНИЙ\s{5}(\d[\d\s]*\,\d\d)', PDF_text, re.MULTILINE) ):
         summa_popolneniy = res.group(1)
     else:
         raise exceptions.SberbankPDFtext2ExcelError('Не найдено значение "СУММА ПОПОЛНЕНИЙ"')
 
-    if( res:= re.search(r'СУММА СПИСАНИЙ  \s{5,}(\d[\d\s]*\,\d\d)', PDF_text, re.MULTILINE) ):
+    if( res:= re.search(r'СУММА СПИСАНИЙ\s{5}(\d[\d\s]*\,\d\d)', PDF_text, re.MULTILINE) ):
         summa_spisaniy = res.group(1)
     else:
         raise exceptions.SberbankPDFtext2ExcelError('Не найдено значение "СУММА СПИСАНИЙ "')

@@ -1,3 +1,7 @@
+# a fork of pdfminer.six, where additional functionality was added
+# More information is here: https://github.com/pdfminer/pdfminer.six/pull/468
+git+https://github.com/Ev2geny/pdfminer.six.git@develop
+
 pandas
 PyInstaller
 Unidecode
