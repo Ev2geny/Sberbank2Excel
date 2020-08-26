@@ -1,4 +1,3 @@
-tests/**/*.xlsx
 
 # pyinstaller files
 *.spec
