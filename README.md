@@ -1,6 +1,6 @@
 # Sberbank2Excel
 
-Утилита для конвертации выписки Свербанка по карте из формата PDF в формат Excel
+Утилита для конвертации выписки Сбербанка по карте из формата PDF в формат Excel
 
 ![Sberbank2Excel.PNG](misc/Sberbank2Excel.PNG "Sberbank2Excel")
 
