@@ -1,3 +1,23 @@
+"""
+This module provides approximately the same functionality as pdfminer.six => pdfminer.high_level
+https://github.com/pdfminer/pdfminer.six/blob/develop/pdfminer/high_level.py
+But it allows to provide conversion of Sberbank statement without mixing lines.
+The issue it works around is described here: https://github.com/pdfminer/pdfminer.six/issues/466
+
+Usage:
+======
+
+from command line: py pdf2txtev.py <pdf_file_name> [<Excel_file_name>]
+    where:
+        pdf_file_name - file name of the PDF file to be converted
+        Excel_file_name - optional name of the resulting Excel file
+
+as a module programmaticatty:
+      pdf_2_text - to get text as an output
+      pdf_2_txt_file - to convert pdf to text
+"""
+
+
 import os
 import sys
 
@@ -16,6 +36,9 @@ def _list_LTTextBoxHorizontal_2_matrix(list_LTTextBoxHorizontal:List[LTTextBoxHo
     """
     Converts a list of LTTextBoxHorizontal on the page to a matrix, based on their coordinates
     This matrix is meant to simulate how elements are located on the page
+
+    Keyword arguments:
+        list_LTTextBoxHorizontal - list of LTTextBoxHorizontal elements of a page
     """
 
     # Sorting input list in reverse order by bottom Y coordinate of the horizontal text box : LTTextBoxHorizontal.y0]
@@ -104,8 +127,13 @@ def pdf_2_text(pdf_file_name:str,
     """
     This is a re-write of the function pdfminer.high_level.extract_text
     https://github.com/pdfminer/pdfminer.six/blob/0b44f7771462363528c109f263276eb254c4fcd0/pdfminer/high_level.py#L90
-    It is needed, because I did not manage to produce needed results with pdfminer.high_level.extract_text
+    It produces result, which does not have this issue: https://github.com/pdfminer/pdfminer.six/issues/466
 
+    : pdf_file_name - name of the input PDF file
+    : password: For encrypted PDFs, the password to decrypt.
+    : page_numbers: zero-indexed page numbers to operate on
+    : maxpages: How many pages to stop parsing after
+    :
     """
     result = ""
     with open_filename(pdf_file_name, "rb") as pdf_file_object:
@@ -127,7 +155,15 @@ def pdf_2_txt_file(pdf_file_name:str,
                    maxpages=0,
                    caching=True,
                    laparams=None):
-
+    """
+    Converts pdf file to text and creates a text file with this text
+    : pdf_file_name - name of the input PDF file
+    : txt_output_file_name - output text file name. If not provided file name will be constructed by ramaning
+        *.pdf file to *.txt file
+    : password: For encrypted PDFs, the password to decrypt.
+    : page_numbers: zero-indexed page numbers to operate on
+    : maxpages: How many pages to stop parsing after
+    """
     if not txt_output_file_name:
         txt_output_file_name = os.path.splitext(pdf_file_name)[0]+".txt"
 
