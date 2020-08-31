@@ -17,10 +17,15 @@ def get_float_from_money(money_str: str, process_no_sign_as_negative=False) -> f
     """
     Converts string, representing money to a float.
     If process_no_sign_as_negative is set to True, then a number will be negative in case no leading sign is available
+
+    Example:
+    get_float_from_money('1 189,40', True) -> -1189.4
     """
     
     money_str = unidecode.unidecode(money_str)
+    # избавляемся от пробелов
     money_str = money_str.replace(' ','')
+    # заменяем запятую на точку
     money_str = money_str.replace(',','.')
 
     leading_plus = False
@@ -36,23 +41,35 @@ def get_float_from_money(money_str: str, process_no_sign_as_negative=False) -> f
 
 def split_Sberbank_line(line:str)->List[str]:
     """
-    Разделяем Сбербанковсую строчку на кусочки данных. Разделяем используя три и более пробела в качестве разделителя
+    Разделяем Сбербанковсую строчку на кусочки данных. Разделяем используя пять пробелов в качестве разделителя
     """
-    line_parts=re.split(r'\s\s\s+',line)
+    line_parts=re.split(r'\s\s\s\s\s',line)
     line_parts=list(filter(None,line_parts))
     return line_parts
 
 def split_text_on_entries(PDF_text:str)->List[str]:
     """
     разделяет текстовый файл на отдельные записи
+
+    пример одной записи
+    ---------------------------------------------------------------------------------------------------------
+    29.08.2019 10:04     GETT     1 189,40     8 087,13
+    29.08.2019 / 278484     Отдых и развлечения
+    ----------------------------------------------------------------------------------------------------------
+
+    ещё один пример (с 3 линиями)
+    ---------------------------------------------------------------------------------------------------------
+    26.07.2019 02:04      ПЛАТА ЗА ОБСЛУЖИВАНИЕ БАНКОВСКОЙ     750,00     -750,00
+    КАРТЫ  (ЗА ПЕРВЫЙ ГОД)
+    05.08.2019 / -     Прочие операции
+    ---------------------------------------------------------------------------------------------------------
+
     """
     # extracting entries (operations) from text file on
     individual_entries=re.findall(r"""
-    \s{38,42}                                     # Some white speces. Normally 40, but I put 38-42 just in case
-    \d\d\.\d\d\.\d\d\d\d\s\d\d:\d\d               # Date and time like 25.04.1991 18:31                                     
-    \s{8,12}                                     # 8-12 white speces (the amount of white speces in different places of the document is different
+    \d\d\.\d\d\.\d\d\d\d\s\d\d:\d\d               # Date and time like 25.04.1991 18:31                                        
     [\s\S]*?                                      # any character, including new line. !!None-greedy!! See URL why [\s\S] is used https://stackoverflow.com/a/33312193
-    \s{38,42}\d\d\.\d\d\.\d\d\d\d\s/              # Again 38-42 white spaces (normally 40, but just in case), followed by like '25.12.2019 /' 
+    \d\d\.\d\d\.\d\d\d\d\s/                       # date with forward stash like '25.12.2019 /' 
     .*?\n                                         # everything till end of the line
     """,
     PDF_text, re.VERBOSE)
@@ -65,15 +82,27 @@ def split_text_on_entries(PDF_text:str)->List[str]:
 def decompose_entry_to_dict(entry:str)-> Dict:
     """
     Выделяем данные из одной записи в dictionary
-    
-    Example of individual entry
+
+    пример одной записи
     ---------------------------------------------------------------------------------------------------------
-                                                 29.08.2019                GETT                                                             1 189,40             8 087,13 
-
-
-
-                                                29.08.2019 / 278484       Отдых и развлечения 
+    29.08.2019 10:04     GETT     1 189,40     8 087,13
+    29.08.2019 / 278484     Отдых и развлечения
     ----------------------------------------------------------------------------------------------------------
+
+    ещё один пример (с 3 линиями)
+    ---------------------------------------------------------------------------------------------------------
+    26.07.2019 02:04      ПЛАТА ЗА ОБСЛУЖИВАНИЕ БАНКОВСКОЙ     750,00     -750,00
+    КАРТЫ  (ЗА ПЕРВЫЙ ГОД)
+    05.08.2019 / -     Прочие операции
+    ---------------------------------------------------------------------------------------------------------
+    В этом примере:
+
+    result['operation_date'] = '26.07.2019 02:04'
+    result['description'] = 'ПЛАТА ЗА ОБСЛУЖИВАНИЕ БАНКОВСКОЙ КАРТЫ  (ЗА ПЕРВЫЙ ГОД)'
+    result['value_account_currency'] = -750.00
+    result['remainder_account_currency'] = - 750.00
+    result['processing_date'] = '05.08.2019'
+    result['authorisation_code'] = '-'
     """
     lines=entry.split('\n')
     lines=list(filter(None,lines))
@@ -130,11 +159,7 @@ def entries_to_pandas(individual_entries:List[str])->pd.DataFrame:
                              'remainder_account_currency'])
 
     for entry in individual_entries:
-        """
-        print('================================================================================================================================')
-        print(entry)
-        print('--------------------------------------------------------------------------------------------------------------------------------')
-        """
+
         dict_result=decompose_entry_to_dict(entry)
 
         # print(result)
@@ -167,12 +192,12 @@ def get_period_balance(PDF_text: str) -> float:
     :return:
     """
 
-    if( res:= re.search(r'СУММА ПОПОЛНЕНИЙ \s{5,}(\d[\d\s]*\,\d\d)', PDF_text, re.MULTILINE) ):
+    if( res:= re.search(r'СУММА ПОПОЛНЕНИЙ\s{5}(\d[\d\s]*\,\d\d)', PDF_text, re.MULTILINE) ):
         summa_popolneniy = res.group(1)
     else:
         raise exceptions.SberbankPDFtext2ExcelError('Не найдено значение "СУММА ПОПОЛНЕНИЙ"')
 
-    if( res:= re.search(r'СУММА СПИСАНИЙ  \s{5,}(\d[\d\s]*\,\d\d)', PDF_text, re.MULTILINE) ):
+    if( res:= re.search(r'СУММА СПИСАНИЙ\s{5}(\d[\d\s]*\,\d\d)', PDF_text, re.MULTILINE) ):
         summa_spisaniy = res.group(1)
     else:
         raise exceptions.SberbankPDFtext2ExcelError('Не найдено значение "СУММА СПИСАНИЙ "')
@@ -183,6 +208,12 @@ def get_period_balance(PDF_text: str) -> float:
     return summa_popolneniy - summa_spisaniy
 
 def check_transactions_balance(input_pd: pd.DataFrame, balance: float):
+    """
+    сравниваем вычисленный баланс периода (get_period_balance) и баланс периода, полученный сложением всех трансакций в
+    pandas dataframe.
+
+    Если разница одна копейка или больше, то выдаётся ошибка
+    """
     calculated_balance = input_pd['value_account_currency'].sum()
     if (abs(balance-calculated_balance) >= 0.01):
         raise exceptions.BalanceVerificationError(f"""
@@ -191,9 +222,8 @@ def check_transactions_balance(input_pd: pd.DataFrame, balance: float):
                 Вычисленный баланс по всем трансакциям = {calculated_balance}
         """)
 
-
 def main():
-    print('this manual is not designed to work standalone')
+    print('this module is not designed to work standalone')
 
 if __name__=='__main__':
     main()
