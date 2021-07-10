@@ -7,6 +7,7 @@ import unidecode
 import re
 import pandas as pd
 import logging
+from pprint import pprint
 
 from typing import *
 
@@ -79,6 +80,71 @@ def split_text_on_entries(PDF_text:str)->List[str]:
 
     return individual_entries
 
+def remove_prodolzhenie_na_sled_stran(PDF_text:str)->str:
+    """
+    If Applicable, converts the following text
+    ----------------------------------------------------------
+    03.07.2021     12:59     Перевод с карты     3 265,00     25 390,30
+    03.07.2021     279716     SBOL перевод 1234****1234 Ц. НАДЕЖДА
+    ЕВГЕНЬЕВНА
+    Продолжение на следующей странице
+    ВЫПИСКА ПО СЧЁТУ ДЕБЕТОВОЙ КАРТЫ MASTERCARD MASS •••• 1234     Страница 2 из 4
+    С 30.06.2021 ПО 06.07.2021
+    --------------------------------------------------------------
+
+    to the following:
+    ----------------------------------------------------------
+    03.07.2021     12:59     Перевод с карты     3 265,00     25 390,30
+    03.07.2021     279716     SBOL перевод 1234****1234 Ц. НАДЕЖДА
+    ЕВГЕНЬЕВНА
+    --------------------------------------------------------------
+    """
+
+    # If text 'Продолжение на следующей странице' not found, just return the original text
+    if not re.search(r'Продолжение на следующей странице', PDF_text, re.MULTILINE):
+        return PDF_text
+
+    list_with_split_text = re.split(r'Продолжение на следующей странице',PDF_text)
+    return list_with_split_text[0]
+
+def split_text_on_entries_2107_Stavropol(PDF_text:str)->List[str]:
+    """
+    разделяет текстовый файл формата 2107_Stavropol на отдельные записи
+
+    пример одной записи
+------------------------------------------------------------------------------------------------------
+    03.07.2021     12:52     Перевод с карты     3 500,00     28 655,30
+    03.07.2021     123456     SBOL перевод 1234****1234 Н. ИГОРЬ РОМАНОВИЧ
+------------------------------------------------------------------------------------------------------
+
+    ещё один пример (с 3 линиями)
+    ---------------------------------------------------------------------------------------------------------
+    03.07.2021     11:54     Перевод с карты     4 720,00     45 155,30
+    03.07.2021     258077     SBOL перевод 1234****5678 А. ВАЛЕРИЯ
+    ИГОРЕВНА
+    ----------------------------------------------------------------------------------------------------------
+
+    """
+    # extracting entries (operations) from text file on
+    individual_entries=re.findall(r"""
+    \d\d\.\d\d\.\d\d\d\d\s{5}\d\d:\d\d            # Date and time like '06.07.2021     15:46'                                        
+    [\s\S]*?                                      # any character, including new line. !!None-greedy!! See URL why [\s\S] is used https://stackoverflow.com/a/33312193
+    \d\d\.\d\d\.\d\d\d\d\s{5}\d{3,8}              # дата обработки и код авторизации. Код авторизациии который я видел всегда состоит и 6 цифр, но на всякий случай укажим с 3 до 8
+    [\s\S]*?                                      # any character, including new line. !!None-greedy!!
+    (?=\d\d\.\d\d\.\d\d\d\d\s{5}\d\d:\d\d)        # lookahead at the start of the next transaction
+    """,
+    PDF_text, re.VERBOSE)
+
+    if len(individual_entries) == 0:
+        raise exceptions.InputFileStructureError("Не обнаружена ожидаемая структора данных: не найдено ни одной трасакции")
+
+    # for entry in individual_entries:
+    #     entry = remove_prodolzhenie_na_sled_stran(entry)
+
+    individual_entries=map(remove_prodolzhenie_na_sled_stran, individual_entries)
+
+    return individual_entries
+
 def decompose_entry_to_dict(entry:str)-> Dict:
     """
     Выделяем данные из одной записи в dictionary
@@ -140,6 +206,65 @@ def decompose_entry_to_dict(entry:str)-> Dict:
             result['operational_currency']=found.group(2)
         else:
             raise exceptions.InputFileStructureError("Ошибка в обработке текста. Ожидалась струтура типа (33,31 EUR), получено: " + line)
+
+    return result
+
+def decompose_entry_to_dict_2107_Stavropol(entry:str)-> Dict:
+    """
+    Выделяем данные из одной записи в dictionary
+
+    ------------------------------------------------------------------------------------------------------
+    03.07.2021     12:52     Перевод с карты     3 500,00     28 655,30
+    03.07.2021     123456     SBOL перевод 1234****1234 Н. ИГОРЬ РОМАНОВИЧ
+------------------------------------------------------------------------------------------------------
+
+    ещё один пример (с 3 линиями)
+    ---------------------------------------------------------------------------------------------------------
+    03.07.2021     11:54     Перевод с карты     4 720,00     45 155,30
+    03.07.2021     258077     SBOL перевод 1234****5678 А. ВАЛЕРИЯ
+    ИГОРЕВНА
+    ----------------------------------------------------------------------------------------------------------
+
+    В этом примере:
+
+{'authorisation_code': '258077',
+ 'category': 'Перевод с карты',
+ 'description': 'BOL перевод 1234****5678 А. ВАЛЕРИЯ ИГОРЕВНА',
+ 'operation_date': '03.07.2021 11:54',
+ 'processing_date': '03.07.2021',
+ 'remainder_account_currency': 45155.30,
+ 'value_account_currency': -4720.00}
+    """
+    lines=entry.split('\n')
+    lines=list(filter(None,lines))
+
+    if len(lines) <2 or len(lines) >3:
+        raise exceptions.InputFileStructureError("entry is expected to have from 2 to 3 lines\n" + str(entry))
+
+    result={}
+    #************** looking at the 1st line
+    line_parts=split_Sberbank_line(lines[0])
+    result['operation_date']=line_parts[0]+" "+line_parts[1]
+    result['category']=line_parts[2]
+    result['value_account_currency']=get_float_from_money(line_parts[3],True)
+    result['remainder_account_currency']=get_float_from_money(line_parts[4])
+
+    # ************** looking at the 2nd line
+    line_parts = split_Sberbank_line(lines[1])
+
+    if len(line_parts) <3 or len(line_parts)>4:
+        raise exceptions.SberbankPDFtext2ExcelError("Line is expected to 3 or 4 parts :" + str(lines[1]))
+
+    result['processing_date']=line_parts[0]
+    result['authorisation_code']=line_parts[1]
+    result['description']=line_parts[2]
+
+    # TODO: Ev2geny добавить выделение суммы в валюте операции
+
+    # ************** looking at the 3rd line
+    if len(lines) == 3:
+        line_parts = split_Sberbank_line(lines[2])
+        result['description'] = result['description']+' '+line_parts[0]
 
     return result
 
@@ -207,6 +332,44 @@ def get_period_balance(PDF_text: str) -> float:
 
     return summa_popolneniy - summa_spisaniy
 
+def get_period_balance_2107_Stavropol(PDF_text: str) -> float:
+    """
+    функция ищет в тексте значения "ВСЕГО СПИСАНИЙ" и "ВСЕГО ПОПОЛНЕНИЙ" и возвращает разницу
+    используется для контрольной проверки вычислений
+
+    Пример текста
+    ----------------------------------------------------------
+    ОСТАТОК НА 30.06.2021     ОСТАТОК НА 06.07.2021     ВСЕГО СПИСАНИЙ     ВСЕГО ПОПОЛНЕНИЙ
+    28 542,83     12 064,34     248 822,49     232 344,00
+    ----------------------------------------------------------
+
+    :param PDF_text:
+    :return:
+    """
+
+    res= re.search(r'ОСТАТОК НА.*(?=Расшифровка операций)',PDF_text, re.MULTILINE|re.DOTALL)
+    if not res:
+        raise exceptions.SberbankPDFtext2ExcelError('Не найдена структура с остатками и пополнениями')
+
+    lines = res.group(0).split('\n')
+
+    line_parts = split_Sberbank_line(lines[1])
+
+    print(lines)
+
+    lines = list(filter(None,lines))
+
+    summa_spisaniy = line_parts[2]
+    summa_popolneniy = line_parts[3]
+
+    # print('summa_spisaniy ='+summa_spisaniy)
+    # print('summa_popolneniy =' + summa_popolneniy)
+
+    summa_popolneniy = get_float_from_money(summa_popolneniy)
+    summa_spisaniy = get_float_from_money(summa_spisaniy)
+
+    return summa_popolneniy - summa_spisaniy
+
 def check_transactions_balance(input_pd: pd.DataFrame, balance: float):
     """
     сравниваем вычисленный баланс периода (get_period_balance) и баланс периода, полученный сложением всех трансакций в
@@ -224,6 +387,32 @@ def check_transactions_balance(input_pd: pd.DataFrame, balance: float):
 
 def main():
     print('this module is not designed to work standalone')
+
+    my_text="""
+03.07.2021     12:59     Перевод с карты     3 265,00     25 390,30
+03.07.2021     279716     SBOL перевод 1234****1234 Ц. НАДЕЖДА
+ЕВГЕНЬЕВНА
+Продолжение на следующей странице
+ВЫПИСКА ПО СЧЁТУ ДЕБЕТОВОЙ КАРТЫ MASTERCARD MASS •••• 1234     Страница 2 из 4
+С 30.06.2021 ПО 06.07.2021"""
+    my_text=my_text[1:]
+
+    print(remove_prodolzhenie_na_sled_stran(my_text))
+
+    with open(r"C:\_code\py\Sberbank2Excel_no_github\20210708_от_Толстой_проблема.txt", encoding="utf-8") as f:
+        text=f.read()
+
+    lst = split_text_on_entries_2107_Stavropol(text)
+
+    for el in lst:
+        print("*"*20)
+        print(el)
+        print("-"*20)
+        dic_res = decompose_entry_to_dict_2107_Stavropol(el)
+        pprint(dic_res)
+
+    print(get_period_balance_2107_Stavropol(text))
+
 
 if __name__=='__main__':
     main()
