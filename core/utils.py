@@ -14,6 +14,7 @@ from typing import *
 from core import exceptions
 
 
+
 def get_float_from_money(money_str: str, process_no_sign_as_negative=False) -> float:
     """
     Converts string, representing money to a float.
@@ -48,7 +49,9 @@ def split_Sberbank_line(line:str)->List[str]:
     line_parts=list(filter(None,line_parts))
     return line_parts
 
-def split_text_on_entries(PDF_text:str)->List[str]:
+#************ split_text_on_entries
+
+def split_text_on_entries_2005_Moscow(PDF_text:str)->List[str]:
     """
     разделяет текстовый файл на отдельные записи
 
@@ -80,33 +83,6 @@ def split_text_on_entries(PDF_text:str)->List[str]:
 
     return individual_entries
 
-def remove_prodolzhenie_na_sled_stran(PDF_text:str)->str:
-    """
-    If Applicable, converts the following text
-    ----------------------------------------------------------
-    03.07.2021     12:59     Перевод с карты     3 265,00     25 390,30
-    03.07.2021     279716     SBOL перевод 1234****1234 Ц. НАДЕЖДА
-    ЕВГЕНЬЕВНА
-    Продолжение на следующей странице
-    ВЫПИСКА ПО СЧЁТУ ДЕБЕТОВОЙ КАРТЫ MASTERCARD MASS •••• 1234     Страница 2 из 4
-    С 30.06.2021 ПО 06.07.2021
-    --------------------------------------------------------------
-
-    to the following:
-    ----------------------------------------------------------
-    03.07.2021     12:59     Перевод с карты     3 265,00     25 390,30
-    03.07.2021     279716     SBOL перевод 1234****1234 Ц. НАДЕЖДА
-    ЕВГЕНЬЕВНА
-    --------------------------------------------------------------
-    """
-
-    # If text 'Продолжение на следующей странице' not found, just return the original text
-    if not re.search(r'Продолжение на следующей странице', PDF_text, re.MULTILINE):
-        return PDF_text
-
-    list_with_split_text = re.split(r'Продолжение на следующей странице',PDF_text)
-    return list_with_split_text[0]
-
 def split_text_on_entries_2107_Stavropol(PDF_text:str)->List[str]:
     """
     разделяет текстовый файл формата 2107_Stavropol на отдельные записи
@@ -127,25 +103,30 @@ def split_text_on_entries_2107_Stavropol(PDF_text:str)->List[str]:
     """
     # extracting entries (operations) from text file on
     individual_entries=re.findall(r"""
-    \d\d\.\d\d\.\d\d\d\d\s{5}\d\d:\d\d            # Date and time like '06.07.2021     15:46'                                        
-    [\s\S]*?                                      # any character, including new line. !!None-greedy!! See URL why [\s\S] is used https://stackoverflow.com/a/33312193
-    \d\d\.\d\d\.\d\d\d\d\s{5}\d{3,8}              # дата обработки и код авторизации. Код авторизациии который я видел всегда состоит и 6 цифр, но на всякий случай укажим с 3 до 8
-    [\s\S]*?                                      # any character, including new line. !!None-greedy!!
-    (?=\d\d\.\d\d\.\d\d\d\d\s{5}\d\d:\d\d)        # lookahead at the start of the next transaction
+    \d\d\.\d\d\.\d\d\d\d\s{5}\d\d:\d\d                                            # Date and time like '06.07.2021     15:46'                                        
+    .*?\n                                                                         # Anything till end of the line including a line break
+    \d\d\.\d\d\.\d\d\d\d\s{5}\d{3,8}                                              # дата обработки и через 5 пробелов код авторизации. Код авторизациии который я видел всегда состоит и 6 цифр, но на всякий случай укажим с 3 до 8
+    [\s\S]*?                                                                      # any character, including new line. !!None-greedy!!
+    (?=Продолжение\sна\sследующей\sстранице|\d\d\.\d\d\.\d\d\d\d\s{5}\d\d:\d\d)   # lookahead at the end of the page or a start of a next transaction
     """,
     PDF_text, re.VERBOSE)
 
     if len(individual_entries) == 0:
         raise exceptions.InputFileStructureError("Не обнаружена ожидаемая структора данных: не найдено ни одной трасакции")
 
-    # for entry in individual_entries:
-    #     entry = remove_prodolzhenie_na_sled_stran(entry)
-
-    individual_entries=map(remove_prodolzhenie_na_sled_stran, individual_entries)
-
     return individual_entries
 
-def decompose_entry_to_dict(entry:str)-> Dict:
+def split_text_on_entries(PDF_text:str, format:str='2005_Moscow')->List[str]:
+    format_dependent_func={'2005_Moscow':split_text_on_entries_2005_Moscow,
+                           '2107_Stavropol':split_text_on_entries_2107_Stavropol}
+
+    return format_dependent_func[format](PDF_text)
+
+#************ split_text_on_entries END
+
+#************ decompose_entry_to_dict
+
+def decompose_entry_to_dict_2005_Moscow(entry:str)-> Dict:
     """
     Выделяем данные из одной записи в dictionary
 
@@ -268,7 +249,15 @@ def decompose_entry_to_dict_2107_Stavropol(entry:str)-> Dict:
 
     return result
 
-def entries_to_pandas(individual_entries:List[str])->pd.DataFrame:
+def decompose_entry_to_dict(entry:str, format:str='2005_Moscow')-> Dict:
+    format_dependent_func={'2005_Moscow':decompose_entry_to_dict_2005_Moscow,
+                           '2107_Stavropol':decompose_entry_to_dict_2107_Stavropol}
+
+    return format_dependent_func[format](entry)
+
+#************ decompose_entry_to_dict END
+
+def entries_to_pandas(individual_entries:List[str], format:str='2005_Moscow')->pd.DataFrame:
 
     """
     converting list of individual entries to pandas dataframe
@@ -285,7 +274,7 @@ def entries_to_pandas(individual_entries:List[str])->pd.DataFrame:
 
     for entry in individual_entries:
 
-        dict_result=decompose_entry_to_dict(entry)
+        dict_result=decompose_entry_to_dict(entry, format)
 
         # print(result)
         df=df.append(dict_result,ignore_index=True)
@@ -308,7 +297,9 @@ def pd_to_Excel(pd_dataframe:pd.DataFrame,russian_headers:List[str],output_Excel
     
     writer.close()
 
-def get_period_balance(PDF_text: str) -> float:
+#************ get_period_balance
+
+def get_period_balance_2005_Moscow(PDF_text: str) -> float:
     """
     функция ищет в тексте значения "СУММА ПОПОЛНЕНИЙ" и "СУММА СПИСАНИЙ" и возвращает раницу
     используется для контрольной проверки вычислений
@@ -355,7 +346,7 @@ def get_period_balance_2107_Stavropol(PDF_text: str) -> float:
 
     line_parts = split_Sberbank_line(lines[1])
 
-    print(lines)
+    # print(lines)
 
     lines = list(filter(None,lines))
 
@@ -369,6 +360,15 @@ def get_period_balance_2107_Stavropol(PDF_text: str) -> float:
     summa_spisaniy = get_float_from_money(summa_spisaniy)
 
     return summa_popolneniy - summa_spisaniy
+
+def get_period_balance(PDF_text: str, format:str='2005_Moscow') -> float:
+    format_dependent_func={'2005_Moscow':get_period_balance_2005_Moscow,
+                           '2107_Stavropol':get_period_balance_2107_Stavropol}
+
+    return format_dependent_func[format](PDF_text)
+
+
+#************ get_period_balance END
 
 def check_transactions_balance(input_pd: pd.DataFrame, balance: float):
     """
@@ -396,8 +396,6 @@ def main():
 ВЫПИСКА ПО СЧЁТУ ДЕБЕТОВОЙ КАРТЫ MASTERCARD MASS •••• 1234     Страница 2 из 4
 С 30.06.2021 ПО 06.07.2021"""
     my_text=my_text[1:]
-
-    print(remove_prodolzhenie_na_sled_stran(my_text))
 
     with open(r"C:\_code\py\Sberbank2Excel_no_github\20210708_от_Толстой_проблема.txt", encoding="utf-8") as f:
         text=f.read()

@@ -11,11 +11,12 @@ VERSION='3.0.0'
 # https://likegeeks.com/python-gui-examples-tkinter-tutorial/
 
 
+
 from tkinter import *
 import tkinter.filedialog
 from tkinter import scrolledtext
 from tkinter import Menu
-from tkinter import messagebox
+from tkinter import messagebox, ttk
 import traceback
 import logging
 
@@ -99,13 +100,25 @@ Label(window, text='Выбранные файлы:').grid(column=0,row=3,sticky=
 SelectedFiles_ScrolledText = scrolledtext.ScrolledText(window,width=80,height=4,state=DISABLED)
 SelectedFiles_ScrolledText.grid(column=0,row=4)
 
-Label(window, text="Шаг 2. Сконвертируйте файлы в формат Excel").grid(column=0,row=5,sticky="W")
+Label(window, text="Шаг 2. Выберите вормат выписки").grid(column=0,row=5,sticky="W")
 
-Button(window,text="Сконвертировать \n выбранные файлы", command=btn_convertFiles_clicked).grid(column=0,row=6)
+# https://www.geeksforgeeks.org/combobox-widget-in-tkinter-python/
+format = tkinter.StringVar()
+combobox_with_formats  = ttk.Combobox(window, textvariable = format)
+combobox_with_formats['values'] =('2005_Moscow',
+                                '2107_Stavropol')
+combobox_with_formats['state'] = 'readonly'
+combobox_with_formats.current(0)
+combobox_with_formats.grid(column=0,row=6,sticky="W")
 
-Label(window, text='Созданные файлы в формате Excel:').grid(column=0,row=7,sticky="W")
+
+Label(window, text="Шаг 3. Сконвертируйте файлы в формат Excel").grid(column=0,row=7,sticky="W")
+
+Button(window,text="Сконвертировать \n выбранные файлы", command=btn_convertFiles_clicked).grid(column=0,row=8)
+
+Label(window, text='Созданные файлы в формате Excel:').grid(column=0,row=9,sticky="W")
 created_excel_files_scrollText = scrolledtext.ScrolledText(window,width=80,height=4)
-created_excel_files_scrollText.grid(column=0,row=8)
+created_excel_files_scrollText.grid(column=0,row=10)
  
 window.mainloop()
 

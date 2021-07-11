@@ -22,7 +22,7 @@ import os
 from core import utils
 
 
-def sberbankPDFtext2Excel(input_txt_file_name:str,output_excel_file_name:str=None) -> str:
+def sberbankPDFtext2Excel(input_txt_file_name:str,output_excel_file_name:str=None, format='2005_Moscow') -> str:
     """
     Функция конвертирует текстовый файл Сбербанка, полученный из выписки PDF помощью конвертации Foxit PDF reader в Excel формат
     Если output_excel_file_name не задан, то он создаётся из input_txt_file_name путём замены расширения файла на xlsx
@@ -39,13 +39,13 @@ def sberbankPDFtext2Excel(input_txt_file_name:str,output_excel_file_name:str=Non
     file.close()
 
     # extracting entries (operations) from big text to list of dictionaries
-    individual_entries = utils.split_text_on_entries(file_text)
+    individual_entries = utils.split_text_on_entries(file_text, format= format)
 
     # converting list of dictionaries to pandas dataframe
-    df = utils.entries_to_pandas(individual_entries)
+    df = utils.entries_to_pandas(individual_entries, format= format)
 
     # calculating balance based on the data, extracted from the text file
-    calculated_balance = utils.get_period_balance(file_text)
+    calculated_balance = utils.get_period_balance(file_text, format= format)
 
     # checking, if balance, extracted from text file is equal to the balance, found by summing column in Pandas dataframe
     utils.check_transactions_balance(df, calculated_balance)
