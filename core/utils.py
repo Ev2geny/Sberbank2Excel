@@ -311,12 +311,12 @@ def get_period_balance_2005_Moscow(PDF_text: str) -> float:
     if( res:= re.search(r'СУММА ПОПОЛНЕНИЙ\s{5}(\d[\d\s]*\,\d\d)', PDF_text, re.MULTILINE) ):
         summa_popolneniy = res.group(1)
     else:
-        raise exceptions.SberbankPDFtext2ExcelError('Не найдено значение "СУММА ПОПОЛНЕНИЙ"')
+        raise exceptions.InputFileStructureError('Не найдено значение "СУММА ПОПОЛНЕНИЙ"')
 
     if( res:= re.search(r'СУММА СПИСАНИЙ\s{5}(\d[\d\s]*\,\d\d)', PDF_text, re.MULTILINE) ):
         summa_spisaniy = res.group(1)
     else:
-        raise exceptions.SberbankPDFtext2ExcelError('Не найдено значение "СУММА СПИСАНИЙ "')
+        raise exceptions.InputFileStructureError('Не найдено значение "СУММА СПИСАНИЙ "')
 
     summa_popolneniy = get_float_from_money(summa_popolneniy)
     summa_spisaniy = get_float_from_money(summa_spisaniy)
@@ -340,7 +340,7 @@ def get_period_balance_2107_Stavropol(PDF_text: str) -> float:
 
     res= re.search(r'ОСТАТОК НА.*(?=Расшифровка операций)',PDF_text, re.MULTILINE|re.DOTALL)
     if not res:
-        raise exceptions.SberbankPDFtext2ExcelError('Не найдена структура с остатками и пополнениями')
+        raise exceptions.InputFileStructureError('Не найдена структура с остатками и пополнениями')
 
     lines = res.group(0).split('\n')
 
@@ -385,32 +385,37 @@ def check_transactions_balance(input_pd: pd.DataFrame, balance: float):
                 Вычисленный баланс по всем трансакциям = {calculated_balance}
         """)
 
+def detect_format(PDF_text: str)->str:
+    """
+    Function detects format of the pdf file, converted to txt
+    If no known format is detected, an exception will be raised
+    """
+    pdf_format=set()
+
+    try:
+        get_period_balance_2005_Moscow(PDF_text)
+        pdf_format.add("2005_Moscow")
+    except exceptions.InputFileStructureError:
+        pass
+
+    try:
+        get_period_balance_2107_Stavropol(PDF_text)
+        pdf_format.add("2107_Stavropol")
+    except exceptions.InputFileStructureError:
+        pass
+
+    # As a result we shall have excetly one dected format
+    if len(pdf_format) != 1:
+        raise exceptions.InputFileStructureError("Неизвестная структура файла")
+
+    return pdf_format.pop()
+
+
+
+
+
 def main():
     print('this module is not designed to work standalone')
-
-    my_text="""
-03.07.2021     12:59     Перевод с карты     3 265,00     25 390,30
-03.07.2021     279716     SBOL перевод 1234****1234 Ц. НАДЕЖДА
-ЕВГЕНЬЕВНА
-Продолжение на следующей странице
-ВЫПИСКА ПО СЧЁТУ ДЕБЕТОВОЙ КАРТЫ MASTERCARD MASS •••• 1234     Страница 2 из 4
-С 30.06.2021 ПО 06.07.2021"""
-    my_text=my_text[1:]
-
-    with open(r"C:\_code\py\Sberbank2Excel_no_github\20210708_от_Толстой_проблема.txt", encoding="utf-8") as f:
-        text=f.read()
-
-    lst = split_text_on_entries_2107_Stavropol(text)
-
-    for el in lst:
-        print("*"*20)
-        print(el)
-        print("-"*20)
-        dic_res = decompose_entry_to_dict_2107_Stavropol(el)
-        pprint(dic_res)
-
-    print(get_period_balance_2107_Stavropol(text))
-
 
 if __name__=='__main__':
     main()

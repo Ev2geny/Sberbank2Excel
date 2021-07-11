@@ -21,8 +21,7 @@ import os
 # importing own modules out of project
 from core import utils
 
-
-def sberbankPDFtext2Excel(input_txt_file_name:str,output_excel_file_name:str=None, format='2005_Moscow') -> str:
+def sberbankPDFtext2Excel(input_txt_file_name:str,output_excel_file_name:str=None, format='auto') -> str:
     """
     Функция конвертирует текстовый файл Сбербанка, полученный из выписки PDF помощью конвертации Foxit PDF reader в Excel формат
     Если output_excel_file_name не задан, то он создаётся из input_txt_file_name путём замены расширения файла на xlsx
@@ -37,6 +36,13 @@ def sberbankPDFtext2Excel(input_txt_file_name:str,output_excel_file_name:str=Non
     file = open(input_txt_file_name, encoding="utf8")
     file_text = file.read()
     file.close()
+
+    if format=='auto':
+        format = utils.detect_format(file_text)
+        print(r"Формат файла детектирован как "+format)
+
+    else:
+        print(r"Конвертируем файл как формат "+format)
 
     # extracting entries (operations) from big text to list of dictionaries
     individual_entries = utils.split_text_on_entries(file_text, format= format)
@@ -67,6 +73,7 @@ def sberbankPDFtext2Excel(input_txt_file_name:str,output_excel_file_name:str=Non
 
     return output_excel_file_name
 
+# TODO: Add menu to be able to provide several arguments
 def main():
     if len(sys.argv) < 2:
         print('Недостаточно аргументов')
