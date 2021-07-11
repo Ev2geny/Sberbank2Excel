@@ -1,8 +1,8 @@
 # Sberbank2Excel
 
-Утилита для конвертации выписки Свербанка по карте из формата PDF в формат Excel
+Утилита для конвертации выписки Сбербанка по карте из формата PDF в формат Excel
 
-![Sberbank2Excel.PNG](https://github.com/Ev2geny/Sberbank2Excel/raw/master/misc/Sberbank2Excel.PNG "Sberbank2Excel")
+![Sberbank2Excel.PNG](misc/Sberbank2Excel.PNG "Sberbank2Excel")
 
 
 **Автор:** ev2geny собака gmail.com
@@ -23,3 +23,8 @@
 **Шаг 3** Нажмите "Сконвертировать выбранные файлы"
 
 **Результат:** утилита создаст файлы с расширением .xlsx 
+
+## Обратная связь
+Для сообщения об ошибках или пожеланиях по улучшению лучше всего воспользоваться функционалом системы github https://github.com/Ev2geny/Sberbank2Excel/issues
+
+Либо напишите письмо автору: ev2geny собака gmail.com
