@@ -8,6 +8,7 @@ import re
 import pandas as pd
 import logging
 from pprint import pprint
+from functools import lru_cache
 
 from typing import *
 
@@ -51,6 +52,7 @@ def split_Sberbank_line(line:str)->List[str]:
 
 #************ split_text_on_entries
 
+@lru_cache
 def split_text_on_entries_2005_Moscow(PDF_text:str)->List[str]:
     """
     разделяет текстовый файл на отдельные записи
@@ -83,6 +85,7 @@ def split_text_on_entries_2005_Moscow(PDF_text:str)->List[str]:
 
     return individual_entries
 
+@lru_cache
 def split_text_on_entries_2107_Stavropol(PDF_text:str)->List[str]:
     """
     разделяет текстовый файл формата 2107_Stavropol на отдельные записи
@@ -116,6 +119,7 @@ def split_text_on_entries_2107_Stavropol(PDF_text:str)->List[str]:
 
     return individual_entries
 
+@lru_cache
 def split_text_on_entries(PDF_text:str, format:str='2005_Moscow')->List[str]:
     format_dependent_func={'2005_Moscow':split_text_on_entries_2005_Moscow,
                            '2107_Stavropol':split_text_on_entries_2107_Stavropol}
@@ -299,6 +303,7 @@ def pd_to_Excel(pd_dataframe:pd.DataFrame,russian_headers:List[str],output_Excel
 
 #************ get_period_balance
 
+@lru_cache
 def get_period_balance_2005_Moscow(PDF_text: str) -> float:
     """
     функция ищет в тексте значения "СУММА ПОПОЛНЕНИЙ" и "СУММА СПИСАНИЙ" и возвращает раницу
@@ -323,6 +328,7 @@ def get_period_balance_2005_Moscow(PDF_text: str) -> float:
 
     return summa_popolneniy - summa_spisaniy
 
+@lru_cache
 def get_period_balance_2107_Stavropol(PDF_text: str) -> float:
     """
     функция ищет в тексте значения "ВСЕГО СПИСАНИЙ" и "ВСЕГО ПОПОЛНЕНИЙ" и возвращает разницу
@@ -361,6 +367,7 @@ def get_period_balance_2107_Stavropol(PDF_text: str) -> float:
 
     return summa_popolneniy - summa_spisaniy
 
+@lru_cache
 def get_period_balance(PDF_text: str, format:str='2005_Moscow') -> float:
     format_dependent_func={'2005_Moscow':get_period_balance_2005_Moscow,
                            '2107_Stavropol':get_period_balance_2107_Stavropol}
