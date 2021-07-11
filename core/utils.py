@@ -394,12 +394,14 @@ def detect_format(PDF_text: str)->str:
 
     try:
         get_period_balance_2005_Moscow(PDF_text)
+        split_text_on_entries_2005_Moscow(PDF_text)
         pdf_format.add("2005_Moscow")
     except exceptions.InputFileStructureError:
         pass
 
     try:
         get_period_balance_2107_Stavropol(PDF_text)
+        split_text_on_entries_2107_Stavropol(PDF_text)
         pdf_format.add("2107_Stavropol")
     except exceptions.InputFileStructureError:
         pass

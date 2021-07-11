@@ -39,7 +39,7 @@ def sberbankPDFtext2Excel(input_txt_file_name:str,output_excel_file_name:str=Non
 
     if format=='auto':
         format = utils.detect_format(file_text)
-        print(r"Формат файла детектирован как "+format)
+        print(r"Формат файла определён как "+format)
 
     else:
         print(r"Конвертируем файл как формат "+format)

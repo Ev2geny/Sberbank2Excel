@@ -12,12 +12,15 @@ def sberbankPDF2Excel(input_pdf_file_name:str, output_excel_file_name:Union[str,
 
     tmp_txt_file_name = os.path.splitext(input_pdf_file_name)[0] + ".txt"
 
+    print("Конвертируем файл "+input_pdf_file_name)
+
     if not output_excel_file_name:
         output_excel_file_name = os.path.splitext(input_pdf_file_name)[0]+".xlsx"
 
     try:
         pdf_2_txt_file(input_pdf_file_name, tmp_txt_file_name)
         result=sberbankPDFtext2Excel(tmp_txt_file_name, output_excel_file_name, format=format)
+        print("Создан файл "+result)
 
     except:
         raise
