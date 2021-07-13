@@ -12,6 +12,7 @@ def sberbankPDF2Excel(input_pdf_file_name:str, output_excel_file_name:Union[str,
 
     tmp_txt_file_name = os.path.splitext(input_pdf_file_name)[0] + ".txt"
 
+    print("*"*30)
     print("Конвертируем файл "+input_pdf_file_name)
 
     if not output_excel_file_name:
@@ -25,6 +26,7 @@ def sberbankPDF2Excel(input_pdf_file_name:str, output_excel_file_name:Union[str,
     except:
         raise
     finally:
+        # pass
         os.remove(tmp_txt_file_name)
 
 
