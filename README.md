@@ -27,4 +27,6 @@
 ## Обратная связь
 Для сообщения об ошибках или пожеланиях по улучшению лучше всего воспользоваться функционалом системы github https://github.com/Ev2geny/Sberbank2Excel/issues
 
+На общие темы начните дискуссию здесь https://github.com/Ev2geny/Sberbank2Excel/discussions
+
 Либо напишите письмо автору: ev2geny собака gmail.com
