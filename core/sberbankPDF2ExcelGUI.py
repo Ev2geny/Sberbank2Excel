@@ -21,6 +21,7 @@ from core.version_info import *
 
 # defining global variable, which will hold files tuple
 files = ()
+leave_intermediate_txt_file = 0
 
 def btn_selectFiles_clicked():
     global files
@@ -53,8 +54,9 @@ def btn_convertFiles_clicked():
     qntFilesConverted=0
     for file in files:
         try:
-            created_excel_files_scrollText.insert(INSERT, sberbankPDF2Excel(file) + '\n')
-            qntFilesConverted=qntFilesConverted+1
+            created_excel_files_scrollText.insert(INSERT,
+                                                  sberbankPDF2Excel(file, leave_intermediate_txt_file = leave_intermediate_txt_file.get() ) + '\n')
+            qntFilesConverted=qntFilesConverted + 1
         except:
             print('Произошла ошибка при конвертации файла "'+'file'+'" '+ str(sys.exc_info()[0]))
             print(traceback.format_exc())
@@ -96,24 +98,18 @@ Label(window, text='Выбранные файлы:').grid(column=0,row=3,sticky=
 SelectedFiles_ScrolledText = scrolledtext.ScrolledText(window,width=80,height=4,state=DISABLED)
 SelectedFiles_ScrolledText.grid(column=0,row=4)
 
-# Label(window, text="Шаг 2. Выберите вормат выписки").grid(column=0,row=5,sticky="W")
-# https://www.geeksforgeeks.org/combobox-widget-in-tkinter-python/
-#format = tkinter.StringVar()
-#combobox_with_formats  = ttk.Combobox(window, textvariable = format)
-#combobox_with_formats['values'] =('2005_Moscow',
-#                                '2107_Stavropol')
-#combobox_with_formats['state'] = 'readonly'
-#combobox_with_formats.current(0)
-#combobox_with_formats.grid(column=0,row=6,sticky="W")
+Label(window, text="Шаг 2. Сконвертируйте файлы в формат Excel").grid(column=0,row=5,sticky="W")
 
+Button(window,text="Сконвертировать \n выбранные файлы", command=btn_convertFiles_clicked).grid(column=0,row=6)
 
-Label(window, text="Шаг 2. Сконвертируйте файлы в формат Excel").grid(column=0,row=7,sticky="W")
-
-Button(window,text="Сконвертировать \n выбранные файлы", command=btn_convertFiles_clicked).grid(column=0,row=8)
-
-Label(window, text='Созданные файлы в формате Excel:').grid(column=0,row=9,sticky="W")
+Label(window, text='Созданные файлы в формате Excel:').grid(column=0,row=7,sticky="W")
 created_excel_files_scrollText = scrolledtext.ScrolledText(window,width=80,height=4)
-created_excel_files_scrollText.grid(column=0,row=10)
- 
+created_excel_files_scrollText.grid(column=0,row=8)
+
+Label(window, text="Опции:").grid(column=0,row=9,sticky="W")
+leave_intermediate_txt_file = IntVar()
+Checkbutton(window, text="Не удалять промежуточный текстовый файл", variable=leave_intermediate_txt_file).grid(row=10, sticky=W)
+
+
 window.mainloop()
 
