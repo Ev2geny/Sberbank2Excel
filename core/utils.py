@@ -380,7 +380,7 @@ def get_period_balance_2107_Stavropol(PDF_text: str) -> float:
     :return:
     """
 
-    res= re.search(r'ОСТАТОК НА.*(?=Расшифровка операций)',PDF_text, re.MULTILINE|re.DOTALL)
+    res= re.search(r'ОСТАТОК НА.*?ОСТАТОК НА.*?ВСЕГО СПИСАНИЙ     ВСЕГО ПОПОЛНЕНИЙ.*?\n.*?\n',PDF_text, re.MULTILINE)
     if not res:
         raise exceptions.InputFileStructureError('Не найдена структура с остатками и пополнениями')
 

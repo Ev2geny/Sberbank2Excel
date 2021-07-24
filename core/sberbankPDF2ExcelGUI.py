@@ -16,7 +16,7 @@ import traceback
 import logging
 
 from core.sberbankPDF2Excel import sberbankPDF2Excel
-from core.version_info import *
+from core import version_info
 
 
 # defining global variable, which will hold files tuple
@@ -48,6 +48,7 @@ def btn_convertFiles_clicked():
      and converts file to Excel
     """
     # empty scrollText widget
+    print("Версия "+version_info.VERSION)
     created_excel_files_scrollText.delete('1.0',END)
 
     qntFiles=len(files)
@@ -74,7 +75,7 @@ help_about=Menu(menu)
 
 def help_about_clicked():
 
-    info_string = f'{NAME}\nВерсия={VERSION}\nАвтор={AUTHOR}\nГде скачать={PERMANENT_LOCATION}'
+    info_string = f'{version_info.NAME}\nВерсия={version_info.VERSION}\nАвтор={version_info.AUTHOR}\nГде скачать={version_info.PERMANENT_LOCATION}'
     print(info_string)
     messagebox.showinfo('', info_string)
 
@@ -83,7 +84,7 @@ help_about.add_command(label='About',command=help_about_clicked)
 menu.add_cascade(label='Help', menu=help_about)
 window.config(menu=menu)
  
-window.title(f'{NAME} Версия={VERSION}')
+window.title(f'{version_info.NAME} Версия={version_info.VERSION}')
  
 window.geometry('720x380')
  

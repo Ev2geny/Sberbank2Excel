@@ -54,3 +54,6 @@ wheels/
 *.egg-info/
 .installed.cfg
 *.egg
+
+# Temporary files
+~$*.docx

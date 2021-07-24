@@ -35,7 +35,7 @@ def sberbankPDF2Excel(input_file_name:str,
         tmp_txt_file_name = input_file_name
 
     else:
-        raise exceptions.InputFileStructureError("Не поддерживаемое расширение файла: "+ extension)
+        raise exceptions.InputFileStructureError("Неподдерживаемое расширение файла: "+ extension)
 
 
     if not output_excel_file_name:
@@ -48,7 +48,7 @@ def sberbankPDF2Excel(input_file_name:str,
         result = sberbankPDFtext2Excel(tmp_txt_file_name, output_excel_file_name, format=format)
         print("Создан файл "+result)
 
-        if not leave_intermediate_txt_file:
+        if (not leave_intermediate_txt_file) and (not extension == ".txt"):
             os.remove(tmp_txt_file_name)
 
     except:
