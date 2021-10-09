@@ -72,7 +72,7 @@ def _list_LTTextBoxHorizontal_2_matrix(list_LTTextBoxHorizontal:List[LTTextBoxHo
     return matrix
 
 
-def _matrix_2_txt(matrix:List[List[LTTextBoxHorizontal]], qnt_spaces = 1)->str:
+def _matrix_2_txt(matrix:List[List[LTTextBoxHorizontal]], separator = "\t")->str:
     """
     Converting a matrix of elements LTTextBoxHorizontal to a string
     Withing a matrix row all elements are separated by amount of spaces, equal to qnt_spaces
@@ -87,7 +87,7 @@ def _matrix_2_txt(matrix:List[List[LTTextBoxHorizontal]], qnt_spaces = 1)->str:
 
             # adding amount of spaces, equal to qnt_spaces for all elements, except the last one
             if row.index(row_element) != last_row_element:
-                result = result + " " * qnt_spaces
+                result = result + separator
 
         # Adding line break at the end of the row
         result = result + "\n"
@@ -100,7 +100,7 @@ def _PDFpage2txt(page:PDFPage, laparams = None) -> str:
     Converting PDFPage to text
     """
     if laparams is None:
-        laparams = LAParams(char_margin=1000, line_margin=0.001, boxes_flow=None, qnt_spaces=5)
+        laparams = LAParams(char_margin=0.001, line_margin=0.001, boxes_flow=None)
 
     # Some preparations to get layout
     resource_manager = PDFResourceManager()
@@ -115,7 +115,7 @@ def _PDFpage2txt(page:PDFPage, laparams = None) -> str:
     # converting list of LTTextBoxHorizontal to a 2-dimentional matrix
     matrix_of_LTTextBoxHorizontal = _list_LTTextBoxHorizontal_2_matrix(list_LTTextBoxHorizontal)
 
-    return(_matrix_2_txt(matrix_of_LTTextBoxHorizontal, laparams.qnt_spaces))
+    return(_matrix_2_txt(matrix_of_LTTextBoxHorizontal))
 
 
 def pdf_2_text(pdf_file_name:str,
@@ -194,8 +194,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
-
-
-
-

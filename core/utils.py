@@ -44,9 +44,9 @@ def get_float_from_money(money_str: str, process_no_sign_as_negative=False) -> f
 
 def split_Sberbank_line(line:str)->List[str]:
     """
-    Разделяем Сбербанковсую строчку на кусочки данных. Разделяем используя пять пробелов в качестве разделителя
+    Разделяем Сбербанковсую строчку на кусочки данных. Разделяем используя symbol TAB
     """
-    line_parts=re.split(r'\s\s\s\s\s',line)
+    line_parts=re.split(r'\t',line)
     line_parts=list(filter(None,line_parts))
     return line_parts
 
@@ -92,39 +92,39 @@ def split_text_on_entries_2107_Stavropol(PDF_text:str)->List[str]:
 
     пример одной записи
 ------------------------------------------------------------------------------------------------------
-    03.07.2021     12:52     Перевод с карты     3 500,00     28 655,30
-    03.07.2021     123456     SBOL перевод 1234****1234 Н. ИГОРЬ РОМАНОВИЧ
+    03.07.2021 12:52 -> Перевод с карты -> 3 500,00 -> 28 655,30
+    03.07.2021 123456 -> SBOL перевод 1234****1234 Н. ИГОРЬ РОМАНОВИЧ
 ------------------------------------------------------------------------------------------------------
 
     либо такой
 --------------------------------------------------------------------------------------------------
-    28.06.2021     00:00     Неизвестная категория(+)     +21107,75     22113,73
-    28.06.2021     -     Прочие выплаты
+    28.06.2021 00:00 -> Неизвестная категория(+) -> +21107,75 -> 22113,73
+    28.06.2021 - -> Прочие выплаты
 ----------------------------------------------------------------------------------------------------
 
     либо такой с иностранной вылютой
 ---------------------------------------------------------------------------------------------------------
-    08.07.2021     18:27     Все для дома     193,91     14593,30
-    09.07.2021     254718     XXXXX XXXXX     2,09 €
+    08.07.2021 18:27 -> Все для дома     193,91     14593,30
+    09.07.2021 254718 -> XXXXX XXXXX -> 2,09 €
 ---------------------------------------------------------------------------------------------------------
 
     ещё один пример (с 3 линиями)
     ---------------------------------------------------------------------------------------------------------
-    03.07.2021     11:54     Перевод с карты     4 720,00     45 155,30
-    03.07.2021     258077     SBOL перевод 1234****5678 А. ВАЛЕРИЯ
+    03.07.2021 11:54 -> Перевод с карты -> 4 720,00 -> 45 155,30
+    03.07.2021 258077 -> SBOL перевод 1234****5678 А. ВАЛЕРИЯ
     ИГОРЕВНА
     ----------------------------------------------------------------------------------------------------------
 
     """
     # extracting entries (operations) from text file on
     individual_entries=re.findall(r"""
-    \d\d\.\d\d\.\d\d\d\d\s{5}\d\d:\d\d                             # Date and time like '06.07.2021     15:46'                                        
+    \d\d\.\d\d\.\d\d\d\d\s{1}\d\d:\d\d                             # Date and time like '06.07.2021 15:46'                                        
     .*?\n                                                          # Anything till end of the line including a line break
-    \d\d\.\d\d\.\d\d\d\d\s{5}                                      # дата обработки и 5 пробелов 
+    \d\d\.\d\d\.\d\d\d\d\s{1}                                      # дата обработки и 1 пробел 
     (?=\d{3,8}|-)                                                  # код авторизации либо "-". Код авторизациии который я видел всегда состоит и 6 цифр, но на всякий случай укажим с 3 до 8
     [\s\S]*?                                                       # any character, including new line. !!None-greedy!!
     (?=Продолжение\sна\sследующей\sстранице|                       # lookahead до "Продолжение на следующей странице"
-     \d\d\.\d\d\.\d\d\d\d\s{5}\d\d:\d\d|                           # Либо до начала новой страницы
+     \d\d\.\d\d\.\d\d\d\d\s{1}\d\d:\d\d|                           # Либо до начала новой страницы
       Реквизиты\sдля\sперевода)                                    # Либо да конца выписки
     """,
     PDF_text, re.VERBOSE)
@@ -132,10 +132,13 @@ def split_text_on_entries_2107_Stavropol(PDF_text:str)->List[str]:
     if len(individual_entries) == 0:
         raise exceptions.InputFileStructureError("Не обнаружена ожидаемая структора данных: не найдено ни одной трасакции")
 
+    # for entry in individual_entries:
+    #     print(entry)
+
     return individual_entries
 
 @lru_cache
-def split_text_on_entries(PDF_text:str, format:str='2005_Moscow')->List[str]:
+def split_text_on_entries(PDF_text:str, format:str='2107_Stavropol')->List[str]:
     format_dependent_func={'2005_Moscow':split_text_on_entries_2005_Moscow,
                            '2107_Stavropol':split_text_on_entries_2107_Stavropol}
 
@@ -151,15 +154,15 @@ def decompose_entry_to_dict_2005_Moscow(entry:str)-> Dict:
 
     пример одной записи
     ---------------------------------------------------------------------------------------------------------
-    29.08.2019 10:04     GETT     1 189,40     8 087,13
-    29.08.2019 / 278484     Отдых и развлечения
+    29.08.2019 10:04 -> GETT -> 1 189,40 -> 8 087,13
+    29.08.2019 / 278484 -> Отдых и развлечения
     ----------------------------------------------------------------------------------------------------------
 
     ещё один пример (с 3 линиями)
     ---------------------------------------------------------------------------------------------------------
-    26.07.2019 02:04      ПЛАТА ЗА ОБСЛУЖИВАНИЕ БАНКОВСКОЙ     750,00     -750,00
+    26.07.2019 02:04 -> ПЛАТА ЗА ОБСЛУЖИВАНИЕ БАНКОВСКОЙ -> 750,00 -> -750,00
     КАРТЫ  (ЗА ПЕРВЫЙ ГОД)
-    05.08.2019 / -     Прочие операции
+    05.08.2019 / - -> Прочие операции
     ---------------------------------------------------------------------------------------------------------
     В этом примере:
 
@@ -175,7 +178,13 @@ def decompose_entry_to_dict_2005_Moscow(entry:str)-> Dict:
 
     result={}
     #************** looking at the 1st line
+
+    logging.debug("looking at the 1st line")
+
     line_parts=split_Sberbank_line(lines[0])
+
+    logging.debug(f"{line_parts=}")
+
     result['operation_date']=line_parts[0]
     result['description']=line_parts[1]
     result['value_account_currency']=get_float_from_money(line_parts[2],True)
@@ -214,27 +223,27 @@ def decompose_entry_to_dict_2107_Stavropol(entry:str)-> Dict:
     Выделяем данные из одной записи в dictionary
 
 ------------------------------------------------------------------------------------------------------
-    03.07.2021     12:52     Перевод с карты     3 500,00     28 655,30
-    03.07.2021     123456     SBOL перевод 1234****1234 Н. ИГОРЬ РОМАНОВИЧ
+    03.07.2021 12:52 -> Перевод с карты -> 3 500,00 -> 28 655,30
+    03.07.2021 123456 -> SBOL перевод 1234****1234 Н. ИГОРЬ РОМАНОВИЧ
 ------------------------------------------------------------------------------------------------------
 
     либо такой
 --------------------------------------------------------------------------------------------------
-    28.06.2021     00:00     Неизвестная категория(+)     +21107,75     22113,73
-    28.06.2021     -     Прочие выплаты
+    28.06.2021 00:00 -> Неизвестная категория(+)     +21107,75     22113,73
+    28.06.2021 - -> Прочие выплаты
 ----------------------------------------------------------------------------------------------------
 
     ещё один пример (с 3 линиями)
     ---------------------------------------------------------------------------------------------------------
-    03.07.2021     11:54     Перевод с карты     4 720,00     45 155,30
-    03.07.2021     258077     SBOL перевод 1234****5678 А. ВАЛЕРИЯ
+    03.07.2021 11:54 -> Перевод с карты -> 4 720,00 -> 45 155,30
+    03.07.2021 258077 -> SBOL перевод 1234****5678 А. ВАЛЕРИЯ
     ИГОРЕВНА
     ----------------------------------------------------------------------------------------------------------
 
     либо такой с иностранной вылютой
 ---------------------------------------------------------------------------------------------------------
-    08.07.2021     18:27     Все для дома     193,91     14593,30
-    09.07.2021     254718     XXXXX XXXXX     2,09 €
+    08.07.2021 18:27 -> Все для дома -> 193,91 -> 14593,30
+    09.07.2021 -> 254718 -> XXXXX XXXXX -> 2,09 €
 ---------------------------------------------------------------------------------------------------------
 
     В последнем примере:
@@ -258,7 +267,10 @@ def decompose_entry_to_dict_2107_Stavropol(entry:str)-> Dict:
     result={}
     #************** looking at the 1st line
     line_parts=split_Sberbank_line(lines[0])
-    result['operation_date']=line_parts[0]+" "+line_parts[1]
+
+    # print( f"1st line line_parts {line_parts}")
+
+    result['operation_date']=line_parts[0] +" "+ line_parts[1]
     result['category']=line_parts[2]
     result['value_account_currency']=get_float_from_money(line_parts[3],True)
     result['remainder_account_currency']=get_float_from_money(line_parts[4])
@@ -267,10 +279,13 @@ def decompose_entry_to_dict_2107_Stavropol(entry:str)-> Dict:
     line_parts = split_Sberbank_line(lines[1])
 
     if len(line_parts) <3 or len(line_parts)>4:
-        raise exceptions.SberbankPDFtext2ExcelError("Line is expected to 3 or 4 parts :" + str(lines[1]))
+        raise exceptions.SberbankPDFtext2ExcelError("Line is expected to have 3 or 4 parts :" + str(lines[1]))
 
-    result['processing_date']=line_parts[0]
-    result['authorisation_code']=line_parts[1]
+    # print(line_parts[0])
+
+    # processing_date__authorisation_code = re.search(r'(dd\.dd\.dddd)\s(.*)', line_parts[0])
+    result['processing_date'] = line_parts[0]
+    result['authorisation_code'] = line_parts[1]
     result['description']=line_parts[2]
 
     # Выделяем сумму в валюте оперции, если присуиствует
@@ -287,9 +302,14 @@ def decompose_entry_to_dict_2107_Stavropol(entry:str)-> Dict:
         line_parts = split_Sberbank_line(lines[2])
         result['description'] = result['description']+' '+line_parts[0]
 
+    # print(result)
+
     return result
 
-def decompose_entry_to_dict(entry:str, format:str='2005_Moscow')-> Dict:
+def decompose_entry_to_dict(entry:str, format:str='2107_Stavropol')-> Dict:
+    """
+    Decomposes entry to disctionary, depending on the detected format
+    """
     format_dependent_func={'2005_Moscow':decompose_entry_to_dict_2005_Moscow,
                            '2107_Stavropol':decompose_entry_to_dict_2107_Stavropol}
 
@@ -349,16 +369,18 @@ def get_period_balance_2005_Moscow(PDF_text: str) -> float:
     :return:
     """
 
-    if( res:= re.search(r'СУММА ПОПОЛНЕНИЙ\s{5}(\d[\d\s]*\,\d\d)', PDF_text, re.MULTILINE) ):
+    if( res:= re.search(r'СУММА ПОПОЛНЕНИЙ\t(\d[\d\s]*\,\d\d)', PDF_text, re.MULTILINE) ):
         summa_popolneniy = res.group(1)
     else:
         raise exceptions.InputFileStructureError('Не найдено значение "СУММА ПОПОЛНЕНИЙ"')
 
-    if( res:= re.search(r'СУММА СПИСАНИЙ\s{5}(\d[\d\s]*\,\d\d)', PDF_text, re.MULTILINE) ):
+    if( res:= re.search(r'СУММА СПИСАНИЙ\t(\d[\d\s]*\,\d\d)', PDF_text, re.MULTILINE) ):
         summa_spisaniy = res.group(1)
     else:
         raise exceptions.InputFileStructureError('Не найдено значение "СУММА СПИСАНИЙ "')
 
+    # print(f"{summa_popolneniy=}")
+    # print(f"{summa_spisaniy=}")
     summa_popolneniy = get_float_from_money(summa_popolneniy)
     summa_spisaniy = get_float_from_money(summa_spisaniy)
 
@@ -373,24 +395,20 @@ def get_period_balance_2107_Stavropol(PDF_text: str) -> float:
     Пример текста
     ----------------------------------------------------------
     ОСТАТОК НА 30.06.2021     ОСТАТОК НА 06.07.2021     ВСЕГО СПИСАНИЙ     ВСЕГО ПОПОЛНЕНИЙ
-    28 542,83     12 064,34     248 822,49     232 344,00
+    28 542,83->12 064,34->248 822,49->232 344,00
     ----------------------------------------------------------
 
     :param PDF_text:
     :return:
     """
 
-    res= re.search(r'ОСТАТОК НА.*?ОСТАТОК НА.*?ВСЕГО СПИСАНИЙ     ВСЕГО ПОПОЛНЕНИЙ.*?\n.*?\n',PDF_text, re.MULTILINE)
+    res= re.search(r'ОСТАТОК НА.*?ОСТАТОК НА.*?ВСЕГО СПИСАНИЙ.*?ВСЕГО ПОПОЛНЕНИЙ.*?\n(.*?)\n',PDF_text, re.MULTILINE)
     if not res:
         raise exceptions.InputFileStructureError('Не найдена структура с остатками и пополнениями')
 
-    lines = res.group(0).split('\n')
 
-    line_parts = split_Sberbank_line(lines[1])
+    line_parts = res.group(1).split('\t')
 
-    # print(lines)
-
-    lines = list(filter(None,lines))
 
     summa_spisaniy = line_parts[2]
     summa_popolneniy = line_parts[3]
@@ -404,7 +422,7 @@ def get_period_balance_2107_Stavropol(PDF_text: str) -> float:
     return summa_popolneniy - summa_spisaniy
 
 @lru_cache
-def get_period_balance(PDF_text: str, format:str='2005_Moscow') -> float:
+def get_period_balance(PDF_text: str, format:str='2107_Stavropol') -> float:
     format_dependent_func={'2005_Moscow':get_period_balance_2005_Moscow,
                            '2107_Stavropol':get_period_balance_2107_Stavropol}
 
@@ -435,12 +453,6 @@ def detect_format(PDF_text: str)->str:
     """
     pdf_format=set()
 
-    try:
-        get_period_balance_2005_Moscow(PDF_text)
-        split_text_on_entries_2005_Moscow(PDF_text)
-        pdf_format.add("2005_Moscow")
-    except exceptions.InputFileStructureError:
-        pass
 
     try:
         get_period_balance_2107_Stavropol(PDF_text)
@@ -448,6 +460,14 @@ def detect_format(PDF_text: str)->str:
         pdf_format.add("2107_Stavropol")
     except exceptions.InputFileStructureError:
         pass
+
+    try:
+        get_period_balance_2005_Moscow(PDF_text)
+        split_text_on_entries_2005_Moscow(PDF_text)
+        pdf_format.add("2005_Moscow")
+    except exceptions.InputFileStructureError:
+        pass
+
 
     # As a result we shall have excetly one dected format
     if len(pdf_format) != 1:
