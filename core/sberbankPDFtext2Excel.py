@@ -45,6 +45,8 @@ def sberbankPDFtext2Excel(input_txt_file_name:str,output_excel_file_name:str=Non
     else:
         print(r"Конвертируем файл как формат "+format)
 
+    # in thi case extractor_type is not a function, but a class
+    # if you call it like this extractor_type() it returns an object with the type of extractor_type
     extractor = extractor_type(file_text)
 
     # extracting entries (operations) from big text to list of dictionaries
@@ -53,11 +55,11 @@ def sberbankPDFtext2Excel(input_txt_file_name:str,output_excel_file_name:str=Non
     # converting list of dictionaries to pandas dataframe
     df = pd.DataFrame(individual_entries)
 
-    # calculating balance based on the data, extracted from the text file
-    # calculated_balance = utils.get_period_balance(file_text, format= format)
+    # getting balance, written in the bank statement
+    extracted_balance = extractor.get_period_balance()
 
     # checking, if balance, extracted from text file is equal to the balance, found by summing column in Pandas dataframe
-    # utils.check_transactions_balance(df, calculated_balance)
+    utils.check_transactions_balance(df, extracted_balance, extractor.get_column_name_for_balance_calculation())
 
     # Defining header in Russian.  
     # russian_headers = [

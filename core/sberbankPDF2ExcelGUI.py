@@ -13,6 +13,7 @@ from tkinter import scrolledtext
 from tkinter import Menu
 from tkinter import messagebox, ttk
 import traceback
+import sys
 import logging
 
 from core.sberbankPDF2Excel import sberbankPDF2Excel

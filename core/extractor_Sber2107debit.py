@@ -221,6 +221,9 @@ class Sber2107Debit(Extractor):
         except exceptions.InputFileStructureError:
             return False
 
+    def get_column_name_for_balance_calculation(self)->str:
+        return 'value_account_currency'
+
 
 if __name__ == '__main__':
 

@@ -20,10 +20,10 @@ def determine_extractor(pdf_text:str) -> type:
     #         supported_extractors.append(extractor)
 
     if len(supported_extractors) == 0:
-        exceptions.InputFileStructureError("Неизвecтный формат выписки")
+        raise exceptions.InputFileStructureError("Неизвecтный формат выписки, ни один из экстракторов не подходят")
 
     if len(supported_extractors) > 1 :
-        exceptions.InputFileStructureError(f"Непонятный формат выписки. Больше чем один экстрактор говорят, что понимают его")
+        raise exceptions.InputFileStructureError(f"Непонятный формат выписки. Больше чем один экстрактор говорят, что понимают его")
 
     return supported_extractors[0]
 
