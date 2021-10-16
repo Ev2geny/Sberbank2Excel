@@ -98,8 +98,7 @@ class SBER_DEBIT_2107(Extractor):
 
         return individual_entries
 
-    @staticmethod
-    def decompose_entry_to_dict(entry:str)->dict:
+    def decompose_entry_to_dict(self, entry:str)->dict:
         """
         Выделяем данные из одной записи в dictionary
 
@@ -201,30 +200,10 @@ class SBER_DEBIT_2107(Extractor):
 
         return result
 
-    def get_entries(self)->list[dict]:
-        entries_list_of_dicts = [self.decompose_entry_to_dict(entry) for entry in self.split_text_on_entries()]
-        return entries_list_of_dicts
-
-    def check_support(self)->bool:
-        """
-        Function checks whether this extractor support the  text format from self.pdf_text
-        """
-        try:
-            result = True
-            result = result and isinstance(self.get_period_balance(),float)
-            result = result and len(self.split_text_on_entries()) > 0
-
-            return result
-
-        except exceptions.InputFileStructureError:
-            return False
-
-    @staticmethod
-    def get_column_name_for_balance_calculation()->str:
+    def get_column_name_for_balance_calculation(self)->str:
         return 'value_account_currency'
 
-    @staticmethod
-    def get_columns_info()->dict:
+    def get_columns_info(self)->dict:
         """
         Returns full column names in the order they shall appear in Excel
         The keys in dictionary shall correspond to keys of the result of the function self.decompose_entry_to_dict()
