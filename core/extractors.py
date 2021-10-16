@@ -1,3 +1,4 @@
-from extractor_Sber2107debit import Sber2107Debit
+extractors_list = []
 
-extractors_list = [Sber2107Debit]
+from extractor_SBER_DEBIT_2107 import SBER_DEBIT_2107
+extractors_list.append(SBER_DEBIT_2107)

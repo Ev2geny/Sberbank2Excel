@@ -59,7 +59,12 @@ def sberbankPDFtext2Excel(input_txt_file_name:str,output_excel_file_name:str=Non
     extracted_balance = extractor.get_period_balance()
 
     # checking, if balance, extracted from text file is equal to the balance, found by summing column in Pandas dataframe
-    utils.check_transactions_balance(df, extracted_balance, extractor.get_column_name_for_balance_calculation())
+    utils.check_transactions_balance(input_pd=df,
+                                     balance=extracted_balance,
+                                     column_name_for_balance_calculation=extractor.get_column_name_for_balance_calculation())
+
+    df = utils.rename_sort_df(df = df,
+                              columns_info=extractor.get_columns_info())
 
     # Defining header in Russian.  
     # russian_headers = [

@@ -9,7 +9,7 @@ from utils import split_Sberbank_line
 
 from extractor import Extractor
 
-class Sber2107Debit(Extractor):
+class SBER_DEBIT_2107(Extractor):
     def __init__(self, pdf_text:str):
         self.pdf_text = pdf_text
 
@@ -209,7 +209,7 @@ class Sber2107Debit(Extractor):
 
     def check_support(self)->bool:
         """
-        Function checks whether this extractor support this text format
+        Function checks whether this extractor support the  text format from self.pdf_text
         """
         try:
             result = True
@@ -221,8 +221,25 @@ class Sber2107Debit(Extractor):
         except exceptions.InputFileStructureError:
             return False
 
-    def get_column_name_for_balance_calculation(self)->str:
+    @staticmethod
+    def get_column_name_for_balance_calculation()->str:
         return 'value_account_currency'
+
+    @staticmethod
+    def get_columns_info()->dict:
+        """
+        Returns full column names in the order they shall appear in Excel
+        The keys in dictionary shall correspond to keys of the result of the function self.decompose_entry_to_dict()
+        """
+        return {'operation_date': 'Дата операции',
+                'processing_date': 'Дата обработки',
+                'authorisation_code': 'Код авторизации',
+                'description': 'Описание операции',
+                'category': 'Категория',
+                'value_account_currency': 'Сумма в валюте счёта',
+                'value_operational_currency': 'Сумма в валюте операции',
+                'operational_currency': 'Валюта операции',
+                'remainder_account_currency': 'Остаток по счёту в валюте счёта'}
 
 
 if __name__ == '__main__':
@@ -232,7 +249,7 @@ if __name__ == '__main__':
     with open(txt_file, encoding='utf-8') as f:
         txt_file_content = f.read()
 
-    sber2107debit_converter = Sber2107Debit(txt_file_content)
+    sber2107debit_converter = SBER_DEBIT_2107(txt_file_content)
 
     print(f"period_balance = {sber2107debit_converter.get_period_balance()}")
 

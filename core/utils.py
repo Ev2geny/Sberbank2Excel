@@ -428,8 +428,15 @@ def get_period_balance(PDF_text: str, format:str='2107_Stavropol') -> float:
 
     return format_dependent_func[format](PDF_text)
 
+def rename_sort_df(df:pd.DataFrame, columns_info:dict)->pd.DataFrame:
+    # Reordering columns to follow the order of the keys in the columns_info
+    df=df[list(columns_info.keys())]
 
-#************ get_period_balance END
+    # renaming columns
+    df = df.rename(columns = columns_info)
+    return df
+
+
 
 def check_transactions_balance(input_pd: pd.DataFrame, balance: float, column_name_for_balance_calculation:str):
     """
