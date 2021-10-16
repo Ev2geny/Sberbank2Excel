@@ -17,7 +17,10 @@ import sys
 import os
 
 # importing own modules out of project
+import pandas as pd
+
 from core import utils
+from extactors_generic import determine_extractor
 
 def sberbankPDFtext2Excel(input_txt_file_name:str,output_excel_file_name:str=None, format='auto') -> str:
     """
@@ -31,43 +34,53 @@ def sberbankPDFtext2Excel(input_txt_file_name:str,output_excel_file_name:str=Non
         output_excel_file_name = pre+'.xlsx'
 
     # считываем входной файл в текст
-    file = open(input_txt_file_name, encoding="utf8")
-    file_text = file.read()
-    file.close()
+    with open(input_txt_file_name, encoding="utf8") as file:
+        file_text = file.read()
 
     if format=='auto':
-        format = utils.detect_format(file_text)
-        print(r"Формат файла определён как "+format)
+        extractor_type = determine_extractor(file_text)
+        print(r"Формат файла определён как " + extractor_type.__name__)
 
+    #TODO: update this function for the sitiation, when the format is provided
     else:
         print(r"Конвертируем файл как формат "+format)
 
+    extractor = extractor_type(file_text)
+
     # extracting entries (operations) from big text to list of dictionaries
-    individual_entries = utils.split_text_on_entries(file_text, format= format)
+    individual_entries = extractor.get_entries()
 
     # converting list of dictionaries to pandas dataframe
-    df = utils.entries_to_pandas(individual_entries, format= format)
+    df = pd.DataFrame(individual_entries)
 
     # calculating balance based on the data, extracted from the text file
-    calculated_balance = utils.get_period_balance(file_text, format= format)
+    # calculated_balance = utils.get_period_balance(file_text, format= format)
 
     # checking, if balance, extracted from text file is equal to the balance, found by summing column in Pandas dataframe
-    utils.check_transactions_balance(df, calculated_balance)
+    # utils.check_transactions_balance(df, calculated_balance)
 
     # Defining header in Russian.  
-    russian_headers = [
-        'Дата операции',
-        'дата обработки',
-        'код авторизации',
-        'Описание операции',
-        'категория',
-        'Сумма в валюте счёта',
-        'cумма в валюте операции',
-        'валюта операции',
-        'Остаток по счёту в валюте счёта']
+    # russian_headers = [
+    #     'Дата операции',
+    #     'дата обработки',
+    #     'код авторизации',
+    #     'Описание операции',
+    #     'категория',
+    #     'Сумма в валюте счёта',
+    #     'cумма в валюте операции',
+    #     'валюта операции',
+    #     'Остаток по счёту в валюте счёта']
    
     # Сохраняем pandas в Excel
-    utils.pd_to_Excel(df, russian_headers, output_excel_file_name)
+    # utils.pd_to_Excel(df, russian_headers, output_excel_file_name)
+
+    writer = pd.ExcelWriter(output_excel_file_name,
+                            engine='xlsxwriter',
+                            datetime_format='dd.mm.yyyy HH:MM')
+
+    df.to_excel(writer, sheet_name='Sheet1', index=False)
+
+    writer.close()
 
     return output_excel_file_name
 
