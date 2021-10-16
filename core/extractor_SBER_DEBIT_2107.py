@@ -10,8 +10,6 @@ from utils import split_Sberbank_line
 from extractor import Extractor
 
 class SBER_DEBIT_2107(Extractor):
-    def __init__(self, pdf_text:str):
-        self.pdf_text = pdf_text
 
     def get_period_balance(self)->str:
         """

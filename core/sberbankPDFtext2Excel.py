@@ -53,7 +53,8 @@ def sberbankPDFtext2Excel(input_txt_file_name:str,output_excel_file_name:str=Non
     individual_entries = extractor.get_entries()
 
     # converting list of dictionaries to pandas dataframe
-    df = pd.DataFrame(individual_entries)
+    df = pd.DataFrame(individual_entries,
+                      columns=extractor.get_columns_info().keys())
 
     # getting balance, written in the bank statement
     extracted_balance = extractor.get_period_balance()
