@@ -6,13 +6,10 @@
 import unidecode
 import re
 import pandas as pd
-import logging
-from pprint import pprint
-from functools import lru_cache
-
 from typing import *
 
 from core import exceptions
+import version_info
 
 def get_float_from_money(money_str: str, process_no_sign_as_negative=False) -> float:
     """
@@ -72,8 +69,27 @@ def check_transactions_balance(input_pd: pd.DataFrame, balance: float, column_na
                 Вычисленный баланс по всем трансакциям = {calculated_balance}
         """)
 
+def write_df_to_excel(df:pd.DataFrame, filename:str, extractor_name:str):
+    """
 
+    """
 
+    global version_info
+
+    writer = pd.ExcelWriter(filename,
+                            engine='xlsxwriter',
+                            datetime_format='dd.mm.yyyy HH:MM')
+
+    df.to_excel(writer, sheet_name='data', index=False)
+
+    workbook = writer.book
+    info_worksheet = workbook.add_worksheet('Info')
+
+    info_worksheet.write('A3', f'Файл создан утилитой "{version_info.NAME}", доступной для скачивания по ссылке {version_info.PERMANENT_LOCATION}')
+    info_worksheet.write('A4', f'Версия утилиты "{version_info.VERSION}"')
+    info_worksheet.write('A5', f'Для выделения информации был использован экстрактор типа "{extractor_name}"')
+
+    writer.save()
 
 def main():
     print('this module is not designed to work standalone')

@@ -67,28 +67,16 @@ def sberbankPDFtext2Excel(input_txt_file_name:str,output_excel_file_name:str=Non
     df = utils.rename_sort_df(df = df,
                               columns_info=extractor.get_columns_info())
 
-    # Defining header in Russian.  
-    # russian_headers = [
-    #     'Дата операции',
-    #     'дата обработки',
-    #     'код авторизации',
-    #     'Описание операции',
-    #     'категория',
-    #     'Сумма в валюте счёта',
-    #     'cумма в валюте операции',
-    #     'валюта операции',
-    #     'Остаток по счёту в валюте счёта']
-   
-    # Сохраняем pandas в Excel
-    # utils.pd_to_Excel(df, russian_headers, output_excel_file_name)
+    utils.write_df_to_excel(df, output_excel_file_name, extractor_name = extractor_type.__name__)
 
-    writer = pd.ExcelWriter(output_excel_file_name,
-                            engine='xlsxwriter',
-                            datetime_format='dd.mm.yyyy HH:MM')
-
-    df.to_excel(writer, sheet_name='Sheet1', index=False)
-
-    writer.close()
+    # writer = pd.ExcelWriter(output_excel_file_name,
+    #                         engine='xlsxwriter',
+    #                         datetime_format='dd.mm.yyyy HH:MM')
+    #
+    # df.to_excel(writer, sheet_name='data', index=False)
+    #
+    # writer.save()
+    # writer.close()
 
     return output_excel_file_name
 
