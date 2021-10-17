@@ -1,3 +1,8 @@
+"""
+Abstract Extractor class
+All real extractors need to inherit from it and overwrite overwrite all @abstractmethod
+"""
+
 from abc import ABC, abstractmethod
 
 import exceptions

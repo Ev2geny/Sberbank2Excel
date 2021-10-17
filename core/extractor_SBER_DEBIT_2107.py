@@ -174,7 +174,7 @@ class SBER_DEBIT_2107(Extractor):
         line_parts = split_Sberbank_line(lines[1])
 
         if len(line_parts) < 3 or len(line_parts) > 4:
-            raise exceptions.SberbankPDFtext2ExcelError(
+            raise exceptions.SberbankPDF2ExcelError(
                 "Line is expected to have 3 or 4 parts :" + str(lines[1]))
 
         # print(line_parts[0])

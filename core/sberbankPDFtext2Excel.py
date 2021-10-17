@@ -20,7 +20,7 @@ import os
 import pandas as pd
 
 from core import utils
-from extactors_generic import determine_extractor
+from extractors_generic import determine_extractor_auto
 
 def sberbankPDFtext2Excel(input_txt_file_name:str,output_excel_file_name:str=None, format='auto') -> str:
     """
@@ -38,7 +38,7 @@ def sberbankPDFtext2Excel(input_txt_file_name:str,output_excel_file_name:str=Non
         file_text = file.read()
 
     if format=='auto':
-        extractor_type = determine_extractor(file_text)
+        extractor_type = determine_extractor_auto(file_text)
         print(r"Формат файла определён как " + extractor_type.__name__)
 
     #TODO: update this function for the sitiation, when the format is provided
