@@ -9,14 +9,14 @@ from utils import split_Sberbank_line
 
 from extractor import Extractor
 
-class SBER_DEBIT_2107(Extractor):
+class SBER_CREDIT_2107(Extractor):
 
     def check_specific_signatures(self):
 
         test1 = re.search(r'сбербанк', self.pdf_text, re.IGNORECASE)
         # print(f"{test1=}")
 
-        test2 = re.search(r'Выписка по счёту дебетовой карты', self.pdf_text, re.IGNORECASE)
+        test2 = re.search(r'Выписка по счёту кредитной карты', self.pdf_text, re.IGNORECASE)
         # print(f"{test2=}")
 
         if not test1  or not test2:
@@ -24,36 +24,26 @@ class SBER_DEBIT_2107(Extractor):
 
     def get_period_balance(self)->str:
         """
-        функция ищет в тексте значения "ВСЕГО СПИСАНИЙ" и "ВСЕГО ПОПОЛНЕНИЙ" и возвращает разницу
-        используется для контрольной проверки вычислений
-
-        Пример текста
-        ----------------------------------------------------------
-        ОСТАТОК НА 30.06.2021     ОСТАТОК НА 06.07.2021     ВСЕГО СПИСАНИЙ     ВСЕГО ПОПОЛНЕНИЙ
-        28 542,83->12 064,34->248 822,49->232 344,00
-        ----------------------------------------------------------
-
-        :param PDF_text:
+        ---------------------------------------------------
+        СУММА ПОПОЛНЕНИЙ -> СУММА СПИСАНИЙ -> СУММА СПИСАНИЙ БАНКА
+        1 040,00 -> 601,80 -> 437,46
+        -------------------------------------------------------
+        :param :
         :return:
         """
 
-        res = re.search(r'ОСТАТОК НА.*?ОСТАТОК НА.*?ВСЕГО СПИСАНИЙ.*?ВСЕГО ПОПОЛНЕНИЙ.*?\n(.*?)\n', self.pdf_text, re.MULTILINE)
+        res = re.search(r'СУММА\sПОПОЛНЕНИЙ\tСУММА\sСПИСАНИЙ\tСУММА\sСПИСАНИЙ БАНКА\n(.*?)\n', self.pdf_text, re.MULTILINE)
         if not res:
-            raise exceptions.InputFileStructureError(
-                'Не найдена структура с остатками и пополнениями')
+            raise exceptions.InputFileStructureError('Не найдена структура с пополнениями и списаниями')
 
         line_parts = res.group(1).split('\t')
 
-        summa_spisaniy = line_parts[2]
-        summa_popolneniy = line_parts[3]
+        summa_popolneniy = get_float_from_money(line_parts[0])
+        summa_spisaniy = get_float_from_money(line_parts[1])
+        summa_spisaniy_banka = get_float_from_money(line_parts[2])
 
-        # print('summa_spisaniy ='+summa_spisaniy)
-        # print('summa_popolneniy =' + summa_popolneniy)
 
-        summa_popolneniy = get_float_from_money(summa_popolneniy)
-        summa_spisaniy = get_float_from_money(summa_spisaniy)
-
-        return summa_popolneniy - summa_spisaniy
+        return summa_popolneniy - summa_spisaniy -summa_spisaniy_banka
 
     def split_text_on_entries(self)->list[str]:
         """
@@ -165,15 +155,13 @@ class SBER_DEBIT_2107(Extractor):
         result['operation_date'] = datetime.strptime(result['operation_date'], '%d.%m.%Y %H:%M')
 
         result['category'] = line_parts[2]
-        result['value_account_currency'] = get_float_from_money(line_parts[3],
-                                                                True)
-        result['remainder_account_currency'] = get_float_from_money(
-            line_parts[4])
+        result['value_account_currency'] = get_float_from_money(line_parts[3], True)
+        # result['remainder_account_currency'] = get_float_from_money(line_parts[4])
 
         # ************** looking at the 2nd line
         line_parts = split_Sberbank_line(lines[1])
 
-        if len(line_parts) < 3 or len(line_parts) > 4:
+        if len(line_parts) != 3 or len(line_parts) > 4:
             raise exceptions.SberbankPDFtext2ExcelError(
                 "Line is expected to have 3 or 4 parts :" + str(lines[1]))
 
@@ -225,21 +213,28 @@ class SBER_DEBIT_2107(Extractor):
                 'value_account_currency': 'Сумма в валюте счёта',
                 'value_operational_currency': 'Сумма в валюте операции',
                 'operational_currency': 'Валюта операции',
-                'remainder_account_currency': 'Остаток по счёту в валюте счёта'}
+                # 'remainder_account_currency': 'Остаток по счёту в валюте счёта'
+                }
 
 
 if __name__ == '__main__':
 
-    txt_file = r'C:\_code\py\Sberbank2Excel_no_github\20210724_20210720_20210724_2107_Stavropol_.txt'
+    txt_file = r'C:\_code\py\Sberbank2Excel_no_github\20211014_SBER_CREDIT_Ptits de Barbe.txt'
 
     with open(txt_file, encoding='utf-8') as f:
         txt_file_content = f.read()
 
-    converter = SBER_DEBIT_2107(txt_file_content)
+    converter = SBER_CREDIT_2107(txt_file_content)
 
+    print('checking spesiic signatures')
     converter.check_specific_signatures()
 
+    print('checking period balance')
     print(f"period_balance = {converter.get_period_balance()}")
+
+    for text_entry in converter.split_text_on_entries():
+        print('*'*20)
+        print(text_entry)
 
     for entry in converter.get_entries():
         print('*'*20)

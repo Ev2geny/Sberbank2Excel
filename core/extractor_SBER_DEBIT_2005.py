@@ -11,6 +11,18 @@ from extractor import Extractor
 
 class SBER_DEBIT_2005(Extractor):
 
+
+    def check_specific_signatures(self):
+
+        test1 = re.search(r'сбербанк', self.pdf_text, re.IGNORECASE)
+        # print(f"{test1=}")
+
+        test2 = re.search(r'Выписка по счёту дебетовой карты', self.pdf_text, re.IGNORECASE)
+        # print(f"{test2=}")
+
+        if not test1  or not test2:
+            raise exceptions.InputFileStructureError("Не найдены паттерны, соответствующие выписке")
+
     def get_period_balance(self)->str:
         """
         функция ищет в тексте значения "СУММА ПОПОЛНЕНИЙ" и "СУММА СПИСАНИЙ" и возвращает раницу

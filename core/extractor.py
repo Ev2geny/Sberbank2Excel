@@ -7,6 +7,10 @@ class Extractor(ABC):
         self.pdf_text = pdf_text
 
     @abstractmethod
+    def check_specific_signatures(self):
+        pass
+
+    @abstractmethod
     def get_period_balance(self) -> str:
         pass
 
@@ -30,6 +34,8 @@ class Extractor(ABC):
             result = True
             result = result and isinstance(self.get_period_balance(),float)
             result = result and len(self.split_text_on_entries()) > 0
+
+            self.check_specific_signatures()
 
             return result
 
