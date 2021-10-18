@@ -53,7 +53,7 @@ def debug_extractor(extractor_type_object, test_text_file_name:str):
     This is helper function, which helps to debug a new extractor
     """
 
-    all_fields_dict=dict()
+    all_fields_set=set()
 
     with open(test_text_file_name, encoding='utf-8') as f:
         txt_file_content = f.read()
@@ -79,12 +79,14 @@ def debug_extractor(extractor_type_object, test_text_file_name:str):
     for entry in extractor.get_entries():
         print('*'*20)
         pprint(entry)
-        all_fields_dict = all_fields_dict | entry.keys()
+        all_fields_set = all_fields_set | set(entry.keys())
 
     print('-' * 20)
     print(f"check_support = {extractor.check_support()}")
 
-    pprint(all_fields_dict)
+    print('-' * 20)
+    print(f"Testing get_columns_info()")
+    print(extractor.get_columns_info())
 
 if __name__ == '__main__':
     """
