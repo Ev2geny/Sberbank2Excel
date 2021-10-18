@@ -4,3 +4,4 @@ pandas
 PyInstaller
 Unidecode
 XlsxWriter
+attrs

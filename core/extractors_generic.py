@@ -78,13 +78,15 @@ def debug_extractor(extractor_type_object, test_text_file_name:str):
     print("Testing 'get_entries()'")
     for entry in extractor.get_entries():
         print('*'*20)
-        pprint(entry)
-        all_fields_dict = all_fields_dict | entry.keys()
+        print(entry)
+        # all_fields_dict = all_fields_dict | entry.keys()
 
     print('-' * 20)
     print(f"check_support = {extractor.check_support()}")
 
     pprint(all_fields_dict)
+
+    pprint(extractor.get_columns_info())
 
 if __name__ == '__main__':
     """

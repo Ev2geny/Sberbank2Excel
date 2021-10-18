@@ -5,6 +5,8 @@ All real extractors need to inherit from it and overwrite overwrite all @abstrac
 
 from abc import ABC, abstractmethod
 
+import attr
+
 import exceptions
 
 class Extractor(ABC):
@@ -24,11 +26,18 @@ class Extractor(ABC):
         pass
 
     @abstractmethod
-    def decompose_entry_to_dict(self, entry:str)->dict:
+    def decompose_entry(self, entry:str):
+        """
+        Returns a class object, defined by attrs
+        """
         pass
 
     @abstractmethod
     def get_column_name_for_balance_calculation(self) -> str:
+        pass
+
+    @abstractmethod
+    def _get_transaction_data_class():
         pass
 
     def check_support(self)->bool:
@@ -48,5 +57,24 @@ class Extractor(ABC):
             return False
 
     def get_entries(self)->list[dict]:
-        entries_list_of_dicts = [self.decompose_entry_to_dict(entry) for entry in self.split_text_on_entries()]
+        entries_list_of_dicts = [attr.asdict(self.decompose_entry(entry)) for entry in self.split_text_on_entries()]
         return entries_list_of_dicts
+
+    def get_columns_info(self)->dict:
+        # print(self)
+        result = dict()
+
+        data_class_attibutes = self._get_transaction_data_class().__dict__['__attrs_attrs__']
+
+        print("data_class_attibutes")
+        print('*'*20)
+        print(data_class_attibutes)
+
+        print('*' * 20)
+        print(dict(data_class_attibutes))
+
+        for attribute in data_class_attibutes:
+            print(attribute)
+            result[attribute.name] = attribute.metadata['long_name']
+
+        return result

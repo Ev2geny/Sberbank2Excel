@@ -8,7 +8,8 @@ import re
 import pandas as pd
 from typing import *
 
-from core import exceptions
+# from core import exceptions
+import exceptions
 import version_info
 
 def get_float_from_money(money_str: str, process_no_sign_as_negative=False) -> float:

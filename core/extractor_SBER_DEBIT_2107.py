@@ -3,13 +3,35 @@ import re
 from datetime import datetime
 from pprint import pprint
 
+import attr
 
 from utils import get_float_from_money
 from utils import split_Sberbank_line
 
 from extractor import Extractor
+import extractors_generic
+
+
+@attr.s
+class TransactionData():
+    operation_date = attr.ib(type=datetime, metadata={'long_name': 'Дата операции'}, init=False)
+    processing_date = attr.ib(type=datetime, metadata={'long_name': 'Дата обработки'}, init=False)
+    authorisation_code = attr.ib(type=str, metadata={'long_name': 'Код авторизации'}, init=False)
+    description = attr.ib(type=str, metadata={'long_name': 'Описание операции'}, init=False)
+    category = attr.ib(type=str, metadata={'long_name': 'Категория'}, init=False)
+    value_account_currency = attr.ib(type=float, metadata={'long_name': 'Сумма в валюте счёта'}, init=False)
+    value_operational_currency = attr.ib(type=float, metadata={'long_name': 'Сумма в валюте операции'}, init=False, default=None)
+    operational_currency = attr.ib(type=str, metadata={'long_name': 'Валюта операции'}, init=False, default=None)
+    remainder_account_currency = attr.ib(type=float, metadata={'long_name': 'Остаток по счёту в валюте счёта'}, init=False)
+
+transaction_data_class = TransactionData
 
 class SBER_DEBIT_2107(Extractor):
+
+    @staticmethod
+    def _get_transaction_data_class():
+        global transaction_data_class
+        return transaction_data_class
 
     def check_specific_signatures(self):
 
@@ -107,7 +129,10 @@ class SBER_DEBIT_2107(Extractor):
 
         return individual_entries
 
-    def decompose_entry_to_dict(self, entry:str)->dict:
+    def decompose_entry(self, entry:str)->TransactionData:
+
+        result = TransactionData()
+
         """
         Выделяем данные из одной записи в dictionary
 
@@ -154,21 +179,19 @@ class SBER_DEBIT_2107(Extractor):
             raise exceptions.InputFileStructureError(
                 "entry is expected to have from 2 to 3 lines\n" + str(entry))
 
-        result = {}
         # ************** looking at the 1st line
         line_parts = split_Sberbank_line(lines[0])
 
         # print( f"1st line line_parts {line_parts}")
 
-        result['operation_date'] = line_parts[0] + " " + line_parts[1]
+        operation_date = line_parts[0] + " " + line_parts[1]
         # https://docs.python.org/3/library/datetime.html#strftime-and-strptime-behavior
-        result['operation_date'] = datetime.strptime(result['operation_date'], '%d.%m.%Y %H:%M')
+        result.operation_date = datetime.strptime(operation_date, '%d.%m.%Y %H:%M')
 
-        result['category'] = line_parts[2]
-        result['value_account_currency'] = get_float_from_money(line_parts[3],
-                                                                True)
-        result['remainder_account_currency'] = get_float_from_money(
-            line_parts[4])
+        result.category = line_parts[2]
+
+        result.value_account_currency = get_float_from_money(line_parts[3], True)
+        result.remainder_account_currency = get_float_from_money(line_parts[4])
 
         # ************** looking at the 2nd line
         line_parts = split_Sberbank_line(lines[1])
@@ -180,30 +203,28 @@ class SBER_DEBIT_2107(Extractor):
         # print(line_parts[0])
 
         # processing_date__authorisation_code = re.search(r'(dd\.dd\.dddd)\s(.*)', line_parts[0])
-        result['processing_date'] = line_parts[0]
+        processing_date = line_parts[0]
         # https://docs.python.org/3/library/datetime.html#strftime-and-strptime-behavior
-        result['processing_date'] = datetime.strptime(result['processing_date'], '%d.%m.%Y')
+        result.processing_date = datetime.strptime(processing_date, '%d.%m.%Y')
 
-        result['authorisation_code'] = line_parts[1]
-        result['description'] = line_parts[2]
+        result.authorisation_code = line_parts[1]
+        result.description = line_parts[2]
 
         # Выделяем сумму в валюте оперции, если присуиствует
         if len(line_parts) == 4:
             found = re.search(r'(.*?)\s(\S*)',
                               line_parts[3])  # processing string like '6,79 €'
             if found:
-                result['value_operational_currency'] = get_float_from_money(
-                    found.group(1), True)
-                result['operational_currency'] = found.group(2)
+                result.value_operational_currency = get_float_from_money(found.group(1), True)
+                result.operational_currency = found.group(2)
             else:
                 raise exceptions.InputFileStructureError(
-                    "Ошибка в обработке текста. Ожидалась струтура типа '6,79 €', получено: " +
-                    line_parts[3])
+                    "Ошибка в обработке текста. Ожидалась струтура типа '6,79 €', получено: " + line_parts[3])
 
         # ************** looking at the 3rd line
         if len(lines) == 3:
             line_parts = split_Sberbank_line(lines[2])
-            result['description'] = result['description'] + ' ' + line_parts[0]
+            result.description = result.description + ' ' + line_parts[0]
 
         # print(result)
 
@@ -212,37 +233,24 @@ class SBER_DEBIT_2107(Extractor):
     def get_column_name_for_balance_calculation(self)->str:
         return 'value_account_currency'
 
-    def get_columns_info(self)->dict:
-        """
-        Returns full column names in the order they shall appear in Excel
-        The keys in dictionary shall correspond to keys of the result of the function self.decompose_entry_to_dict()
-        """
-        return {'operation_date': 'Дата операции',
-                'processing_date': 'Дата обработки',
-                'authorisation_code': 'Код авторизации',
-                'description': 'Описание операции',
-                'category': 'Категория',
-                'value_account_currency': 'Сумма в валюте счёта',
-                'value_operational_currency': 'Сумма в валюте операции',
-                'operational_currency': 'Валюта операции',
-                'remainder_account_currency': 'Остаток по счёту в валюте счёта'}
+    # def get_columns_info(self)->dict:
+    #     """
+    #     Returns full column names in the order they shall appear in Excel
+    #     The keys in dictionary shall correspond to keys of the result of the function self.decompose_entry_to_dict()
+    #     """
+    #     return {'operation_date': 'Дата операции',
+    #             'processing_date': 'Дата обработки',
+    #             'authorisation_code': 'Код авторизации',
+    #             'description': 'Описание операции',
+    #             'category': 'Категория',
+    #             'value_account_currency': 'Сумма в валюте счёта',
+    #             'value_operational_currency': 'Сумма в валюте операции',
+    #             'operational_currency': 'Валюта операции',
+    #             'remainder_account_currency': 'Остаток по счёту в валюте счёта'}
 
 
 if __name__ == '__main__':
 
     txt_file = r'C:\_code\py\Sberbank2Excel_no_github\20210724_20210720_20210724_2107_Stavropol_.txt'
 
-    with open(txt_file, encoding='utf-8') as f:
-        txt_file_content = f.read()
-
-    converter = SBER_DEBIT_2107(txt_file_content)
-
-    converter.check_specific_signatures()
-
-    print(f"period_balance = {converter.get_period_balance()}")
-
-    for entry in converter.get_entries():
-        print('*'*20)
-        pprint(entry)
-
-    print(f"check_support = {converter.check_support()}")
+    extractors_generic.debug_extractor(SBER_DEBIT_2107, txt_file)
