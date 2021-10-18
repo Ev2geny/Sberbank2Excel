@@ -48,17 +48,17 @@ def determine_extractor_by_name(extractor_name:str) -> type:
 
     raise exceptions.UserInputError(f'Указанный формат файла "{extractor_name}" Неизвестен.\n См. смписок известных форматов \n {extractor_names_set}')
 
-def debug_extractor(extractor_type_object, test_text_file_name:str):
+def debug_extractor(extractor_type_object:type, test_text_file_name:str):
     """
-    This is helper function, which helps to debug a new extractor
+    This is helper function, which helps to debug a new extractor. It is not used in the operational code
     """
 
-    all_fields_set=set()
+    all_actually_returned_fields_set=set()
 
     with open(test_text_file_name, encoding='utf-8') as f:
         txt_file_content = f.read()
 
-
+    # Initializing an extractor with the type extractor_type_object and passing txt_file_content to it
     extractor = extractor_type_object(txt_file_content)
 
     print('-'*20)
@@ -66,7 +66,9 @@ def debug_extractor(extractor_type_object, test_text_file_name:str):
     extractor.check_specific_signatures()
 
     print('-' * 20)
+    print("Testing 'get_period_balance()'")
     print(f"period_balance = {extractor.get_period_balance()}")
+    assert isinstance(extractor.get_period_balance(), float)
 
     print('-' * 20)
     print("Testing split_text_on_entries()'")
@@ -79,14 +81,50 @@ def debug_extractor(extractor_type_object, test_text_file_name:str):
     for entry in extractor.get_entries():
         print('*'*20)
         pprint(entry)
-        all_fields_set = all_fields_set | set(entry.keys())
+        assert isinstance(entry,dict)
+        all_actually_returned_fields_set = all_actually_returned_fields_set | set(entry.keys())
 
     print('-' * 20)
+    print("Testing 'check_support()'")
     print(f"check_support = {extractor.check_support()}")
 
     print('-' * 20)
     print(f"Testing get_columns_info()")
-    print(extractor.get_columns_info())
+    columns_info_dic = extractor.get_columns_info()
+    pprint(columns_info_dic)
+
+    undefined_fiels_set = all_actually_returned_fields_set - set(columns_info_dic.keys())
+
+    print(f"{undefined_fiels_set=}")
+
+    if len(undefined_fiels_set)>0:
+        raise ValueError(f"""
+Some of the fields, returned by the function 'get_entries()' are not retured by the function 'get_columns_info()'
+Specifically the following fields are missing {undefined_fiels_set}""")
+
+    print('-' * 20)
+    print(f"Testing 'get_column_name_for_balance_calculation()'")
+    column_name_for_balance_calculation = extractor.get_column_name_for_balance_calculation()
+    print(f"get_column_name_for_balance_calculation = {column_name_for_balance_calculation}")
+
+    if not column_name_for_balance_calculation in all_actually_returned_fields_set:
+        raise ValueError(f"""
+Function 'get_column_name_for_balance_calculation()' returns value '{column_name_for_balance_calculation}' which is not one of the actually
+returned fiels 
+{all_actually_returned_fields_set}
+""")
+
+
+    print('\n'*2)
+    print("#"*10 + " Warnings! " + "#"*10)
+
+    defined_but_not_used_fiels_set = set(columns_info_dic.keys()) - all_actually_returned_fields_set
+
+    if len(defined_but_not_used_fiels_set)>0:
+        print(f"""
+Some of the fields, returned by the function 'get_columns_info()'  are not retured by the function 'get_entries()''
+Specifically the following fields are missing {defined_but_not_used_fiels_set}
+This may be due to an input file, used for testing. Make sure you test this fucntion on another input file""")
 
 if __name__ == '__main__':
     """
