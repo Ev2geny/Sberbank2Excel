@@ -86,7 +86,7 @@ def debug_extractor(extractor_type_object, test_text_file_name:str):
 
     pprint(all_fields_dict)
 
-    pprint(extractor.get_columns_info())
+    print(extractor.get_columns_info())
 
 if __name__ == '__main__':
     """

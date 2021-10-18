@@ -70,9 +70,6 @@ class Extractor(ABC):
         print('*'*20)
         print(data_class_attibutes)
 
-        print('*' * 20)
-        print(dict(data_class_attibutes))
-
         for attribute in data_class_attibutes:
             print(attribute)
             result[attribute.name] = attribute.metadata['long_name']
