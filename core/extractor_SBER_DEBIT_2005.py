@@ -1,11 +1,12 @@
 import exceptions
 import re
 from datetime import datetime
-from pprint import pprint
+import sys
 
 
 from utils import get_float_from_money
 from utils import split_Sberbank_line
+import extractors_generic
 
 from extractor import Extractor
 
@@ -180,17 +181,11 @@ class SBER_DEBIT_2005(Extractor):
 
 if __name__ == '__main__':
 
-    txt_file = r'C:\_code\py\Sberbank2Excel_no_github\20210724_20210720_20210724_2107_Stavropol_.txt'
 
-    with open(txt_file, encoding='utf-8') as f:
-        txt_file_content = f.read()
+    if len(sys.argv) < 2:
+        print('Не указано имя текстового файла для проверки экстрактора')
+        print(__doc__)
 
-    converter = SBER_DEBIT_2005(txt_file_content)
-
-    print(f"period_balance = {converter.get_period_balance()}")
-
-    for entry in converter.get_entries():
-        print('*'*20)
-        pprint(entry)
-
-    print(f"check_support = {converter.check_support()}")
+    else:
+        extractors_generic.debug_extractor(SBER_DEBIT_2005,
+                                           test_text_file_name=sys.argv[1])

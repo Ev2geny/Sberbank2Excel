@@ -1,10 +1,11 @@
 """
+Утилита для ковертации в Excel текстового файла, сгенерированного из PDF модулем pdf2txtev.py
+
 *********************************************
 при использовании из командной строки
 *********************************************
 
-
-Программа не читает PDF файл непосредственно. Сначала надо скофертировать выписку Сбербанка в текстовый формат утилитой pdf2txtev
+py sberbankPDFtext2Excel.py input_text_file_name.txt <output_excel_file_name.xlsx>
 
 
 *********************************************
@@ -19,7 +20,8 @@ import os
 # importing own modules out of project
 import pandas as pd
 
-from core import utils
+import utils
+
 from extractors_generic import determine_extractor_auto
 
 def sberbankPDFtext2Excel(input_txt_file_name:str,output_excel_file_name:str=None, format='auto') -> str:
@@ -88,12 +90,13 @@ def main():
         return None
     
     elif len(sys.argv)==2:
+        input_txt_file_name = sys.argv[1]
         outputFileName = None
 
     elif len(sys.argv)==3:
         outputFileName=sys.argv[2]
 
-    sberbankPDFtext2Excel(sys.argv[1], outputFileName)
+    sberbankPDFtext2Excel(input_txt_file_name, outputFileName)
 
 
 if __name__=='__main__':

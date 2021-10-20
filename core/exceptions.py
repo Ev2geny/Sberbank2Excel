@@ -11,3 +11,6 @@ class BalanceVerificationError(SberbankPDF2ExcelError):
 
 class UserInputError(SberbankPDF2ExcelError):
     pass
+
+class TestingError(SberbankPDF2ExcelError):
+    pass

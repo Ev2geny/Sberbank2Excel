@@ -58,3 +58,6 @@ wheels/
 
 # Temporary files
 ~$*.docx
+
+# Special file, which contains confidential information
+core/no_github_module.py

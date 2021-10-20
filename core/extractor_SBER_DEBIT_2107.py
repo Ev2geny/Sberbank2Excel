@@ -1,7 +1,7 @@
 import exceptions
 import re
 from datetime import datetime
-
+import sys
 
 from utils import get_float_from_money
 from utils import split_Sberbank_line
@@ -230,6 +230,11 @@ class SBER_DEBIT_2107(Extractor):
 
 if __name__ == '__main__':
 
-    txt_file = r'C:\_code\py\Sberbank2Excel_no_github\20210724_20210720_20210724_2107_Stavropol_.txt'
 
-    extractors_generic.debug_extractor(SBER_DEBIT_2107, txt_file)
+    if len(sys.argv) < 2:
+        print('Не указано имя текстового файла для проверки экстрактора')
+        print(__doc__)
+
+    else:
+        extractors_generic.debug_extractor(SBER_DEBIT_2107,
+                                           test_text_file_name=sys.argv[1])
