@@ -1,11 +1,10 @@
 import sys
 import os
-from core import exceptions
-
 from typing import Union
 
-from core.pdf2txtev import pdf_2_txt_file
-from core.sberbankPDFtext2Excel import sberbankPDFtext2Excel
+import exceptions
+from pdf2txtev import pdf_2_txt_file
+from sberbankPDFtext2Excel import sberbankPDFtext2Excel
 
 
 
