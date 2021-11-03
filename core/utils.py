@@ -65,7 +65,7 @@ def check_transactions_balance(input_pd: pd.DataFrame, balance: float, column_na
     if (abs(balance-calculated_balance) >= 0.01):
         raise exceptions.BalanceVerificationError(f"""
             Ошибка проверки балланса по трансакциям: 
-                СУММА НАЧИСЛЕНИЙ - СУММА СПИСАНИЙ = {balance}
+                Вычисленный баланс по информации в шапке выписки = {balance}
                 Вычисленный баланс по всем трансакциям = {calculated_balance}
         """)
 

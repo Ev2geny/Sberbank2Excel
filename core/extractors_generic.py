@@ -73,7 +73,7 @@ Some wrong text, which cannot be correct
 
     print("This is helper function, which helps to debug a new extractor")
     print("Test will be done for 2 situations")
-    print(f"1) Extractor {extractor_type_object.__name__} initilyzed with the text from the file '{test_text_file_name}'")
+    print(f"1) Extractor {extractor_type_object.__name__} initilyzed with the text from the file '{test_text_file_name}'\n\n")
     print(f"1) Extractor {extractor_type_object.__name__} initilyzed with the knownly wrong text {wrong_text}")
 
     all_actually_returned_fields_set=set()

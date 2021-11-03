@@ -71,6 +71,7 @@ def sberbankPDFtext2Excel(input_txt_file_name:str,output_excel_file_name:str=Non
 
     utils.write_df_to_excel(df, output_excel_file_name, extractor_name = extractor_type.__name__)
 
+
     # writer = pd.ExcelWriter(output_excel_file_name,
     #                         engine='xlsxwriter',
     #                         datetime_format='dd.mm.yyyy HH:MM')
