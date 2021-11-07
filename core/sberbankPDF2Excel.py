@@ -1,17 +1,21 @@
 import sys
 import os
 from typing import Union
+import argparse
 
 import exceptions
+import extractors
 from pdf2txtev import pdf_2_txt_file
 from sberbankPDFtext2Excel import sberbankPDFtext2Excel
+
 
 
 
 def sberbankPDF2Excel(input_file_name:str,
                       output_excel_file_name:Union[str, None] =None,
                       format:str= 'auto',
-                      leave_intermediate_txt_file:str = False) ->str:
+                      leave_intermediate_txt_file:str = False,
+                      perform_balance_check = True) ->str:
     """
     function converts pdf or text file with Sperbank extract to Excel format
     input_file_name:
@@ -19,6 +23,8 @@ def sberbankPDF2Excel(input_file_name:str,
     format: str - format of the Sberbank extract. If "auto" then tool tryes to work out the format itself
     leave_intermediate_txt_file: if True, does not delete intermediate txt file
     """
+
+    print(f"{format=}")
 
     print("*"*30)
     print("Конвертируем файл " + input_file_name)
@@ -44,8 +50,10 @@ def sberbankPDF2Excel(input_file_name:str,
         if extension == ".pdf":
             pdf_2_txt_file(input_file_name, tmp_txt_file_name)
 
-        result = sberbankPDFtext2Excel(tmp_txt_file_name, output_excel_file_name, format=format)
-        print("Создан файл "+result)
+        result = sberbankPDFtext2Excel(tmp_txt_file_name,
+                                       output_excel_file_name,
+                                       format=format,
+                                       perform_balance_check = perform_balance_check)
 
         if (not leave_intermediate_txt_file) and (not extension == ".txt"):
             os.remove(tmp_txt_file_name)
@@ -58,19 +66,19 @@ def sberbankPDF2Excel(input_file_name:str,
 
 
 def main():
-    if len(sys.argv) < 2:
-        print('Недостаточно аргументов')
-        print(__doc__)
-        return None
+    parser = argparse.ArgumentParser(description='Конвертация выписки банка из формата PDF формат Excel.')
+    parser.add_argument('input_file_name', type=str, help='Имя текстового файла для конвертации')
+    parser.add_argument('-o','--output', type=str, default=None, dest='output_Excel_file_name', help='Имя файла в формате Excel, который будет создан')
+    parser.add_argument('-b','--balcheck', action='store_false', default=True, dest='perform_balance_check', help='Не выполнять сверку баланса по всем трансакциям с балансом по шапке выписки')
+    parser.add_argument('-f', '--format', type=str, default='auto', dest='format', choices = extractors.get_list_extractors_in_text(),help = 'Формат выписки. Если не указан, определяется автоматически' )
+    parser.add_argument('-t','--text', action='store_true', default=True, dest='leave_intermediate_txt_file', help='Не удалять промежуточный текстовый файт')
+    args = parser.parse_args()
 
-    elif len(sys.argv) == 2:
-        outputFileName = None
-
-    elif len(sys.argv) == 3:
-        outputFileName = sys.argv[2]
-
-    sberbankPDF2Excel(sys.argv[1], outputFileName)
-
+    sberbankPDF2Excel(input_file_name = args.input_file_name,
+                      output_excel_file_name = args.output_Excel_file_name,
+                      format = args.format,
+                      leave_intermediate_txt_file = args.leave_intermediate_txt_file,
+                      perform_balance_check = args.perform_balance_check)
 
 if __name__ == '__main__':
     main()

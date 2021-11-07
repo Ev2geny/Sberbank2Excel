@@ -28,8 +28,8 @@ import exceptions
 from extractors_generic import determine_extractor_auto
 
 def sberbankPDFtext2Excel(input_txt_file_name:str,
-                          output_excel_file_name:str=None,
-                          format='auto',
+                          output_excel_file_name:str = None,
+                          format = 'auto',
                           perform_balance_check = True) -> str:
     """
     Функция конвертирует текстовый файл Сбербанка, полученный из выписки PDF помощью конвертации Foxit PDF reader в Excel формат
