@@ -58,7 +58,9 @@ def btn_convertFiles_clicked():
     for file in files:
         try:
             created_excel_files_scrollText.insert(INSERT,
-                                                  sberbankPDF2Excel(file, leave_intermediate_txt_file = leave_intermediate_txt_file.get() ) + '\n')
+                                                  sberbankPDF2Excel(file,
+                                                                    leave_intermediate_txt_file = leave_intermediate_txt_file.get(),
+                                                                    perform_balance_check = not no_balance_check.get() ) + '\n')
             qntFilesConverted=qntFilesConverted + 1
         except:
             print('Произошла ошибка при конвертации файла "'+'file'+'" '+ str(sys.exc_info()[0]))

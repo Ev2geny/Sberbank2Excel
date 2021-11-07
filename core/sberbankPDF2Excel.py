@@ -69,7 +69,7 @@ def main():
     parser = argparse.ArgumentParser(description='Конвертация выписки банка из формата PDF формат Excel.')
     parser.add_argument('input_file_name', type=str, help='Имя текстового файла для конвертации')
     parser.add_argument('-o','--output', type=str, default=None, dest='output_Excel_file_name', help='Имя файла в формате Excel, который будет создан')
-    parser.add_argument('-b','--balcheck', action='store_false', default=True, dest='perform_balance_check', help='Не выполнять сверку баланса по всем трансакциям с балансом по шапке выписки')
+    parser.add_argument('-b','--balcheck', action='store_false', default=True, dest='perform_balance_check', help='Не выполнять сверку баланса по трансакциям и в шапке выписки')
     parser.add_argument('-f', '--format', type=str, default='auto', dest='format', choices = extractors.get_list_extractors_in_text(),help = 'Формат выписки. Если не указан, определяется автоматически' )
     parser.add_argument('-t','--text', action='store_true', default=True, dest='leave_intermediate_txt_file', help='Не удалять промежуточный текстовый файт')
     args = parser.parse_args()
