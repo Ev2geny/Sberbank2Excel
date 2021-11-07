@@ -116,7 +116,7 @@ leave_intermediate_txt_file = IntVar()
 Checkbutton(window, text="Не удалять промежуточный текстовый файл", variable=leave_intermediate_txt_file).grid(row=10, sticky=W)
 
 no_balance_check = IntVar()
-Checkbutton(window, text="Не выполнять сверку баланса по трансакциям и в шапке выписки", variable=no_balance_check).grid(row=11, sticky=W)
+Checkbutton(window, text="Игнорировать результаты сверки баланса по трансакциям и в шапке выписки", variable=no_balance_check).grid(row=11, sticky=W)
 
 
 window.mainloop()

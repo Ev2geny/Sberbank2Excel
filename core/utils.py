@@ -69,7 +69,7 @@ def check_transactions_balance(input_pd: pd.DataFrame, balance: float, column_na
                 Вычисленный баланс по всем трансакциям = {calculated_balance}
         """)
 
-def write_df_to_excel(df:pd.DataFrame, filename:str, extractor_name:str):
+def write_df_to_excel(df:pd.DataFrame, filename:str, extractor_name:str, errors:str = ""):
     """
 
     """
@@ -88,6 +88,7 @@ def write_df_to_excel(df:pd.DataFrame, filename:str, extractor_name:str):
     info_worksheet.write('A3', f'Файл создан утилитой "{version_info.NAME}", доступной для скачивания по ссылке {version_info.PERMANENT_LOCATION}')
     info_worksheet.write('A4', f'Версия утилиты "{version_info.VERSION}"')
     info_worksheet.write('A5', f'Для выделения информации был использован экстрактор типа "{extractor_name}"')
+    info_worksheet.write('A6', f'Ошибки при конвертации: "{errors}"')
 
     writer.save()
 
