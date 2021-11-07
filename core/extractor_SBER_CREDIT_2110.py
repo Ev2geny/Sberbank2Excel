@@ -31,6 +31,10 @@ import extractors_generic
 class SBER_CREDIT_2107(Extractor):
 
     def check_specific_signatures(self):
+        """
+        Function tries to find some spesific signatures in the text (e.g. sberbank)
+        If these signatures are not found, then exceptions.InputFileStructureError() is raised
+        """
 
         test1 = re.search(r'сбербанк', self.pdf_text, re.IGNORECASE)
         # print(f"{test1=}")
@@ -43,6 +47,10 @@ class SBER_CREDIT_2107(Extractor):
 
     def get_period_balance(self)->str:
         """
+        Function gets information about transaction balance from the header of the banl extract
+        This balance is then returned as a float
+
+
         ---------------------------------------------------
         СУММА ПОПОЛНЕНИЙ -> СУММА СПИСАНИЙ -> СУММА СПИСАНИЙ БАНКА
         1 040,00 -> 601,80 -> 437,46
@@ -67,6 +75,11 @@ class SBER_CREDIT_2107(Extractor):
 
     def split_text_on_entries(self)->list[str]:
         """
+        Function splits the text on indovidual entries
+        If no entries are found, the exceptions.InputFileStructureError() is raised
+
+
+
         разделяет текстовый файл на отдельные записи
 
         пример одной записи
@@ -119,6 +132,11 @@ class SBER_CREDIT_2107(Extractor):
 
     def decompose_entry_to_dict(self, entry:str)->dict:
         """
+        Function decomposes individual entry text to an information structure in a form of dictionary
+        If something unexpected is found, exception exceptions.InputFileStructureError() is raised
+        Naming of the dictionary keys is not hard fixed
+
+
         Выделяем данные из одной записи в dictionary
 
     ------------------------------------------------------------------------------------------------------
@@ -215,11 +233,15 @@ class SBER_CREDIT_2107(Extractor):
         return result
 
     def get_column_name_for_balance_calculation(self)->str:
+        """
+        Retrun name of the transaction field, which later can be used to calculate a complete balance of the period
+        E.g. 'value_account_currency'
+        """
         return 'value_account_currency'
 
     def get_columns_info(self)->dict:
         """
-        Returns full column names in the order they shall appear in Excel
+        Returns full column names in the order and in the form they shall appear in Excel
         The keys in dictionary shall correspond to keys of the result of the function self.decompose_entry_to_dict()
         """
         return {'operation_date': 'Дата операции',
