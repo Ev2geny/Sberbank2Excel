@@ -134,7 +134,11 @@ class SBER_CREDIT_2107(Extractor):
         """
         Function decomposes individual entry text to an information structure in a form of dictionary
         If something unexpected is found, exception exceptions.InputFileStructureError() is raised
-        Naming of the dictionary keys is not hard fixed
+        Naming of the dictionary keys is not hard fixed, but shall correspond to what is returned by the function get_columns_info(self)
+
+        All numerical fields shall be returned as float
+
+        All dates / dates and times shall be returned as python datetime.datetime
 
 
         Выделяем данные из одной записи в dictionary
@@ -168,8 +172,8 @@ class SBER_CREDIT_2107(Extractor):
     {'authorisation_code': '254718',
      'category': 'Все для дома',
      'description': 'XXXXX XXXXX',
-     'operation_date': '08.07.2021 18:27',
-     'processing_date': '09.07.2021',
+     'operation_date': datetime.datetime(2021,7,8,18,27),
+     'processing_date': datetime.datetime(2021,7,9,0,0),
      'value_account_currency': -193.91б
      'operational_currency': '€'
      }
