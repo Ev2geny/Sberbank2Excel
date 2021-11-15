@@ -28,7 +28,7 @@ from extractor import Extractor
 
 import extractors_generic
 
-class SBER_CREDIT_2111_VISA(Extractor):
+class SBER_DEBIT_2111_VISA(Extractor):
 
     def check_specific_signatures(self):
         """
@@ -217,7 +217,7 @@ if __name__ == '__main__':
         print(__doc__)
 
     else:
-        extractors_generic.debug_extractor(SBER_CREDIT_2111_VISA,
+        extractors_generic.debug_extractor(SBER_DEBIT_2111_VISA,
                                            test_text_file_name=sys.argv[1])
 
 
