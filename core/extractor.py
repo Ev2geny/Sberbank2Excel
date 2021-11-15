@@ -9,7 +9,7 @@ import exceptions
 
 class Extractor(ABC):
     def __init__(self, pdf_text: str):
-        self.pdf_text = pdf_text
+        self.pdf_text = pdf_text + '\n___EOF'
 
     @abstractmethod
     def check_specific_signatures(self):

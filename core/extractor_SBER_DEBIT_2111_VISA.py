@@ -51,7 +51,6 @@ class SBER_DEBIT_2111_VISA(Extractor):
 
         return 0.0
 
-
     def split_text_on_entries(self)->list[str]:
         """
         Function splits the text on individual entries
@@ -61,12 +60,12 @@ class SBER_DEBIT_2111_VISA(Extractor):
         # extracting entries (operations) from text file on
         individual_entries = re.findall(r"""
             \d\d\.\d\d\.\d\d                                              # Date like '02.06.21' Дата операции 
-            \t                                                             # tab    
+            \t                                                            # tab    
             \d\d\.\d\d\.\d\d                                              # Date like '02.06.21' Дата обработки
-            [\s\S]*?                                                       # any character, including new line. !!None-greedy!!
+            [\s\S]*?                                                      # any character, including new line. !!None-greedy!!
             (?=\d\d\.\d\d\.\d\d|                                           # Lookahead Start of new transaction
-            117997,\sМосква,\sул\.\sВавилова,\sд\.\s19|                     # or till "117997, Москва, ул. Вавилова, д. 19"
-            __EOF)                                                          # or till artificial __EOF
+            117997,\sМосква,\sул\.\sВавилова,\sд\.\s19|                    # or till "117997, Москва, ул. Вавилова, д. 19"
+             ___EOF)                                                       # or till artificial __EOF
             """,
             self.pdf_text, re.VERBOSE)
 
@@ -130,58 +129,36 @@ class SBER_DEBIT_2111_VISA(Extractor):
         lines = entry.split('\n')
         lines = list(filter(None, lines))
 
-        if len(lines) < 2 or len(lines) > 3:
-            raise exceptions.InputFileStructureError(
-                "entry is expected to have from 2 to 3 lines\n" + str(entry))
-
         result = {}
         # ************** looking at the 1st line
         line_parts = split_Sberbank_line(lines[0])
 
-        result['operation_date'] = line_parts[0] + " " + line_parts[1]
+        result['operation_date'] = line_parts[0]
         # https://docs.python.org/3/library/datetime.html#strftime-and-strptime-behavior
-        result['operation_date'] = datetime.strptime(result['operation_date'], '%d.%m.%Y %H:%M')
+        result['operation_date'] = datetime.strptime(result['operation_date'], '%d.%m.%y')
 
-        result['category'] = line_parts[2]
-        result['value_account_currency'] = get_float_from_money(line_parts[3], True)
-        # result['remainder_account_currency'] = get_float_from_money(line_parts[4])
-
-        # ************** looking at the 2nd line
-        line_parts = split_Sberbank_line(lines[1])
-
-        if len(line_parts) != 3 or len(line_parts) > 4:
-            raise exceptions.SberbankPDF2ExcelError(
-                "Line is expected to have 3 or 4 parts :" + str(lines[1]))
-
-        # print(line_parts[0])
-
-        # processing_date__authorisation_code = re.search(r'(dd\.dd\.dddd)\s(.*)', line_parts[0])
-        result['processing_date'] = line_parts[0]
+        result['processing_date'] = line_parts[1]
         # https://docs.python.org/3/library/datetime.html#strftime-and-strptime-behavior
-        result['processing_date'] = datetime.strptime(result['processing_date'], '%d.%m.%Y')
+        result['processing_date'] = datetime.strptime(result['processing_date'], '%d.%m.%y')
 
-        result['authorisation_code'] = line_parts[1]
-        result['description'] = line_parts[2]
+        if re.match(r'\d{6}', line_parts[2]): # checking presence of aithorisation code
+            result['authorisation_code'] = line_parts[2]
 
-        # Выделяем сумму в валюте оперции, если присуиствует
-        if len(line_parts) == 4:
-            found = re.search(r'(.*?)\s(\S*)',
-                              line_parts[3])  # processing string like '6,79 €'
-            if found:
-                result['value_operational_currency'] = get_float_from_money(
-                    found.group(1), True)
-                result['operational_currency'] = found.group(2)
-            else:
-                raise exceptions.InputFileStructureError(
-                    "Ошибка в обработке текста. Ожидалась струтура типа '6,79 €', получено: " +
-                    line_parts[3])
+            if len(line_parts)  != 5:
+                raise exceptions.InputFileStructureError(f" Строка с кодом овторизации должна содержать 5 элементов \n {lines[0]}")
 
-        # ************** looking at the 3rd line
-        if len(lines) == 3:
-            line_parts = split_Sberbank_line(lines[2])
-            result['description'] = result['description'] + ' ' + line_parts[0]
+        else:
+            result['authorisation_code'] = ''
 
-        # print(result)
+            if len(line_parts)  != 4:
+                raise exceptions.InputFileStructureError(f" Строка с кодом овторизации должна содержать 4 элемента \n {lines[0]}")
+
+        result['value_account_currency'] = get_float_from_money(line_parts[-1], True)
+
+        result['description'] = line_parts[-2]
+
+        # ************** looking at the line from 2nd till the end
+        result['description'] = result['description'] + " " + " ".join(lines[1:])
 
         return result
 
@@ -201,10 +178,10 @@ class SBER_DEBIT_2111_VISA(Extractor):
                 'processing_date': 'Дата обработки',
                 'authorisation_code': 'Код авторизации',
                 'description': 'Описание операции',
-                'category': 'Категория',
+                # 'category': 'Категория',
                 'value_account_currency': 'Сумма в валюте счёта',
-                'value_operational_currency': 'Сумма в валюте операции',
-                'operational_currency': 'Валюта операции',
+                # 'value_operational_currency': 'Сумма в валюте операции',
+                # 'operational_currency': 'Валюта операции',
                 # 'remainder_account_currency': 'Остаток по счёту в валюте счёта'
                 }
 
