@@ -144,18 +144,16 @@ class SBER_DEBIT_2111_VISA(Extractor):
         if re.match(r'\d{6}', line_parts[2]): # checking presence of aithorisation code
             result['authorisation_code'] = line_parts[2]
 
-            if len(line_parts)  != 5:
-                raise exceptions.InputFileStructureError(f" Строка с кодом овторизации должна содержать 5 элементов \n {lines[0]}")
+            result['description'] = line_parts[3]
 
         else:
             result['authorisation_code'] = ''
 
-            if len(line_parts)  != 4:
-                raise exceptions.InputFileStructureError(f" Строка с кодом овторизации должна содержать 4 элемента \n {lines[0]}")
+            result['description'] = line_parts[2]
 
         result['value_account_currency'] = get_float_from_money(line_parts[-1], True)
 
-        result['description'] = line_parts[-2]
+        #TODO: Add support for transaction in different currency
 
         # ************** looking at the line from 2nd till the end
         result['description'] = result['description'] + " " + " ".join(lines[1:])
