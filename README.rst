@@ -32,8 +32,7 @@ Sberbank2Excel
 Подготовка
 ~~~~~~~~~~
 
-1. Скачать последнюю версию программы
-   https://github.com/Ev2geny/Sberbank2Excel/releases/latest
+1. Скачать `последнюю версию программы <https://github.com/Ev2geny/Sberbank2Excel/releases/latest>`_
 2. Разархивировать ZIP файл в отдельную директорию и найти ``sberbankPDF2ExcelGUI.bat``
 
 Конвертация
