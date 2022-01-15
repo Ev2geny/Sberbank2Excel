@@ -13,15 +13,17 @@ from tkinter import scrolledtext
 from tkinter import Menu
 from tkinter import messagebox, ttk
 import traceback
+import sys
 import logging
 
-from core.sberbankPDF2Excel import sberbankPDF2Excel
-from core import version_info
+from sberbankPDF2Excel import sberbankPDF2Excel
+import version_info
 
 
 # defining global variable, which will hold files tuple
 files = ()
 leave_intermediate_txt_file = 0
+no_balance_check = 0
 
 def btn_selectFiles_clicked():
     global files
@@ -56,7 +58,9 @@ def btn_convertFiles_clicked():
     for file in files:
         try:
             created_excel_files_scrollText.insert(INSERT,
-                                                  sberbankPDF2Excel(file, leave_intermediate_txt_file = leave_intermediate_txt_file.get() ) + '\n')
+                                                  sberbankPDF2Excel(file,
+                                                                    leave_intermediate_txt_file = leave_intermediate_txt_file.get(),
+                                                                    perform_balance_check = not no_balance_check.get() ) + '\n')
             qntFilesConverted=qntFilesConverted + 1
         except:
             print('Произошла ошибка при конвертации файла "'+'file'+'" '+ str(sys.exc_info()[0]))
@@ -86,7 +90,7 @@ window.config(menu=menu)
  
 window.title(f'{version_info.NAME} Версия={version_info.VERSION}')
  
-window.geometry('720x380')
+window.geometry('720x400')
  
 Label(window, text="""
 Шаг 1: Выберите один или несколько файлов в формате PDF
@@ -110,6 +114,9 @@ created_excel_files_scrollText.grid(column=0,row=8)
 Label(window, text="Опции:").grid(column=0,row=9,sticky="W")
 leave_intermediate_txt_file = IntVar()
 Checkbutton(window, text="Не удалять промежуточный текстовый файл", variable=leave_intermediate_txt_file).grid(row=10, sticky=W)
+
+no_balance_check = IntVar()
+Checkbutton(window, text="Игнорировать результаты сверки баланса по транзакциям и в шапке выписки", variable=no_balance_check).grid(row=11, sticky=W)
 
 
 window.mainloop()

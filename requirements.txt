@@ -1,6 +1,7 @@
-# Tested on python 3.8
+# Works only with python 3.9
 pdfminer.six
 pandas
 PyInstaller
 Unidecode
 XlsxWriter
+pytest
