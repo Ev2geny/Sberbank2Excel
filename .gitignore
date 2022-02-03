@@ -5,6 +5,8 @@
 # further file from here: https://gist.github.com/rask004/4c322384aa6012d6c5a7178071d3c8fb
 .idea/
 
+.vscode/
+
 # dotenv
 .env
 
