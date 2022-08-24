@@ -22,3 +22,5 @@ from no_github_module import SBER_DEBIT_2107_wrong_balance_txt
 from no_github_module import SBER_DEBIT_2107_Tinkoff_problem_pdf
 
 from no_github_module import SBER_CREDIT_2110_file_name_text
+
+from no_github_module import SBER_PAYMENT_2208_txt

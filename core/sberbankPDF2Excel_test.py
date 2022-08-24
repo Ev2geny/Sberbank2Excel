@@ -24,3 +24,6 @@ def test_correctly_converts_SBER_DEBIT_2005_pdf():
 def test_correctly_does_not_convert_SBER_DEBIT_old_not_supported():
     with pytest.raises(exceptions.InputFileStructureError):
         sberbankPDF2Excel(no_github_module_import.SBER_DEBIT_old_not_supported_pdf)
+
+def test_correctly_converts_SBER_PAYMENT_2208_txt():
+    sberbankPDF2Excel(no_github_module_import.SBER_PAYMENT_2208_txt)
