@@ -69,28 +69,46 @@ def check_transactions_balance(input_pd: pd.DataFrame, balance: float, column_na
                 Вычисленный баланс по всем трансакциям = {calculated_balance}
         """)
 
-def write_df_to_excel(df:pd.DataFrame, filename:str, extractor_name:str, errors:str = ""):
+def write_df_to_file(df:pd.DataFrame, 
+                        filename:str, 
+                        extractor_name:str, 
+                        errors:str="",
+                        output_file_format:str="xlsx")->None:
     """
-
+        output_file_format - supported values xlsx, csv
     """
 
     global version_info
 
-    writer = pd.ExcelWriter(filename,
-                            engine='xlsxwriter',
-                            datetime_format='dd.mm.yyyy HH:MM')
+    filename = filename + "." + output_file_format
 
-    df.to_excel(writer, sheet_name='data', index=False)
+    if output_file_format == "xlsx":
 
-    workbook = writer.book
-    info_worksheet = workbook.add_worksheet('Info')
+        writer = pd.ExcelWriter(filename,
+                                engine='xlsxwriter',
+                                datetime_format='dd.mm.yyyy HH:MM')
 
-    info_worksheet.write('A3', f'Файл создан утилитой "{version_info.NAME}", доступной для скачивания по ссылке {version_info.PERMANENT_LOCATION}')
-    info_worksheet.write('A4', f'Версия утилиты "{version_info.VERSION}"')
-    info_worksheet.write('A5', f'Для выделения информации был использован экстрактор типа "{extractor_name}"')
-    info_worksheet.write('A6', f'Ошибки при конвертации: "{errors}"')
+        df.to_excel(writer, sheet_name='data', index=False)
 
-    writer.save()
+        workbook = writer.book
+        info_worksheet = workbook.add_worksheet('Info')
+
+        info_worksheet.write('A3', f'Файл создан утилитой "{version_info.NAME}", доступной для скачивания по ссылке {version_info.PERMANENT_LOCATION}')
+        info_worksheet.write('A4', f'Версия утилиты "{version_info.VERSION}"')
+        info_worksheet.write('A5', f'Для выделения информации был использован экстрактор типа "{extractor_name}"')
+        info_worksheet.write('A6', f'Ошибки при конвертации: "{errors}"')
+
+        writer.save()
+
+    elif output_file_format == "csv":
+        df.to_csv(filename,
+                    sep=";",
+                    index=False,
+                    # date_format='dd.mm.yyyy HH:MM'
+                    )
+    
+    else:
+        raise exceptions.UserInputError(f"not supported output file format '{output_file_format}' is gven to the function 'write_df_to_file'")
 
 def main():
     print('this module is not designed to work standalone')
