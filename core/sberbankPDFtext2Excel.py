@@ -124,25 +124,35 @@ def sberbankPDFtext2Excel(input_txt_file_name:str,
     # writer.save()
     # writer.close()
 
-    print(f"Создан файл {output_file_name}")
+    # print(f"Создан файл {output_file_name}")
 
     return output_file_name
 
-# TODO: Add menu to be able to provide several arguments
-def main():
-
-    # print(extractors.get_list_extractors_in_text())
-
-    parser = argparse.ArgumentParser(description='Конвертация выписки банка из текстового формата в формат Excel или CSV. Для конвертации в текстовый формат, нужно воспользоваться утилитой pdf2txtev')
-    parser.add_argument('input_txt_file_name', type=str, help='Имя текстового файла для конвертации')
-    parser.add_argument('-o','--output', type=str, default=None, dest='output_Excel_file_name', help='Имя файла в формате Excel, который будет создан')
+def genarate_PDFtext2Excel_argparser()->argparse.ArgumentParser:
+    """
+    The function generates the argparser object. It is used in this module and later on as a parent in other module
+    """
+    
+    # parser = argparse.ArgumentParser(description='Конвертация выписки банка из текстового формата в формат Excel или CSV. Для конвертации в текстовый формат, нужно воспользоваться утилитой pdf2txtev')
+    parser = argparse.ArgumentParser(add_help=False)
+    parser.add_argument('input_file_name', type=str, help='Файла для конвертации')
+    parser.add_argument('-o','--output', type=str, default=None, dest='output_Excel_file_name', help='Имя файла (без расшмрения) который будет создан в формате Excel или CSV')
     parser.add_argument('-b','--balcheck', action='store_false', default=True, dest='perform_balance_check', help='Игнорировать результаты сверки баланса по транзакциям и в шапке выписки')
     parser.add_argument('-f', '--format', type=str,default='auto', dest='format', choices = extractors.get_list_extractors_in_text(),help = 'Формат выписки. Если не указан, определяется автоматически' )
     parser.add_argument('-t', '--type', type=str,default='xlsx', dest='output_file_type', choices = ["xlsx","csv"],help = 'Тип создаваемого файла' )
+
+    return parser
+
+def main():
+
+    # print(extractors.get_list_extractors_in_text())
+    parser = argparse.ArgumentParser(description='Конвертация выписки банка из текстового формата в формат Excel или CSV',
+                                     parents=[genarate_PDFtext2Excel_argparser()])
     args = parser.parse_args()
 
+    print(args)
 
-    sberbankPDFtext2Excel(input_txt_file_name=args.input_txt_file_name,
+    sberbankPDFtext2Excel(input_txt_file_name=args.input_file_name,
                           output_file_name = args.output_Excel_file_name,
                           format=args.format,
                           perform_balance_check = args.perform_balance_check,

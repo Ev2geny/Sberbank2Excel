@@ -6,7 +6,8 @@ import argparse
 import exceptions
 import extractors
 from pdf2txtev import pdf_2_txt_file
-from sberbankPDFtext2Excel import sberbankPDFtext2Excel
+from sberbankPDFtext2Excel import sberbankPDFtext2Excel, genarate_PDFtext2Excel_argparser
+
 
 
 
@@ -68,14 +69,15 @@ def sberbankPDF2Excel(input_file_name:str,
 
 
 def main():
-    parser = argparse.ArgumentParser(description='Конвертация выписки банка из формата PDF формат Excel.')
-    parser.add_argument('input_file_name', type=str, help='Имя текстового файла для конвертации')
-    parser.add_argument('-o','--output', type=str, default=None, dest='output_Excel_file_name', help='Имя файла в формате Excel, который будет создан')
-    parser.add_argument('-b','--balcheck', action='store_false', default=True, dest='perform_balance_check', help='Игнорировать результаты сверки баланса по транзакциям и в шапке выписки')
-    parser.add_argument('-f', '--format', type=str, default='auto', dest='format', choices = extractors.get_list_extractors_in_text(),help = 'Формат выписки. Если не указан, определяется автоматически' )
+
+    parser = argparse.ArgumentParser(description='Конвертация выписки банка из формата PDF или из промежуточного текстового файла в формат Excel или CSV.',
+                                        parents=[genarate_PDFtext2Excel_argparser()])
+   
     parser.add_argument('-i','--interm', action='store_true', default=False, dest='leave_intermediate_txt_file', help='Не удалять промежуточный текстовый файт')
-    parser.add_argument('-t', '--type', type=str,default='xlsx', dest='output_file_type', choices = ["xlsx","csv"],help = 'Тип создаваемого файла' )
+
     args = parser.parse_args()
+
+    print(args)
 
     sberbankPDF2Excel(input_file_name = args.input_file_name,
                       output_file_name = args.output_Excel_file_name,

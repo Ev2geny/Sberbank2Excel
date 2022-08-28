@@ -80,6 +80,9 @@ def write_df_to_file(df:pd.DataFrame,
 
     global version_info
 
+    def print_message_about_file_creation(file_name:str)->None:
+        print(f"Создан файл {file_name}")
+
     filename = filename + "." + output_file_format
 
     if output_file_format == "xlsx":
@@ -100,13 +103,16 @@ def write_df_to_file(df:pd.DataFrame,
 
         writer.save()
 
+        print_message_about_file_creation(filename)
+
     elif output_file_format == "csv":
         df.to_csv(filename,
                     sep=";",
                     index=False,
                     # date_format='dd.mm.yyyy HH:MM'
                     )
-    
+
+        print_message_about_file_creation(filename)
     else:
         raise exceptions.UserInputError(f"not supported output file format '{output_file_format}' is gven to the function 'write_df_to_file'")
 
