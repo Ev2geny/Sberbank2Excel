@@ -92,10 +92,10 @@ github <https://github.com/Ev2geny/Sberbank2Excel/issues>`__
 .. csv-table:: 
    :header: "Банк", "Название формата (щёлкнуть мышью чтобы увидеть картинку)", "Описание", "MasterCard", VISA,"Трансакции в иностранной валюте", "Известные проблемы"
  
-   Сбербанк, `SBER_DEBIT_2005 </misc/format_examples/SBER_DEBIT_2005.png>`__,  "Дебетовой карта образца мая 2020 года",  "OK", ???, ОК, 
-   Сбербанк, `SBER_DEBIT_2107 </misc/format_examples/SBER_DEBIT_2107.png>`__,  "Дебетовой карта образца июля 2021 года",  "OK", ???, ОК, 
+   Сбербанк, `SBER_DEBIT_2005 </misc/format_examples/SBER_DEBIT_2005.png>`__,  "Дебетовая карта образца мая 2020 года",  "OK", ???, ОК, 
+   Сбербанк, `SBER_DEBIT_2107 </misc/format_examples/SBER_DEBIT_2107.png>`__,  "Дебетовая карта образца июля 2021 года",  "OK", ???, ОК, 
    Сбербанк, `SBER_CREDIT_2110 </misc/format_examples/SBER_CREDIT_2110.png>`__,  "Кредитная карта образца октября 2021 года (ТДВФН)",   ???,OK,OK? ,  `Сбер иногда неправильно считает баланс <https://github.com/Ev2geny/Sberbank2Excel/issues/13>`__
-   Сбербанк, `SBER_PAYMENT_2208 </misc/format_examples/SBER_PAYMENT_2208.png>`__,  "Платёжный счёту образца августа 2022 года (ТДВФН)", НП,НП,НП? ,  
+   Сбербанк, `SBER_PAYMENT_2208 </misc/format_examples/SBER_PAYMENT_2208.png>`__,  "Платёжный счёт образца августа 2022 года (ТДВФН)", НП,НП,НП? ,  
 
 **Легенда и сокращения**
 
