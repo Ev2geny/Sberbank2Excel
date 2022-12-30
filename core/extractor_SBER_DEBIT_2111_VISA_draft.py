@@ -24,14 +24,14 @@ class SBER_DEBIT_2111_VISA(Extractor):
         If these signatures are not found, then exceptions.InputFileStructureError() is raised
         """
 
-        test1 = re.search(r'www.sberbank.ru', self.pdf_text, re.IGNORECASE)
+        test1 = re.search(r'www.sberbank.ru', self.bank_text, re.IGNORECASE)
         # print(f"{test1=}")
 
         if not test1:
             raise exceptions.InputFileStructureError("Не найдены паттерны, соответствующие выписке")
 
     def get_period_balance(self)->str:
-        test1 = re.search(r'www.sberbank.ru', self.pdf_text, re.IGNORECASE)
+        test1 = re.search(r'www.sberbank.ru', self.bank_text, re.IGNORECASE)
         # print(f"{test1=}")
 
         if not test1:
@@ -55,7 +55,7 @@ class SBER_DEBIT_2111_VISA(Extractor):
             117997,\sМосква,\sул\.\sВавилова,\sд\.\s19|                    # or till "117997, Москва, ул. Вавилова, д. 19"
              ___EOF)                                                       # or till artificial __EOF
             """,
-            self.pdf_text, re.VERBOSE)
+                                        self.bank_text, re.VERBOSE)
 
         if len(individual_entries) == 0:
             raise exceptions.InputFileStructureError(

@@ -200,21 +200,10 @@ Some of the fields, returned by the function 'get_columns_info()'  are not retur
 Specifically the following fields are missing {defined_but_not_used_fiels_set}
 This may be due to an input file, used for testing. Make sure you test this fucntion on another input file""")
 
+    print("All tests have passed, if you have reached this point")
+
 if __name__ == '__main__':
     """
     Some testing code
     """
-
-    txt_file = r'C:\_code\py\Sberbank2Excel_no_github\20210724_20210720_20210724_2107_Stavropol_.txt'
-
-    with open(txt_file, encoding='utf-8') as f:
-        txt_file_content = f.read()
-
-    extractor = determine_extractor_auto(txt_file_content)
-
-    print(extractor)
-
-    print(extractor.__name__)
-
-    print(determine_extractor_by_name('SBER_CREDIT_2107'))
-    print(determine_extractor_by_name('SBER_CREDIT_2108'))
+    pass

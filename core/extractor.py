@@ -8,8 +8,8 @@ from abc import ABC, abstractmethod
 import exceptions
 
 class Extractor(ABC):
-    def __init__(self, pdf_text: str):
-        self.pdf_text = pdf_text + '\n___EOF'
+    def __init__(self, bank_text: str):
+        self.bank_text = bank_text + '\n___EOF'
 
     @abstractmethod
     def check_specific_signatures(self):
@@ -30,6 +30,13 @@ class Extractor(ABC):
     @abstractmethod
     def get_column_name_for_balance_calculation(self) -> str:
         pass
+
+    @abstractmethod
+    def get_columns_info(self)->dict:
+        """
+        Returns full column names in the order and in the form they shall appear in Excel
+        The keys in dictionary shall correspond to keys of the result of the function self.decompose_entry_to_dict()
+        """
 
     def check_support(self)->bool:
         """
