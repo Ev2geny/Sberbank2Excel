@@ -23,6 +23,9 @@ extractors_list.append(SBER_PAYMENT_2212)
 from extractor_SBER_PAYMENT_2208 import SBER_PAYMENT_2208
 extractors_list.append(SBER_PAYMENT_2208)
 
+from extractor_SBER_DEBIT_2212 import SBER_DEBIT_2212
+extractors_list.append(SBER_DEBIT_2212)
+
 
 def get_list_extractors_in_text():
     return [extractor.__name__ for extractor in extractors_list]

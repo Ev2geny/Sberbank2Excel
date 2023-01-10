@@ -9,7 +9,7 @@ from utils import split_Sberbank_line
 from extractor import Extractor
 import extractors_generic
 
-class SBER_DEBIT_2107(Extractor):
+class SBER_DEBIT_2212(Extractor):
 
     def check_specific_signatures(self):
 
@@ -21,7 +21,7 @@ class SBER_DEBIT_2107(Extractor):
 
         test_ostatok_po_schetu = re.search(r'ОСТАТОК ПО СЧЁТУ', self.bank_text, re.IGNORECASE)
 
-        if not test1  or not test2 or not test_ostatok_po_schetu:
+        if (not test1  or not test2) or test_ostatok_po_schetu:
             raise exceptions.InputFileStructureError("Не найдены паттерны, соответствующие выписке")
 
     def get_period_balance(self)->str:
@@ -169,8 +169,8 @@ class SBER_DEBIT_2107(Extractor):
         result['category'] = line_parts[2]
         result['value_account_currency'] = get_float_from_money(line_parts[3],
                                                                 True)
-        result['remainder_account_currency'] = get_float_from_money(
-            line_parts[4])
+        # result['remainder_account_currency'] = get_float_from_money(
+        #     line_parts[4])
 
         # ************** looking at the 2nd line
         line_parts = split_Sberbank_line(lines[1])
@@ -226,8 +226,7 @@ class SBER_DEBIT_2107(Extractor):
                 'category': 'Категория',
                 'value_account_currency': 'Сумма в валюте счёта',
                 'value_operational_currency': 'Сумма в валюте операции',
-                'operational_currency': 'Валюта операции',
-                'remainder_account_currency': 'Остаток по счёту в валюте счёта'}
+                'operational_currency': 'Валюта операции'}
 
 
 if __name__ == '__main__':
@@ -238,5 +237,5 @@ if __name__ == '__main__':
         print(__doc__)
 
     else:
-        extractors_generic.debug_extractor(SBER_DEBIT_2107,
+        extractors_generic.debug_extractor(SBER_DEBIT_2212,
                                            test_text_file_name=sys.argv[1])
