@@ -1,21 +1,3 @@
-"""
-Модуль экстрактора информации из текстового файла выписки типа SBER_PAYMENT_2208
-
-Для отладки модуля сделать следующее:
-
-ШАГ 1: Сконвертировать выписку из формата .pdf в формат .txt используя либо sberbankPDF2ExcelGUI.py либо непосредственно pdf2txtev.py
-
-ШАГ 2: Запустить этот файл из командной строки:
-
-    py extractor_SBER_CREDIT_2110.py <test_text_file_name>
-
-ШАГ 3: Убедиться, что модуль закончит работу без ошибок
-
-ШАГ 4: Проанализировать WARNINGS, которые будут напечатаны в конце
-
-"""
-
-
 import exceptions
 import re
 from datetime import datetime
@@ -25,93 +7,81 @@ from utils import get_float_from_money
 from utils import split_Sberbank_line
 
 from extractor import Extractor
-
 import extractors_generic
 
-class SBER_PAYMENT_2208(Extractor):
+class SBER_DEBIT_2212(Extractor):
 
     def check_specific_signatures(self):
-        """
-        Function tries to find some spesific signatures in the text (e.g. sberbank)
-        If these signatures are not found, then exceptions.InputFileStructureError() is raised
-        """
 
         test1 = re.search(r'сбербанк', self.bank_text, re.IGNORECASE)
         # print(f"{test1=}")
 
-        test2 = re.search(r'Выписка по платёжному счёту', self.bank_text, re.IGNORECASE)
+        test2 = re.search(r'Выписка по счёту дебетовой карты', self.bank_text, re.IGNORECASE)
         # print(f"{test2=}")
 
         test_ostatok_po_schetu = re.search(r'ОСТАТОК ПО СЧЁТУ', self.bank_text, re.IGNORECASE)
-        # print(f"{test2=}")
 
-        if not test1  or not test2 or not test_ostatok_po_schetu:
+        if (not test1  or not test2) or test_ostatok_po_schetu:
             raise exceptions.InputFileStructureError("Не найдены паттерны, соответствующие выписке")
 
     def get_period_balance(self)->str:
         """
-        Function gets information about transaction balance from the header of the banl extract
-        This balance is then returned as a float
+        функция ищет в тексте значения "ВСЕГО СПИСАНИЙ" и "ВСЕГО ПОПОЛНЕНИЙ" и возвращает разницу
+        используется для контрольной проверки вычислений
 
+        Пример текста
+        ----------------------------------------------------------
+        ОСТАТОК НА 30.06.2021     ОСТАТОК НА 06.07.2021     ВСЕГО СПИСАНИЙ     ВСЕГО ПОПОЛНЕНИЙ
+        28 542,83->12 064,34->248 822,49->232 344,00
+        ----------------------------------------------------------
 
-        ---------------------------------------------------
-        СУММА ПОПОЛНЕНИЙ -> СУММА СПИСАНИЙ -> СУММА СПИСАНИЙ БАНКА
-        1 040,00 -> 601,80 -> 437,46
-        -------------------------------------------------------
-        :param :
+        :param PDF_text:
         :return:
         """
 
-        res = re.search(r'ОСТАТОК\sНА.*ВСЕГО\sСПИСАНИЙ\tВСЕГО\sПОПОЛНЕНИЙ.*\n(.*?)\n', self.bank_text, re.MULTILINE)
+        res = re.search(r'ОСТАТОК НА.*?ОСТАТОК НА.*?ВСЕГО СПИСАНИЙ.*?ВСЕГО ПОПОЛНЕНИЙ.*?\n(.*?)\n', self.bank_text, re.MULTILINE)
         if not res:
-            pass
-            raise exceptions.InputFileStructureError('Не найдена структура с пополнениями и списаниями')
+            raise exceptions.InputFileStructureError(
+                'Не найдена структура с остатками и пополнениями')
 
         line_parts = res.group(1).split('\t')
 
-        summa_popolneniy = get_float_from_money(line_parts[3])
-        summa_spisaniy = get_float_from_money(line_parts[2])
+        summa_spisaniy = line_parts[2]
+        summa_popolneniy = line_parts[3]
 
-        balance = summa_popolneniy - summa_spisaniy
+        # print('summa_spisaniy ='+summa_spisaniy)
+        # print('summa_popolneniy =' + summa_popolneniy)
 
-        ostatok_start_of_period = get_float_from_money(line_parts[0])
-        ostatok_end_of_period = get_float_from_money(line_parts[1])
+        summa_popolneniy = get_float_from_money(summa_popolneniy)
+        summa_spisaniy = get_float_from_money(summa_spisaniy)
 
-        if not abs(balance - (ostatok_end_of_period - ostatok_start_of_period))<0.01:
-            raise exceptions.InputFileStructureError(f'Что-то пошло не так:\n[ ВСЕГО ПОПОЛНЕНИЙ ({summa_popolneniy}) - ВСЕГО СПИСАНИЙ ({summa_spisaniy}) ] != [ОСТАТОК В КОНЦЕ ({ostatok_end_of_period}) - ОСТАТОК В НАЧАЛЕ ({ostatok_start_of_period})]  ')
-
-        return balance
+        return summa_popolneniy - summa_spisaniy
 
     def split_text_on_entries(self)->list[str]:
         """
-        Function splits the text on indovidual entries
-        If no entries are found, the exceptions.InputFileStructureError() is raised
-
-
-
-        разделяет текстовый файл на отдельные записи
+        разделяет текстовый файл формата 2107_Stavropol на отдельные записи
 
         пример одной записи
     ------------------------------------------------------------------------------------------------------
-        03.07.2021 12:52 -> Перевод с карты -> 3 500,00
+        03.07.2021 12:52 -> Перевод с карты -> 3 500,00 -> 28 655,30
         03.07.2021 123456 -> SBOL перевод 1234****1234 Н. ИГОРЬ РОМАНОВИЧ
     ------------------------------------------------------------------------------------------------------
 
         либо такой
     --------------------------------------------------------------------------------------------------
-        28.06.2021 00:00 -> Неизвестная категория(+) -> +21107,75
+        28.06.2021 00:00 -> Неизвестная категория(+) -> +21107,75 -> 22113,73
         28.06.2021 - -> Прочие выплаты
     ----------------------------------------------------------------------------------------------------
 
         либо такой с иностранной вылютой
     ---------------------------------------------------------------------------------------------------------
-        08.07.2021 18:27 -> Все для дома     193,91
+        08.07.2021 18:27 -> Все для дома     193,91     14593,30
         09.07.2021 254718 -> XXXXX XXXXX -> 2,09 €
     ---------------------------------------------------------------------------------------------------------
 
         ещё один пример (с 3 линиями)
         ---------------------------------------------------------------------------------------------------------
-        03.07.2021 11:54 -> Перевод с карты -> 4 720,00
+        03.07.2021 11:54 -> Перевод с карты -> 4 720,00 -> 45 155,30
         03.07.2021 258077 -> SBOL перевод 1234****5678 А. ВАЛЕРИЯ
         ИГОРЕВНА
         ----------------------------------------------------------------------------------------------------------
@@ -141,38 +111,29 @@ class SBER_PAYMENT_2208(Extractor):
 
     def decompose_entry_to_dict(self, entry:str)->dict:
         """
-        Function decomposes individual entry text to an information structure in a form of dictionary
-        If something unexpected is found, exception exceptions.InputFileStructureError() is raised
-        Naming of the dictionary keys is not hard fixed, but shall correspond to what is returned by the function get_columns_info(self)
-
-        All numerical fields shall be returned as float
-
-        All dates / dates and times shall be returned as python datetime.datetime
-
-
         Выделяем данные из одной записи в dictionary
 
     ------------------------------------------------------------------------------------------------------
-        03.07.2021 12:52 -> Перевод с карты -> 3 500,00
+        03.07.2021 12:52 -> Перевод с карты -> 3 500,00 -> 28 655,30
         03.07.2021 123456 -> SBOL перевод 1234****1234 Н. ИГОРЬ РОМАНОВИЧ
     ------------------------------------------------------------------------------------------------------
 
         либо такой
     --------------------------------------------------------------------------------------------------
-        28.06.2021 00:00 -> Неизвестная категория(+)     +21107,75
+        28.06.2021 00:00 -> Неизвестная категория(+)     +21107,75     22113,73
         28.06.2021 - -> Прочие выплаты
     ----------------------------------------------------------------------------------------------------
 
         ещё один пример (с 3 линиями)
         ---------------------------------------------------------------------------------------------------------
-        03.07.2021 11:54 -> Перевод с карты -> 4 720,00
+        03.07.2021 11:54 -> Перевод с карты -> 4 720,00 -> 45 155,30
         03.07.2021 258077 -> SBOL перевод 1234****5678 А. ВАЛЕРИЯ
         ИГОРЕВНА
         ----------------------------------------------------------------------------------------------------------
 
         либо такой с иностранной вылютой
     ---------------------------------------------------------------------------------------------------------
-        08.07.2021 18:27 -> Все для дома -> 193,91
+        08.07.2021 18:27 -> Все для дома -> 193,91 -> 14593,30
         09.07.2021 -> 254718 -> XXXXX XXXXX -> 2,09 €
     ---------------------------------------------------------------------------------------------------------
 
@@ -181,8 +142,9 @@ class SBER_PAYMENT_2208(Extractor):
     {'authorisation_code': '254718',
      'category': 'Все для дома',
      'description': 'XXXXX XXXXX',
-     'operation_date': datetime.datetime(2021,7,8,18,27),
-     'processing_date': datetime.datetime(2021,7,9,0,0),
+     'operation_date': '08.07.2021 18:27',
+     'processing_date': '09.07.2021',
+     'remainder_account_currency': 14593.30,
      'value_account_currency': -193.91б
      'operational_currency': '€'
      }
@@ -198,18 +160,22 @@ class SBER_PAYMENT_2208(Extractor):
         # ************** looking at the 1st line
         line_parts = split_Sberbank_line(lines[0])
 
+        # print( f"1st line line_parts {line_parts}")
+
         result['operation_date'] = line_parts[0] + " " + line_parts[1]
         # https://docs.python.org/3/library/datetime.html#strftime-and-strptime-behavior
         result['operation_date'] = datetime.strptime(result['operation_date'], '%d.%m.%Y %H:%M')
 
-        result['description'] = line_parts[2]
-        result['value_account_currency'] = get_float_from_money(line_parts[3])
-        result['remainder_account_currency'] = get_float_from_money(line_parts[4])
+        result['category'] = line_parts[2]
+        result['value_account_currency'] = get_float_from_money(line_parts[3],
+                                                                True)
+        # result['remainder_account_currency'] = get_float_from_money(
+        #     line_parts[4])
 
         # ************** looking at the 2nd line
         line_parts = split_Sberbank_line(lines[1])
 
-        if len(line_parts) != 3 or len(line_parts) > 4:
+        if len(line_parts) < 3 or len(line_parts) > 4:
             raise exceptions.Bank2ExcelError(
                 "Line is expected to have 3 or 4 parts :" + str(lines[1]))
 
@@ -221,14 +187,15 @@ class SBER_PAYMENT_2208(Extractor):
         result['processing_date'] = datetime.strptime(result['processing_date'], '%d.%m.%Y')
 
         result['authorisation_code'] = line_parts[1]
-        result['category'] = line_parts[2]
+        result['description'] = line_parts[2]
 
         # Выделяем сумму в валюте оперции, если присуиствует
         if len(line_parts) == 4:
             found = re.search(r'(.*?)\s(\S*)',
                               line_parts[3])  # processing string like '6,79 €'
             if found:
-                result['value_operational_currency'] = get_float_from_money(found.group(1))
+                result['value_operational_currency'] = get_float_from_money(
+                    found.group(1), True)
                 result['operational_currency'] = found.group(2)
             else:
                 raise exceptions.InputFileStructureError(
@@ -245,27 +212,21 @@ class SBER_PAYMENT_2208(Extractor):
         return result
 
     def get_column_name_for_balance_calculation(self)->str:
-        """
-        Retrun name of the transaction field, which later can be used to calculate a complete balance of the period
-        E.g. 'value_account_currency'
-        """
         return 'value_account_currency'
 
     def get_columns_info(self)->dict:
         """
-        Returns full column names in the order and in the form they shall appear in Excel
+        Returns full column names in the order they shall appear in Excel
         The keys in dictionary shall correspond to keys of the result of the function self.decompose_entry_to_dict()
         """
-        return {'operation_date': 'ДАТА ОПЕРАЦИИ (МСК)',
+        return {'operation_date': 'Дата операции',
                 'processing_date': 'Дата обработки',
                 'authorisation_code': 'Код авторизации',
-                'description': 'НАЗВАНИЕ ОПЕРАЦИИ',
+                'description': 'Описание операции',
                 'category': 'Категория',
-                'value_account_currency': 'СУММА В ВАЛЮТЕ СЧЁТА',
+                'value_account_currency': 'Сумма в валюте счёта',
                 'value_operational_currency': 'Сумма в валюте операции',
-                'operational_currency': 'Валюта операции',
-                'remainder_account_currency': 'Остаток по счёту в валюте счёта'
-                }
+                'operational_currency': 'Валюта операции'}
 
 
 if __name__ == '__main__':
@@ -276,8 +237,5 @@ if __name__ == '__main__':
         print(__doc__)
 
     else:
-        extractors_generic.debug_extractor(SBER_PAYMENT_2208,
+        extractors_generic.debug_extractor(SBER_DEBIT_2212,
                                            test_text_file_name=sys.argv[1])
-
-
-

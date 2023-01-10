@@ -36,10 +36,10 @@ class SBER_CREDIT_2107(Extractor):
         If these signatures are not found, then exceptions.InputFileStructureError() is raised
         """
 
-        test1 = re.search(r'сбербанк', self.pdf_text, re.IGNORECASE)
+        test1 = re.search(r'сбербанк', self.bank_text, re.IGNORECASE)
         # print(f"{test1=}")
 
-        test2 = re.search(r'Выписка по счёту кредитной карты', self.pdf_text, re.IGNORECASE)
+        test2 = re.search(r'Выписка по счёту кредитной карты', self.bank_text, re.IGNORECASE)
         # print(f"{test2=}")
 
         if not test1  or not test2:
@@ -59,7 +59,7 @@ class SBER_CREDIT_2107(Extractor):
         :return:
         """
 
-        res = re.search(r'СУММА\sПОПОЛНЕНИЙ\tСУММА\sСПИСАНИЙ\tСУММА\sСПИСАНИЙ БАНКА\n(.*?)\n', self.pdf_text, re.MULTILINE)
+        res = re.search(r'СУММА\sПОПОЛНЕНИЙ\tСУММА\sСПИСАНИЙ\tСУММА\sСПИСАНИЙ БАНКА\n(.*?)\n', self.bank_text, re.MULTILINE)
         if not res:
             pass
             raise exceptions.InputFileStructureError('Не найдена структура с пополнениями и списаниями')
@@ -119,7 +119,7 @@ class SBER_CREDIT_2107(Extractor):
              \d\d\.\d\d\.\d\d\d\d\s{1}\d\d:\d\d|                           # Либо до начала новой страницы
               Реквизиты\sдля\sперевода)                                    # Либо да конца выписки
             """,
-                                        self.pdf_text, re.VERBOSE)
+                                        self.bank_text, re.VERBOSE)
 
         if len(individual_entries) == 0:
             raise exceptions.InputFileStructureError(
@@ -201,7 +201,7 @@ class SBER_CREDIT_2107(Extractor):
         line_parts = split_Sberbank_line(lines[1])
 
         if len(line_parts) != 3 or len(line_parts) > 4:
-            raise exceptions.SberbankPDF2ExcelError(
+            raise exceptions.Bank2ExcelError(
                 "Line is expected to have 3 or 4 parts :" + str(lines[1]))
 
         # print(line_parts[0])

@@ -11,6 +11,7 @@ from typing import *
 import exceptions
 import version_info
 
+
 def get_float_from_money(money_str: str, process_no_sign_as_negative=False) -> float:
     """
     Converts string, representing money to a float.

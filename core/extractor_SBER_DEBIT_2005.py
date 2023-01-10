@@ -15,10 +15,10 @@ class SBER_DEBIT_2005(Extractor):
 
     def check_specific_signatures(self):
 
-        test1 = re.search(r'сбербанк', self.pdf_text, re.IGNORECASE)
+        test1 = re.search(r'сбербанк', self.bank_text, re.IGNORECASE)
         # print(f"{test1=}")
 
-        test2 = re.search(r'Выписка по счёту дебетовой карты', self.pdf_text, re.IGNORECASE)
+        test2 = re.search(r'Выписка по счёту дебетовой карты', self.bank_text, re.IGNORECASE)
         # print(f"{test2=}")
 
         if not test1  or not test2:
@@ -33,14 +33,14 @@ class SBER_DEBIT_2005(Extractor):
         :return:
         """
 
-        if (res := re.search(r'СУММА ПОПОЛНЕНИЙ\t(\d[\d\s]*\,\d\d)', self.pdf_text,
+        if (res := re.search(r'СУММА ПОПОЛНЕНИЙ\t(\d[\d\s]*\,\d\d)', self.bank_text,
                              re.MULTILINE)):
             summa_popolneniy = res.group(1)
         else:
             raise exceptions.InputFileStructureError(
                 'Не найдено значение "СУММА ПОПОЛНЕНИЙ"')
 
-        if (res := re.search(r'СУММА СПИСАНИЙ\t(\d[\d\s]*\,\d\d)', self.pdf_text,
+        if (res := re.search(r'СУММА СПИСАНИЙ\t(\d[\d\s]*\,\d\d)', self.bank_text,
                              re.MULTILINE)):
             summa_spisaniy = res.group(1)
         else:
@@ -79,7 +79,7 @@ class SBER_DEBIT_2005(Extractor):
         \d\d\.\d\d\.\d\d\d\d\s/                       # date with forward stash like '25.12.2019 /' 
         .*?\n                                         # everything till end of the line
         """,
-                                        self.pdf_text, re.VERBOSE)
+                                        self.bank_text, re.VERBOSE)
 
         if len(individual_entries) == 0:
             raise exceptions.InputFileStructureError(
@@ -132,7 +132,7 @@ class SBER_DEBIT_2005(Extractor):
         for line in sublines:
             line_parts = split_Sberbank_line(line)
             if len(line_parts) != 1:
-                raise exceptions.SberbankPDF2ExcelError(
+                raise exceptions.Bank2ExcelError(
                     "Line is expected to have only one part :" + line)
             result['description'] = result['description'] + ' ' + line_parts[0]
 
@@ -140,7 +140,7 @@ class SBER_DEBIT_2005(Extractor):
         line_parts = split_Sberbank_line(lines[-1])
 
         if len(line_parts) < 2 or len(line_parts) > 3:
-            raise exceptions.SberbankPDF2ExcelError(
+            raise exceptions.Bank2ExcelError(
                 "Line is expected to 2 or parts :" + line)
 
         result['processing_date'] = line_parts[0][0:10]

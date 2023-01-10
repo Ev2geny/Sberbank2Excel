@@ -47,6 +47,7 @@ def sberbankPDFtext2Excel(input_txt_file_name:str,
     """
     Функция конвертирует текстовый файл Сбербанка, полученный из выписки PDF в Excel или CSV форматы
     Если output_file_name не задан, то он создаётся из input_txt_file_name путём удаления расширения
+    return: file name of the created file
     """
 
     # creating output file name for Excel file, if not provided

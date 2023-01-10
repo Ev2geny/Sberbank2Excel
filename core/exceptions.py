@@ -1,16 +1,16 @@
 
-class SberbankPDF2ExcelError(Exception):
+class Bank2ExcelError(Exception):
     #TODO: replace usage of this generic error for more spesific
     pass
 
-class InputFileStructureError(SberbankPDF2ExcelError):
+class InputFileStructureError(Bank2ExcelError):
     pass
 
-class BalanceVerificationError(SberbankPDF2ExcelError):
+class BalanceVerificationError(Bank2ExcelError):
     pass
 
-class UserInputError(SberbankPDF2ExcelError):
+class UserInputError(Bank2ExcelError):
     pass
 
-class TestingError(SberbankPDF2ExcelError):
+class TestingError(Bank2ExcelError):
     pass
