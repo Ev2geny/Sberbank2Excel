@@ -191,8 +191,8 @@ class SBER_DEBIT_2212(Extractor):
 
         # Выделяем сумму в валюте оперции, если присуиствует
         if len(line_parts) == 4:
-            found = re.search(r'(.*?)\s(\S*)',
-                              line_parts[3])  # processing string like '6,79 €'
+            found = re.search(r'([\d\s,]*?)\s(\S*)$',
+                              line_parts[3])  # processing string like '1 515,76 €'
             if found:
                 result['value_operational_currency'] = get_float_from_money(
                     found.group(1), True)
