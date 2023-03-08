@@ -88,21 +88,21 @@ def write_df_to_file(df:pd.DataFrame,
 
     if output_file_format == "xlsx":
 
-        writer = pd.ExcelWriter(filename,
+        with pd.ExcelWriter(filename,
                                 engine='xlsxwriter',
-                                datetime_format='dd.mm.yyyy HH:MM')
+                                datetime_format='dd.mm.yyyy HH:MM') as writer:
 
-        df.to_excel(writer, sheet_name='data', index=False)
+            df.to_excel(writer, sheet_name='data', index=False)
 
-        workbook = writer.book
-        info_worksheet = workbook.add_worksheet('Info')
+            workbook = writer.book
+            info_worksheet = workbook.add_worksheet('Info')
 
-        info_worksheet.write('A3', f'Файл создан утилитой "{version_info.NAME}", доступной для скачивания по ссылке {version_info.PERMANENT_LOCATION}')
-        info_worksheet.write('A4', f'Версия утилиты "{version_info.VERSION}"')
-        info_worksheet.write('A5', f'Для выделения информации был использован экстрактор типа "{extractor_name}"')
-        info_worksheet.write('A6', f'Ошибки при конвертации: "{errors}"')
+            info_worksheet.write('A3', f'Файл создан утилитой "{version_info.NAME}", доступной для скачивания по ссылке {version_info.PERMANENT_LOCATION}')
+            info_worksheet.write('A4', f'Версия утилиты "{version_info.VERSION}"')
+            info_worksheet.write('A5', f'Для выделения информации был использован экстрактор типа "{extractor_name}"')
+            info_worksheet.write('A6', f'Ошибки при конвертации: "{errors}"')
 
-        writer.save()
+            # writer.save()
 
         print_message_about_file_creation(filename)
 
