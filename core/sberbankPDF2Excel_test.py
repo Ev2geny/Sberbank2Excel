@@ -44,3 +44,9 @@ def test_correctly_converts_SBER_PAYMENT_2212_pdf():
 
 def test_correctly_converts_SBER_DEBIT_2212_pdf():
     sberbankPDF2Excel(no_github_module.SBER_DEBIT_2212_pdf)
+
+def test_correctly_converts_SBER_SAVING_2303_EURO_pdf():
+    sberbankPDF2Excel(no_github_module.SBER_SAVING_2303_EURO_pdf)
+
+
+# SBER_SAVING_2303_EURO_pdf
