@@ -9,7 +9,7 @@ import exceptions
 
 class Extractor(ABC):
     def __init__(self, bank_text: str):
-        self.bank_text = bank_text + '\n___EOF'
+        self.bank_text = bank_text 
 
     @abstractmethod
     def check_specific_signatures(self):
@@ -55,5 +55,19 @@ class Extractor(ABC):
             return False
 
     def get_entries(self)->list[dict]:
-        entries_list_of_dicts = [self.decompose_entry_to_dict(entry) for entry in self.split_text_on_entries()]
+        # entries_list_of_dicts = [self.decompose_entry_to_dict(entry) for entry in self.split_text_on_entries()]
+        entries_list_of_dicts = []
+        
+        for entry in self.split_text_on_entries():
+            try:
+                entries_list_of_dicts.append(self.decompose_entry_to_dict(entry))
+            except Exception as e:
+                print("Error while processing entry \n"+
+                      "-"*20 +
+                      "\n"+ 
+                      entry +
+                      "\n"+ 
+                      "-"*20)
+                raise e
+        
         return entries_list_of_dicts

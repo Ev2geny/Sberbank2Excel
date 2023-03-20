@@ -51,9 +51,9 @@ class SBER_DEBIT_2111_VISA(Extractor):
             \t                                                            # tab    
             \d\d\.\d\d\.\d\d                                              # Date like '02.06.21' Дата обработки
             [\s\S]*?                                                      # any character, including new line. !!None-greedy!!
-            (?=\d\d\.\d\d\.\d\d|                                           # Lookahead Start of new transaction
-            117997,\sМосква,\sул\.\sВавилова,\sд\.\s19|                    # or till "117997, Москва, ул. Вавилова, д. 19"
-             ___EOF)                                                       # or till artificial __EOF
+            (?=\d\d\.\d\d\.\d\d|                                          # Lookahead Start of new transaction
+            117997,\sМосква,\sул\.\sВавилова,\sд\.\s19|                   # or till "117997, Москва, ул. Вавилова, д. 19"
+            \Z)                                                           # or till the end of the string
             """,
                                         self.bank_text, re.VERBOSE)
 

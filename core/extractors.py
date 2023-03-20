@@ -29,6 +29,9 @@ extractors_list.append(SBER_DEBIT_2212)
 from extractor_SBER_SAVING_2303 import SBER_SAVING_2303
 extractors_list.append(SBER_SAVING_2303)
 
+from extractor_SBER_DEBIT_2303_CHELYABINSK import SBER_DEBIT_2303_CHELYABINSK
+extractors_list.append(SBER_DEBIT_2303_CHELYABINSK)
+
 
 def get_list_extractors_in_text():
     return [extractor.__name__ for extractor in extractors_list]
