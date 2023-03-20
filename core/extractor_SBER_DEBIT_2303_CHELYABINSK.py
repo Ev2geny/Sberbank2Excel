@@ -85,7 +85,7 @@ class SBER_DEBIT_2303_CHELYABINSK(Extractor):
         [\s\S]*?                                      # any character, including new line. !!None-greedy!! See URL why [\s\S] is used https://stackoverflow.com/a/33312193
         (?=\d\d\.\d\d\.\d\d\t\d\d\.\d\d\.\d\d|        # lookahead до начала следующей трансакции
         117997,\sМосква,\sул\.\sВавилова,\sд\.\s19|   # либо до верхнего колонтитула следующей страницы (117997, Москва, ул. Вавилова, д. 19)' 
-        ___EOF)                                       # либо до конца файла
+        \Z)                                           # либо до конца файла
         """,
         self.bank_text, re.VERBOSE)
 
