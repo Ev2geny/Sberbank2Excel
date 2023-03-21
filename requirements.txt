@@ -1,4 +1,4 @@
-# Works only with python 3.9
+# Currently being released with 3.11
 pdfminer.six
 pandas
 PyInstaller
