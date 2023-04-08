@@ -43,11 +43,24 @@ def sberbankPDFtext2Excel(input_txt_file_name:str,
                           output_file_name:str = None,
                           format = 'auto',
                           perform_balance_check = True,
-                          output_file_type='xlsx') -> str:
-    """
-    Функция конвертирует текстовый файл Сбербанка, полученный из выписки PDF в Excel или CSV форматы
-    Если output_file_name не задан, то он создаётся из input_txt_file_name путём удаления расширения
-    return: file name of the created file
+                          output_file_type='xlsx',
+                          reversed_transaction_order=False) -> str:
+    """ Функция конвертирует текстовый файл Сбербанка, полученный из выписки PDF в Excel или CSV форматы
+        Если output_file_name не задан, то он создаётся из input_txt_file_name путём удаления расширения
+
+    Args:
+        input_txt_file_name (str): имя входного текстового файла
+        output_file_name (str, optional): имя выходного файла. Defaults to None.
+        format (str, optional): формат входного файла. Defaults to 'auto'.
+        perform_balance_check (bool, optional): Проводить сверку баланса по трансакциям и по шапке. Defaults to True.
+        output_file_type (str, optional): Тип выходного файла. Defaults to 'xlsx'.
+        reversed_transaction_order (bool, optional): Изменить порядок трансакций на обратный. Defaults to False.
+
+    Raises:
+        exceptions.UserInputError: 
+
+    Returns:
+        str: file name of the created file
     """
 
     # creating output file name for Excel file, if not provided
@@ -65,6 +78,7 @@ def sberbankPDFtext2Excel(input_txt_file_name:str,
         extractor_type = determine_extractor_auto(file_text)
         print(r"Формат файла определён как " + extractor_type.__name__)
 
+    # checking whether format is one of the known formats
     else:
         for extractor in extractors.extractors_list:
             if extractor.__name__ == format:
@@ -109,21 +123,14 @@ def sberbankPDFtext2Excel(input_txt_file_name:str,
 
     df = utils.rename_sort_df(df = df,
                               columns_info=extractor.get_columns_info())
+    
+    if reversed_transaction_order:
+        df = df.iloc[::-1]  # reversing the order of transactions
 
     utils.write_df_to_file(df, output_file_name,
-                            extractor_name = extractor_type.__name__,
+                            extractor_name=extractor_type.__name__,
                             errors=error,
                             output_file_format=output_file_type)
-
-
-    # writer = pd.ExcelWriter(output_excel_file_name,
-    #                         engine='xlsxwriter',
-    #                         datetime_format='dd.mm.yyyy HH:MM')
-    #
-    # df.to_excel(writer, sheet_name='data', index=False)
-    #
-    # writer.save()
-    # writer.close()
 
     # print(f"Создан файл {output_file_name}")
 
@@ -141,6 +148,7 @@ def genarate_PDFtext2Excel_argparser()->argparse.ArgumentParser:
     parser.add_argument('-b','--balcheck', action='store_false', default=True, dest='perform_balance_check', help='Игнорировать результаты сверки баланса по транзакциям и в шапке выписки')
     parser.add_argument('-f', '--format', type=str,default='auto', dest='format', choices = extractors.get_list_extractors_in_text(),help = 'Формат выписки. Если не указан, определяется автоматически' )
     parser.add_argument('-t', '--type', type=str,default='xlsx', dest='output_file_type', choices = ["xlsx","csv"],help = 'Тип создаваемого файла' )
+    parser.add_argument('-r', '--reverse', action='store_true', default=False, dest='reversed_transaction_order', help='Изменить порядок транзакций на обратный')
 
     return parser
 
@@ -157,7 +165,8 @@ def main():
                           output_file_name = args.output_Excel_file_name,
                           format=args.format,
                           perform_balance_check = args.perform_balance_check,
-                          output_file_type=args.output_file_type)
+                          output_file_type=args.output_file_type,
+                          reversed_transaction_order=args.reversed_transaction_order)
 
 
 if __name__=='__main__':

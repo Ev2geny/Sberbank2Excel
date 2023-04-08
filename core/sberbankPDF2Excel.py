@@ -17,13 +17,24 @@ def sberbankPDF2Excel(input_file_name:str,
                       format:str= 'auto',
                       leave_intermediate_txt_file:str = False,
                       perform_balance_check = True,
-                      output_file_type:str="xlsx") ->str:
-    """
-    function converts pdf or text file with Sperbank extract to Excel or CSV format
-    input_file_name:
-    output_excel_file_name:
-    format: str - format of the Sberbank extract. If "auto" then tool tryes to work out the format itself
-    leave_intermediate_txt_file: if True, does not delete intermediate txt file
+                      output_file_type:str="xlsx",
+                      reversed_transaction_order=True) ->str:
+    """function converts pdf or text file with Sperbank extract to Excel or CSV format
+
+    Args:
+        input_file_name (str): _description_
+        output_file_name (Union[str, None], optional): _description_. Defaults to None.
+        format (str, optional): _description_. Defaults to 'auto'.
+        leave_intermediate_txt_file (str, optional): _description_. Defaults to False.
+        perform_balance_check (bool, optional): _description_. Defaults to True.
+        output_file_type (str, optional): _description_. Defaults to "xlsx".
+        reversed_transaction_order (bool, optional): _description_. Defaults to True.
+
+    Raises:
+        exceptions.InputFileStructureError: _description_
+
+    Returns:
+        str: file name of the created file
     """
 
     print(f"{format=}")
@@ -52,11 +63,12 @@ def sberbankPDF2Excel(input_file_name:str,
         if extension == ".pdf":
             pdf_2_txt_file(input_file_name, tmp_txt_file_name)
 
-        result = sberbankPDFtext2Excel(tmp_txt_file_name,
-                                       output_file_name,
-                                       format=format,
-                                       perform_balance_check = perform_balance_check,
-                                       output_file_type=output_file_type)
+        created_file_name = sberbankPDFtext2Excel(tmp_txt_file_name,
+                                                  output_file_name,
+                                                  format=format,
+                                                  perform_balance_check = perform_balance_check,
+                                                  output_file_type=output_file_type,
+                                                  reversed_transaction_order=reversed_transaction_order)
 
         if (not leave_intermediate_txt_file) and (not extension == ".txt"):
             os.remove(tmp_txt_file_name)
@@ -65,7 +77,7 @@ def sberbankPDF2Excel(input_file_name:str,
         raise
 
 
-    return result
+    return created_file_name
 
 
 def main():
@@ -84,7 +96,8 @@ def main():
                       format = args.format,
                       leave_intermediate_txt_file = args.leave_intermediate_txt_file,
                       perform_balance_check = args.perform_balance_check,
-                      output_file_type=args.output_file_type)
+                      output_file_type=args.output_file_type,
+                      reversed_transaction_order=args.reversed_transaction_order)
 
 if __name__ == '__main__':
     main()
