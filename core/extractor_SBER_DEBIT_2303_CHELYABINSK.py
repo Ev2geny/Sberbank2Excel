@@ -26,12 +26,14 @@ class SBER_DEBIT_2303_CHELYABINSK(Extractor):
 
     def get_period_balance(self) -> str:
         """
-        Function gets information about transaction balance from the header of the banl extract
+        Function gets information about transaction balance from the header of the banlk extract
         This balance is then returned as a float
 
 
         ---------------------------------------------------
-        Пополнение	621,18	Списание	621,18
+        Безналичные	.....................................	245 424,56
+        Наличные	...........................................	354 745,00
+        Пополнение карты	..........................	+603 201,00
         -------------------------------------------------------
         :param :
         :return:

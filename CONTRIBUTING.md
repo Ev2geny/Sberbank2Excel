@@ -73,4 +73,4 @@ extractors_generic.debug_extractor(SBER_CREDIT_2107, test_text_file_name=sys.arg
 ### Шаг 3. Документация
 Если в планах сделать [github pull request](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/about-pull-requests), то необходимо так же приложить анонимизированный графический образец новой выписки (см. [примеры](misc/format_examples))
 
-Пример полного набора изменений для добавления одного формата выписки можно посмотреть в [этом коммите] (https://github.com/Ev2geny/Sberbank2Excel/commit/0f6c85e4b042ab088b89d5ea1dfe13fcf6f13037)
+Пример полного набора изменений для добавления одного формата выписки можно посмотреть в [этом коммите](https://github.com/Ev2geny/Sberbank2Excel/commit/0f6c85e4b042ab088b89d5ea1dfe13fcf6f13037)

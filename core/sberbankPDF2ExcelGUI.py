@@ -90,7 +90,7 @@ window.config(menu=menu)
  
 window.title(f'{version_info.NAME} Версия={version_info.VERSION}')
  
-window.geometry('720x400')
+window.geometry('720x430')
  
 Label(window, text="""
 Шаг 1: Выберите один или несколько файлов в формате PDF
@@ -116,7 +116,10 @@ leave_intermediate_txt_file = IntVar()
 Checkbutton(window, text="Не удалять промежуточный текстовый файл", variable=leave_intermediate_txt_file).grid(row=10, sticky=W)
 
 no_balance_check = IntVar()
-Checkbutton(window, text="Игнорировать результаты сверки баланса по транзакциям и в шапке выписки", variable=no_balance_check).grid(row=11, sticky=W)
+Checkbutton(window, text="Игнорировать результаты сверки баланса по трансакциям и в шапке выписки", variable=no_balance_check).grid(row=11, sticky=W)
+
+reversed_transaction_order = IntVar()
+Checkbutton(window, text="Изменить порядок трансакций на обратный", variable=reversed_transaction_order).grid(row=12, sticky=W)
 
 
 window.mainloop()
