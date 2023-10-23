@@ -18,17 +18,20 @@ def sberbankPDF2Excel(input_file_name:str,
                       leave_intermediate_txt_file:str = False,
                       perform_balance_check = True,
                       output_file_type:str="xlsx",
-                      reversed_transaction_order=True) ->str:
+                      reversed_transaction_order=True,
+                      output_directory_name:Union[str, None] =None) ->str:
     """function converts pdf or text file with Sperbank extract to Excel or CSV format
 
     Args:
-        input_file_name (str): _description_
-        output_file_name (Union[str, None], optional): _description_. Defaults to None.
-        format (str, optional): _description_. Defaults to 'auto'.
-        leave_intermediate_txt_file (str, optional): _description_. Defaults to False.
-        perform_balance_check (bool, optional): _description_. Defaults to True.
-        output_file_type (str, optional): _description_. Defaults to "xlsx".
-        reversed_transaction_order (bool, optional): _description_. Defaults to True.
+        input_file_name (str): Input file name
+        output_file_name (Union[str, None], optional):Defaults to None.
+        format (str, optional): Defaults to 'auto'.
+        leave_intermediate_txt_file (str, optional): Defaults to False.
+        perform_balance_check (bool, optional): Defaults to True.
+        output_file_type (str, optional): Defaults to "xlsx".
+        reversed_transaction_order (bool, optional): Defaults to True.
+        output_directory_name (Union[str, None], optional): Defaults to None. If None, then output file is created in the same directory as input file
+            if output_file_name is not None, then output_directory_name is ignored
 
     Raises:
         exceptions.InputFileStructureError: _description_
