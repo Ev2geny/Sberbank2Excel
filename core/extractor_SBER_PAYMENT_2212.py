@@ -209,7 +209,7 @@ class SBER_PAYMENT_2212(Extractor):
         # ************** looking at the 2nd line
         line_parts = split_Sberbank_line(lines[1])
 
-        if len(line_parts) != 3 or len(line_parts) > 4:
+        if len(line_parts) < 3 or len(line_parts) > 4:
             raise exceptions.Bank2ExcelError(
                 "Line is expected to have 3 or 4 parts :" + str(lines[1]))
 
