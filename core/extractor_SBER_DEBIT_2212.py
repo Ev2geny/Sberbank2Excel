@@ -2,6 +2,7 @@ import exceptions
 import re
 from datetime import datetime
 import sys
+from typing import Any
 
 from utils import get_float_from_money
 from utils import split_Sberbank_line
@@ -24,7 +25,7 @@ class SBER_DEBIT_2212(Extractor):
         if (not test1  or not test2) or test_ostatok_po_schetu:
             raise exceptions.InputFileStructureError("Не найдены паттерны, соответствующие выписке")
 
-    def get_period_balance(self)->str:
+    def get_period_balance(self)->float:
         """
         функция ищет в тексте значения "ВСЕГО СПИСАНИЙ" и "ВСЕГО ПОПОЛНЕНИЙ" и возвращает разницу
         используется для контрольной проверки вычислений
@@ -89,14 +90,15 @@ class SBER_DEBIT_2212(Extractor):
         """
         # extracting entries (operations) from text file on
         individual_entries = re.findall(r"""
-            \d\d\.\d\d\.\d\d\d\d\s{1}\d\d:\d\d                             # Date and time like '06.07.2021 15:46'                                        
-            .*?\n                                                          # Anything till end of the line including a line break
-            \d\d\.\d\d\.\d\d\d\d\s{1}                                      # дата обработки и 1 пробел 
-            (?=\d{3,8}|-)                                                  # код авторизации либо "-". Код авторизациии который я видел всегда состоит и 6 цифр, но на всякий случай укажим с 3 до 8
-            [\s\S]*?                                                       # any character, including new line. !!None-greedy!!
-            (?=Продолжение\sна\sследующей\sстранице|                       # lookahead до "Продолжение на следующей странице"
-             \d\d\.\d\d\.\d\d\d\d\s{1}\d\d:\d\d|                           # Либо до начала новой страницы
-              Реквизиты\sдля\sперевода)                                    # Либо да конца выписки
+            \d\d\.\d\d\.\d\d\d\d\s{1}\d\d:\d\d                              # Date and time like '06.07.2021 15:46'                                        
+            .*?\n                                                           # Anything till end of the line including a line break
+            \d\d\.\d\d\.\d\d\d\d\s{1}                                       # дата обработки и 1 пробел 
+            (?=\d{3,8}|-|0)                                                 # код авторизации, либо "-", либо 0 (issue 33). 
+                                                                            # Код авторизациии который я видел всегда состоит и 6 цифр, но на всякий случай укажим с 3 до 8
+            [\s\S]*?                                                        # any character, including new line. !!None-greedy!!
+            (?=Продолжение\sна\sследующей\sстранице|                        # lookahead до "Продолжение на следующей странице"
+             \d\d\.\d\d\.\d\d\d\d\s{1}\d\d:\d\d|                            # Либо до начала новой страницы
+              Реквизиты\sдля\sперевода)                                     # Либо да конца выписки
             """,
                                         self.bank_text, re.VERBOSE)
 
@@ -109,7 +111,7 @@ class SBER_DEBIT_2212(Extractor):
 
         return individual_entries
 
-    def decompose_entry_to_dict(self, entry:str)->dict:
+    def decompose_entry_to_dict(self, entry:str)->dict[str, Any]:
         """
         Выделяем данные из одной записи в dictionary
 
@@ -167,8 +169,7 @@ class SBER_DEBIT_2212(Extractor):
         result['operation_date'] = datetime.strptime(result['operation_date'], '%d.%m.%Y %H:%M')
 
         result['category'] = line_parts[2]
-        result['value_account_currency'] = get_float_from_money(line_parts[3],
-                                                                True)
+        result['value_account_currency'] = get_float_from_money(line_parts[3], True)
         # result['remainder_account_currency'] = get_float_from_money(
         #     line_parts[4])
 
