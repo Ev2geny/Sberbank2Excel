@@ -40,7 +40,7 @@ class bcolors:
     UNDERLINE = '\033[4m'
 
 def sberbankPDFtext2Excel(input_txt_file_name:str,
-                          output_file_name:str = None,
+                          output_file_name:str|None = None,
                           format = 'auto',
                           perform_balance_check = True,
                           output_file_type='xlsx',
