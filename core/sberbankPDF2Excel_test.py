@@ -53,6 +53,9 @@ def test_correctly_converts_SBER_DEBIT_2303_CHELYABINSK_pdf():
 
 def test_correctly_converts_SBER_PAYMENT_2212_issue_31_simulation_txt():
     sberbankPDF2Excel(no_github_module.SBER_PAYMENT_2212_issue_31_simulation_txt)
+    
+def test_correctly_converts_SBER_DEBIT_2212_issue_33_txt():
+    sberbankPDF2Excel(no_github_module.SBER_DEBIT_2212_issue_33_txt)
 
 # SBER_DEBIT_2303_CHELYABINSK_pdf
 
