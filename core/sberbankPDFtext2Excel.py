@@ -17,6 +17,7 @@
 import sys
 import os
 import argparse
+from pathlib import Path
 
 # importing own modules out of project
 import pandas as pd
@@ -24,6 +25,8 @@ import pandas as pd
 import utils
 import extractors
 import exceptions
+
+from utils import get_output_extentionless_file_name
 
 from extractors_generic import determine_extractor_auto
 
@@ -38,6 +41,9 @@ class bcolors:
     ENDC = '\033[0m'
     BOLD = '\033[1m'
     UNDERLINE = '\033[4m'
+    
+    
+    
 
 def sberbankPDFtext2Excel(input_txt_file_name:str,
                           output_file_name:str|None = None,
@@ -64,9 +70,12 @@ def sberbankPDFtext2Excel(input_txt_file_name:str,
     """
 
     # creating output file name for Excel file, if not provided
-    if not output_file_name:
-        pre, ext = os.path.splitext(input_txt_file_name)
-        output_file_name = pre
+    
+    if output_file_name:
+        output_file_name = Path(output_file_name)
+    else:
+        output_file_name = get_output_extentionless_file_name(input_txt_file_name)
+        
 
     # считываем входной файл в текст
     with open(input_txt_file_name, encoding="utf8") as file:
@@ -171,3 +180,6 @@ def main():
 
 if __name__=='__main__':
     main()
+    
+
+    

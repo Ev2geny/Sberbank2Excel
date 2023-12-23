@@ -5,8 +5,10 @@
 
 import unidecode
 import re
-import pandas as pd
 from typing import *
+from pathlib import Path
+
+import pandas as pd
 
 import exceptions
 import version_info
@@ -71,20 +73,24 @@ def check_transactions_balance(input_pd: pd.DataFrame, balance: float, column_na
         """)
 
 def write_df_to_file(df:pd.DataFrame, 
-                        filename_stem:str, 
+                        file:Path, 
                         extractor_name:str, 
                         errors:str="",
                         output_file_format:str="xlsx")->None:
     """
+        file - Path object of the file with or without extension
         output_file_format - supported values xlsx, csv
     """
 
     global version_info
 
+    if output_file_format not in ["xlsx", "csv"]:
+        raise exceptions.UserInputError(f"not supported output file format '{output_file_format}' is given to the function 'write_df_to_file'")
+
     def print_message_about_file_creation(file_name:str)->None:
         print(f"Создан файл {file_name}")
 
-    filename = filename_stem + "." + output_file_format
+    filename = Path(file).with_suffix(f".{output_file_format}")
 
     if output_file_format == "xlsx":
 
@@ -119,6 +125,31 @@ def write_df_to_file(df:pd.DataFrame,
 
 def main():
     print('this module is not designed to work standalone')
+    
+    
+def get_output_extentionless_file_name(input_file_name:str):
+    """ Функция создаёт имя выходного файла, если оно не задано
+
+    Args:
+        input_file_name (str): имя входного файла
+        output_file_name (str, optional): имя выходного файла. Defaults to None.
+
+    Returns:
+        str: имя выходного файла
+    """
+    EXPECTED_OUTPUT_DIRECTORY = "_output"
+    
+    input_file_name_path = Path(input_file_name)
+    
+    result = Path()
+    
+    if (input_file_name_path.parent / EXPECTED_OUTPUT_DIRECTORY).is_dir():
+        result = input_file_name_path.parent / EXPECTED_OUTPUT_DIRECTORY / input_file_name_path.stem
+        
+    else:
+        result = input_file_name_path.parent / input_file_name_path.stem
+        
+    return result
 
 if __name__=='__main__':
     main()

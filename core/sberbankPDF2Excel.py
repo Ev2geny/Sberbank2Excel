@@ -2,11 +2,13 @@ import sys
 import os
 from typing import Union
 import argparse
+from pathlib import Path
 
 import exceptions
 import extractors
 from pdf2txtev import pdf_2_txt_file
 from sberbankPDFtext2Excel import sberbankPDFtext2Excel, genarate_PDFtext2Excel_argparser
+from utils import get_output_extentionless_file_name
 
 
 
@@ -45,19 +47,15 @@ def sberbankPDF2Excel(input_file_name:str,
     path, extension = os.path.splitext(input_file_name)
 
     extension = extension.lower()
+    
+    if extension not in [".pdf", ".txt"]:
+        raise exceptions.InputFileStructureError(f"Расширение файла {extension} не поддерживается")
 
-    if extension == ".pdf":
-        tmp_txt_file_name = os.path.splitext(input_file_name)[0] + ".txt"
-
-    elif extension == ".txt":
-        tmp_txt_file_name = input_file_name
-
-    else:
-        raise exceptions.InputFileStructureError("Неподдерживаемое расширение файла: "+ extension)
+    tmp_txt_file_name = get_output_extentionless_file_name(input_file_name).with_suffix(".txt")
 
 
-    if not output_file_name:
-        output_file_name = path 
+    # if not output_file_name:
+    #     output_file_name = path 
 
     try:
         if extension == ".pdf":
