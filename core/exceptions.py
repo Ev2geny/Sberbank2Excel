@@ -14,3 +14,6 @@ class UserInputError(Bank2ExcelError):
 
 class TestingError(Bank2ExcelError):
     pass
+
+class InternalLogicError(Bank2ExcelError):
+    pass

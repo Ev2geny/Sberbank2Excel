@@ -20,7 +20,9 @@ def sberbankPDF2Excel(input_file_name:str,
                       leave_intermediate_txt_file:bool = False,
                       perform_balance_check = True,
                       output_file_type:str="xlsx",
-                      reversed_transaction_order=True) ->str:
+                      reversed_transaction_order=True,
+                      ouput_folder:str|Path|None = None,
+                      create_output_folder:bool=False) ->str:
     """function converts pdf or text file with Sperbank extract to Excel or CSV format
 
     Args:
@@ -31,6 +33,8 @@ def sberbankPDF2Excel(input_file_name:str,
         perform_balance_check (bool, optional): _description_. Defaults to True.
         output_file_type (str, optional): _description_. Defaults to "xlsx".
         reversed_transaction_order (bool, optional): _description_. Defaults to True.
+        ouput_folder: 
+        create_output_folder
 
     Raises:
         exceptions.InputFileStructureError: _description_

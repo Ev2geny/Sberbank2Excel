@@ -122,37 +122,112 @@ def write_df_to_file(df:pd.DataFrame,
         print_message_about_file_creation(filename)
     else:
         raise exceptions.UserInputError(f"not supported output file format '{output_file_format}' is given to the function 'write_df_to_file'")
+    
+    
+def get_output_extentionless_file_name(input_file_name:str|Path,
+                                       output_file_name:str|Path|None = None,
+                                        output_folder:str|Path|None = None,
+                                        create_output_folder:bool=False)->Path:
+    """Claculates the name of the output file based on the combilation of the input file name and output file name and output folder name
+
+    Args:
+        input_file_name (str | Path): _description_
+        output_file_name (str | Path | None, optional): _description_. Defaults to None.
+        output_folder (str | Path | None, optional): _description_. Defaults to None.
+        create_output_folder (bool, optional): _description_. Defaults to False.
+
+    Returns:
+        absolute path to the output file
+    """
+    
+    
+    
+    if not input_file_name:
+        raise exceptions.UserInputError("input file name is not provided")
+    
+    
+    input_file_name_path = Path(input_file_name).resolve(strict=True)
+    
+    if not input_file_name_path.exists():
+        raise exceptions.UserInputError(f"input file '{input_file_name_path}' does not exist")
+    
+    
+    if output_file_name:
+        output_file_name_path = Path(output_file_name)
+        
+        if output_file_name_path.is_absolute():
+            return output_file_name_path
+        
+        output_file_name_is_single_file =  output_file_name_path.name == output_file_name
+        if not output_file_name_is_single_file:
+            raise exceptions.UserInputError(f"output file name '{output_file_name}' is a relative path, but it should be a file name only or an absolute path")
+        
+    
+    final_output_folder_path = None
+    if output_folder:
+        output_folder_path = Path(output_folder)
+        output_folder_path_is_single_folder =  Path(output_folder_path.name) == output_folder_path
+        if (not output_folder_path.is_absolute()) and  (not output_folder_path_is_single_folder):
+            raise exceptions.UserInputError(f"output folder '{output_folder}' is a relative path, consisting of several folders, but it should be a folder name only or an absolute path")
+
+        if not output_folder_path.is_absolute():
+            final_output_folder_path = input_file_name_path.parent / output_folder_path
+        else:
+            final_output_folder_path = output_folder_path
+            
+        if not final_output_folder_path.is_dir():
+            if create_output_folder:
+                final_output_folder_path.mkdir()
+            else:
+                raise exceptions.UserInputError(f"output folder '{final_output_folder_path}' does not exist and it is not requested to create it")
+    else:
+        final_output_folder_path = input_file_name_path.parent
+    
+    
+    
+    output_file_name_path = None        
+    if  output_file_name:
+        output_file_name_path = Path(output_file_name)
+        output_file_name_path_is_single_file =  Path(output_file_name_path.name) == output_file_name_path
+        if not output_file_name_path.is_absolute() and not output_file_name_path_is_single_file:
+            raise exceptions.UserInputError(f"output file name '{output_file_name}' is a relative path,  but it should be a file name only or an absolute path")  
+    
+        if  output_file_name_path.is_absolute() and output_folder_path:
+            raise exceptions.UserInputError(f"output file name '{output_file_name}' is an absolute path, but output folder '{output_folder}' is also provided. It is not clear how to resolve this conflict")
+        
+        
+    # Here starting with allowed combinations   
+    if output_file_name_path and output_file_name_path.is_absolute():
+        return output_file_name_path
+    
+    if output_file_name_path and not final_output_folder_path:
+        return input_file_name_path.parent / output_file_name_path
+       
+    
+    if not final_output_folder_path and not output_file_name_path:
+        return input_file_name_path.parent / input_file_name_path.stem
+    
+    if output_file_name_path and final_output_folder_path:
+        return final_output_folder_path / output_file_name_path
+    
+    
+    if not output_file_name_path and final_output_folder_path:
+        return final_output_folder_path / input_file_name_path.stem
+    
+    
+    raise exceptions.InternalLogicError(f"unexpected combination of input parameters: input_file_name='{input_file_name}', output_file_name='{output_file_name}', output_folder='{output_folder}'")
+
 
 def main():
     print('this module is not designed to work standalone')
-    
-    
-def get_output_extentionless_file_name(input_file_name:str|Path):
-    """ Функция создаёт имя выходного файла, если оно не задано
-
-    Args:
-        input_file_name (str): имя входного файла
-        output_file_name (str, optional): имя выходного файла. Defaults to None.
-
-    Returns:
-        str: имя выходного файла
-    """
-    EXPECTED_OUTPUT_DIRECTORY = "_output"
-    
-    input_file_name_path = Path(input_file_name)
-    
-    result = Path()
-    
-    if (input_file_name_path.parent / EXPECTED_OUTPUT_DIRECTORY).is_dir():
-        result = input_file_name_path.parent / EXPECTED_OUTPUT_DIRECTORY / input_file_name_path.stem
-        
-    else:
-        result = input_file_name_path.parent / input_file_name_path.stem
-        
-    return result
 
 if __name__=='__main__':
-    main()
+    print(get_output_extentionless_file_name('input_file.txt'))
+    print(get_output_extentionless_file_name('C:\_code\py\Sberbank2Excel\Sberbank2Excel\core\input_file.txt'))
+    print(get_output_extentionless_file_name('input_file.txt', output_file_name='output_file_changed.xlsx'))
+    print(get_output_extentionless_file_name('input_file.txt', output_folder='output_folder'))
+    print(get_output_extentionless_file_name('input_file.txt', output_folder='output_folder', create_output_folder=True))
+    
     
         
     
