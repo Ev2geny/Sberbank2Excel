@@ -17,7 +17,7 @@ from utils import get_output_extentionless_file_name
 def sberbankPDF2Excel(input_file_name:str,
                       output_file_name:Union[str, None] =None,
                       format:str= 'auto',
-                      leave_intermediate_txt_file:str = False,
+                      leave_intermediate_txt_file:bool = False,
                       perform_balance_check = True,
                       output_file_type:str="xlsx",
                       reversed_transaction_order=True) ->str:
@@ -42,16 +42,19 @@ def sberbankPDF2Excel(input_file_name:str,
     print(f"{format=}")
 
     print("*"*30)
-    print("Конвертируем файл " + input_file_name)
+    print(f"Конвертируем файл  {input_file_name}")
 
-    path, extension = os.path.splitext(input_file_name)
+    input_file_name = Path(str(input_file_name))
 
-    extension = extension.lower()
+    extension = input_file_name.suffix.lower()
     
     if extension not in [".pdf", ".txt"]:
         raise exceptions.InputFileStructureError(f"Расширение файла {extension} не поддерживается")
 
-    tmp_txt_file_name = get_output_extentionless_file_name(input_file_name).with_suffix(".txt")
+    if extension == ".txt":
+        tmp_txt_file_name = input_file_name
+    else:
+        tmp_txt_file_name = get_output_extentionless_file_name(input_file_name).with_suffix(".txt")
 
 
     # if not output_file_name:
@@ -75,7 +78,7 @@ def sberbankPDF2Excel(input_file_name:str,
         raise
 
 
-    return created_file_name
+    return str(created_file_name)
 
 
 def main():

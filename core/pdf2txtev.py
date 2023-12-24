@@ -20,8 +20,8 @@ as a module programmaticatty:
 
 import os
 import sys
-
 from typing import List, Union
+from pathlib import Path
 
 from pdfminer.converter import PDFPageAggregator
 from pdfminer.layout import LAParams
@@ -118,7 +118,7 @@ def _PDFpage2txt(page:PDFPage, laparams = None) -> str:
     return(_matrix_2_txt(matrix_of_LTTextBoxHorizontal))
 
 
-def pdf_2_text(pdf_file_name:str,
+def pdf_2_text(pdf_file_name:str|Path,
                password='',
                page_numbers=None,
                maxpages=0,

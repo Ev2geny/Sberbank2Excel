@@ -87,7 +87,7 @@ def write_df_to_file(df:pd.DataFrame,
     if output_file_format not in ["xlsx", "csv"]:
         raise exceptions.UserInputError(f"not supported output file format '{output_file_format}' is given to the function 'write_df_to_file'")
 
-    def print_message_about_file_creation(file_name:str)->None:
+    def print_message_about_file_creation(file_name:Any)->None:
         print(f"Создан файл {file_name}")
 
     filename = Path(file).with_suffix(f".{output_file_format}")
@@ -127,7 +127,7 @@ def main():
     print('this module is not designed to work standalone')
     
     
-def get_output_extentionless_file_name(input_file_name:str):
+def get_output_extentionless_file_name(input_file_name:str|Path):
     """ Функция создаёт имя выходного файла, если оно не задано
 
     Args:

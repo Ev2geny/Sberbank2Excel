@@ -50,7 +50,7 @@ def btn_convertFiles_clicked():
      and converts file to Excel
     """
     # empty scrollText widget
-    print("Версия "+version_info.VERSION)
+    print(f"Версия {version_info.VERSION}")
     created_excel_files_scrollText.delete('1.0',END)
 
     qntFiles=len(files)
@@ -63,7 +63,7 @@ def btn_convertFiles_clicked():
                                                                     perform_balance_check = not no_balance_check.get() ) + '\n')
             qntFilesConverted=qntFilesConverted + 1
         except:
-            print('Произошла ошибка при конвертации файла "'+'file'+'" '+ str(sys.exc_info()[0]))
+            print(f'Произошла ошибка при конвертации файла {file} {sys.exc_info()[0]}')
             print(traceback.format_exc())
             print('Пропускаем конвертацию этого файла')
 
