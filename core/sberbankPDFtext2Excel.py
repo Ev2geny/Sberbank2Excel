@@ -45,12 +45,12 @@ class bcolors:
     
     
 
-def sberbankPDFtext2Excel(input_txt_file_name:str,
-                          output_file_name:str|None = None,
+def sberbankPDFtext2Excel(input_file_name:str|Path,
+                          output_file_name:str|Path|None = None,
                           format = 'auto',
                           perform_balance_check = True,
                           output_file_type='xlsx',
-                          reversed_transaction_order=False) -> str:
+                          reversed_transaction_order=False) -> Path:
     """ Функция конвертирует текстовый файл Сбербанка, полученный из выписки PDF в Excel или CSV форматы
         Если output_file_name не задан, то он создаётся из input_txt_file_name путём удаления расширения
 
@@ -71,14 +71,16 @@ def sberbankPDFtext2Excel(input_txt_file_name:str,
 
     # creating output file name for Excel file, if not provided
     
+    input_file_name = Path(input_file_name)
+    
     if output_file_name:
         output_file_name = Path(output_file_name)
     else:
-        output_file_name = get_output_extentionless_file_name(input_txt_file_name)
+        output_file_name = input_file_name.with_suffix("."+output_file_type)    
         
 
     # считываем входной файл в текст
-    with open(input_txt_file_name, encoding="utf8") as file:
+    with open(input_file_name, encoding="utf8") as file:
         file_text = file.read()
 
     extractor_type = None
@@ -170,7 +172,7 @@ def main():
 
     print(args)
 
-    sberbankPDFtext2Excel(input_txt_file_name=args.input_file_name,
+    sberbankPDFtext2Excel(input_file_name=args.input_file_name,
                           output_file_name = args.output_Excel_file_name,
                           format=args.format,
                           perform_balance_check = args.perform_balance_check,

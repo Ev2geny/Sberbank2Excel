@@ -124,23 +124,50 @@ def write_df_to_file(df:pd.DataFrame,
         raise exceptions.UserInputError(f"not supported output file format '{output_file_format}' is given to the function 'write_df_to_file'")
     
     
+def assert_path_is_not_multi_level_relative(path:Path)->None:
+    """
+    Checks, that the path is not multi-level relative path
+    
+    Returns:
+        None
+    
+    Raises:
+        UserInputError: if the path is multi-level relative path
+    """
+    if path.is_absolute():
+        return
+    
+    # This checks if the path is a single file or folder
+    if Path(path.name) == path:
+        return
+    
+    raise exceptions.UserInputError(f"Path '{path}' is a multi-level relative path, but it should be a single file or folder or an absolute path")    
+    
 def get_output_extentionless_file_name(input_file_name:str|Path,
                                        output_file_name:str|Path|None = None,
                                         output_folder:str|Path|None = None,
                                         create_output_folder:bool=False)->Path:
     """Claculates the name of the output file based on the combilation of the input file name and output file name and output folder name
+        Optionally creates the output folder if it does not exist
+        
+        If output_file_name is provided, and it is an absolute path, then it is returned as is.
+        Alternatively Function 1st determines the output folder, then the output file name and then combines them.
+        
+        If output_folder is not provided, then the file check for the folder with the name RELATIVE_OUTPUT_FOLDER_TO_CHECK in the same folder as the input file.
+        If such folder exists, then it is used as the output folder. Otherwise the input file folder is used as the output folder.
+        
 
     Args:
-        input_file_name (str | Path): _description_
-        output_file_name (str | Path | None, optional): _description_. Defaults to None.
-        output_folder (str | Path | None, optional): _description_. Defaults to None.
-        create_output_folder (bool, optional): _description_. Defaults to False.
+        input_file_name: single file or absolute path
+        output_file_name: single file or absolute path. If output_folder is provided, then output_file_name can only be a single file name or None
+        output_folder: single folder or absolute path
+        create_output_folder: whether to create the output folder if it does not exist
 
     Returns:
         absolute path to the output file
     """
     
-    
+    RELATIVE_OUTPUT_FOLDER_TO_CHECK = '_output_'
     
     if not input_file_name:
         raise exceptions.UserInputError("input file name is not provided")
@@ -158,17 +185,13 @@ def get_output_extentionless_file_name(input_file_name:str|Path,
         if output_file_name_path.is_absolute():
             return output_file_name_path
         
-        output_file_name_is_single_file =  output_file_name_path.name == output_file_name
-        if not output_file_name_is_single_file:
-            raise exceptions.UserInputError(f"output file name '{output_file_name}' is a relative path, but it should be a file name only or an absolute path")
+        assert_path_is_not_multi_level_relative(output_file_name_path)
         
     
     final_output_folder_path = None
     if output_folder:
         output_folder_path = Path(output_folder)
-        output_folder_path_is_single_folder =  Path(output_folder_path.name) == output_folder_path
-        if (not output_folder_path.is_absolute()) and  (not output_folder_path_is_single_folder):
-            raise exceptions.UserInputError(f"output folder '{output_folder}' is a relative path, consisting of several folders, but it should be a folder name only or an absolute path")
+        assert_path_is_not_multi_level_relative(output_folder_path)
 
         if not output_folder_path.is_absolute():
             final_output_folder_path = input_file_name_path.parent / output_folder_path
@@ -181,16 +204,22 @@ def get_output_extentionless_file_name(input_file_name:str|Path,
             else:
                 raise exceptions.UserInputError(f"output folder '{final_output_folder_path}' does not exist and it is not requested to create it")
     else:
-        final_output_folder_path = input_file_name_path.parent
-    
-    
+        
+        # If outpot folder was not provided, then we check if there is a folder with the name RELATIVE_OUTPUT_FOLDER_TO_CHECK
+        # in the same folder as the input file. If it exists, then we use it as the output folder
+        
+        would_be_absolute_output_folder_path_to_check = input_file_name_path.parent/RELATIVE_OUTPUT_FOLDER_TO_CHECK
+        
+        if would_be_absolute_output_folder_path_to_check.is_dir():
+            final_output_folder_path = would_be_absolute_output_folder_path_to_check
+        else:
+            final_output_folder_path = input_file_name_path.parent
+            
     
     output_file_name_path = None        
     if  output_file_name:
         output_file_name_path = Path(output_file_name)
-        output_file_name_path_is_single_file =  Path(output_file_name_path.name) == output_file_name_path
-        if not output_file_name_path.is_absolute() and not output_file_name_path_is_single_file:
-            raise exceptions.UserInputError(f"output file name '{output_file_name}' is a relative path,  but it should be a file name only or an absolute path")  
+        assert_path_is_not_multi_level_relative(output_file_name_path) 
     
         if  output_file_name_path.is_absolute() and output_folder_path:
             raise exceptions.UserInputError(f"output file name '{output_file_name}' is an absolute path, but output folder '{output_folder}' is also provided. It is not clear how to resolve this conflict")
@@ -215,18 +244,20 @@ def get_output_extentionless_file_name(input_file_name:str|Path,
         return final_output_folder_path / input_file_name_path.stem
     
     
-    raise exceptions.InternalLogicError(f"unexpected combination of input parameters: input_file_name='{input_file_name}', output_file_name='{output_file_name}', output_folder='{output_folder}'")
+    raise exceptions.InternalLogicError(f"The program should have never reached this point. It is caused by the following combination of  input parameters: input_file_name='{input_file_name}', output_file_name='{output_file_name}', output_folder='{output_folder}'")
 
 
 def main():
     print('this module is not designed to work standalone')
 
 if __name__=='__main__':
-    print(get_output_extentionless_file_name('input_file.txt'))
-    print(get_output_extentionless_file_name('C:\_code\py\Sberbank2Excel\Sberbank2Excel\core\input_file.txt'))
-    print(get_output_extentionless_file_name('input_file.txt', output_file_name='output_file_changed.xlsx'))
-    print(get_output_extentionless_file_name('input_file.txt', output_folder='output_folder'))
-    print(get_output_extentionless_file_name('input_file.txt', output_folder='output_folder', create_output_folder=True))
+    main()
+    # print(get_output_extentionless_file_name('input_file.txt'))
+    # print(get_output_extentionless_file_name('C:\_code\py\Sberbank2Excel\Sberbank2Excel\core\input_file.txt'))
+    # print(get_output_extentionless_file_name('input_file.txt', output_file_name='output_file_changed.xlsx'))
+    # # print(get_output_extentionless_file_name('input_file.txt', output_folder='output_folder'))
+    # # print(get_output_extentionless_file_name('input_file.txt', output_file_name='output.txt',output_folder='output_folder', create_output_folder=True))
+    # print(get_output_extentionless_file_name('input_file.txt', output_file_name='output.txt'))
     
     
         

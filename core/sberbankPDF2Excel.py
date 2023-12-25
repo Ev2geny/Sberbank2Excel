@@ -60,6 +60,7 @@ def sberbankPDF2Excel(input_file_name:str,
     else:
         tmp_txt_file_name = get_output_extentionless_file_name(input_file_name).with_suffix(".txt")
 
+    output_file_name = get_output_extentionless_file_name(input_file_name)
 
     # if not output_file_name:
     #     output_file_name = path 
@@ -69,7 +70,7 @@ def sberbankPDF2Excel(input_file_name:str,
             pdf_2_txt_file(input_file_name, tmp_txt_file_name)
 
         created_file_name = sberbankPDFtext2Excel(tmp_txt_file_name,
-                                                  output_file_name,
+                                                  output_file_name=output_file_name,
                                                   format=format,
                                                   perform_balance_check = perform_balance_check,
                                                   output_file_type=output_file_type,

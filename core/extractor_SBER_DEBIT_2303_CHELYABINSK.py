@@ -24,7 +24,7 @@ class SBER_DEBIT_2303_CHELYABINSK(Extractor):
         if not test1:
             raise exceptions.InputFileStructureError("Не найдены паттерны, соответствующие выписке")
 
-    def get_period_balance(self) -> str:
+    def get_period_balance(self) -> float:
         """
         Function gets information about transaction balance from the header of the banlk extract
         This balance is then returned as a float
