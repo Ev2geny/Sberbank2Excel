@@ -14,15 +14,15 @@ from utils import get_output_extentionless_file_name
 
 
 
-def sberbankPDF2Excel(input_file_name:str,
-                      output_file_name:Union[str, None] =None,
+def sberbankPDF2Excel(input_file_name:str|Path,
+                      output_file_name:str|Path|None =None,
                       format:str= 'auto',
                       leave_intermediate_txt_file:bool = False,
                       perform_balance_check = True,
                       output_file_type:str="xlsx",
                       reversed_transaction_order=True,
-                      ouput_folder:str|Path|None = None,
-                      create_output_folder:bool=False) ->str:
+                      output_dir:str|Path|None = None,
+                      create_output_dir:bool=False) ->str:
     """function converts pdf or text file with Sperbank extract to Excel or CSV format
 
     Args:
@@ -60,7 +60,10 @@ def sberbankPDF2Excel(input_file_name:str,
     else:
         tmp_txt_file_name = get_output_extentionless_file_name(input_file_name).with_suffix(".txt")
 
-    output_file_name = get_output_extentionless_file_name(input_file_name)
+    output_file_name = get_output_extentionless_file_name(input_file_name, 
+                                                          output_file_name=output_file_name,  
+                                                          output_dir=output_dir, 
+                                                          create_output_dir=create_output_dir)
 
     # if not output_file_name:
     #     output_file_name = path 
@@ -89,9 +92,12 @@ def sberbankPDF2Excel(input_file_name:str,
 def main():
 
     parser = argparse.ArgumentParser(description='Конвертация выписки банка из формата PDF или из промежуточного текстового файла в формат Excel или CSV.',
-                                        parents=[genarate_PDFtext2Excel_argparser()])
+                                    formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+                                    parents=[genarate_PDFtext2Excel_argparser()])
    
     parser.add_argument('-i','--interm', action='store_true', default=False, dest='leave_intermediate_txt_file', help='Не удалять промежуточный текстовый файт')
+    parser.add_argument('-d','--dir', type=str, default=None, dest='output_dir', help='Имя директории, в которой будет создан файл. Может быть ли абсолютным путём, либо названием папки в директории конвертируемого файла. Если не указана, то файл будет создан в директории, в которой находится конвертируемый файл, либо в папке "_output_" в этой директории, если таковая существует.')
+    parser.add_argument('-c','--create', action='store_true', default=False, dest='create_output_dir', help="Создать директорию, указанную в аргументе '-d' '--dir', если она не существует")
 
     args = parser.parse_args()
 
@@ -103,7 +109,9 @@ def main():
                       leave_intermediate_txt_file = args.leave_intermediate_txt_file,
                       perform_balance_check = args.perform_balance_check,
                       output_file_type=args.output_file_type,
-                      reversed_transaction_order=args.reversed_transaction_order)
+                      reversed_transaction_order=args.reversed_transaction_order,
+                      output_dir=args.output_dir,
+                      create_output_dir=args.create_output_dir)
 
 if __name__ == '__main__':
     main()

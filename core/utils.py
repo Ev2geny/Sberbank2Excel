@@ -145,8 +145,8 @@ def assert_path_is_not_multi_level_relative(path:Path)->None:
     
 def get_output_extentionless_file_name(input_file_name:str|Path,
                                        output_file_name:str|Path|None = None,
-                                        output_folder:str|Path|None = None,
-                                        create_output_folder:bool=False)->Path:
+                                        output_dir:str|Path|None = None,
+                                        create_output_dir:bool=False)->Path:
     """Claculates the name of the output file based on the combilation of the input file name and output file name and output folder name
         Optionally creates the output folder if it does not exist
         
@@ -189,8 +189,8 @@ def get_output_extentionless_file_name(input_file_name:str|Path,
         
     
     final_output_folder_path = None
-    if output_folder:
-        output_folder_path = Path(output_folder)
+    if output_dir:
+        output_folder_path = Path(output_dir)
         assert_path_is_not_multi_level_relative(output_folder_path)
 
         if not output_folder_path.is_absolute():
@@ -199,7 +199,7 @@ def get_output_extentionless_file_name(input_file_name:str|Path,
             final_output_folder_path = output_folder_path
             
         if not final_output_folder_path.is_dir():
-            if create_output_folder:
+            if create_output_dir:
                 final_output_folder_path.mkdir()
             else:
                 raise exceptions.UserInputError(f"output folder '{final_output_folder_path}' does not exist and it is not requested to create it")
@@ -222,7 +222,7 @@ def get_output_extentionless_file_name(input_file_name:str|Path,
         assert_path_is_not_multi_level_relative(output_file_name_path) 
     
         if  output_file_name_path.is_absolute() and output_folder_path:
-            raise exceptions.UserInputError(f"output file name '{output_file_name}' is an absolute path, but output folder '{output_folder}' is also provided. It is not clear how to resolve this conflict")
+            raise exceptions.UserInputError(f"output file name '{output_file_name}' is an absolute path, but output folder '{output_dir}' is also provided. It is not clear how to resolve this conflict")
         
         
     # Here starting with allowed combinations   
@@ -244,7 +244,7 @@ def get_output_extentionless_file_name(input_file_name:str|Path,
         return final_output_folder_path / input_file_name_path.stem
     
     
-    raise exceptions.InternalLogicError(f"The program should have never reached this point. It is caused by the following combination of  input parameters: input_file_name='{input_file_name}', output_file_name='{output_file_name}', output_folder='{output_folder}'")
+    raise exceptions.InternalLogicError(f"The program should have never reached this point. It is caused by the following combination of  input parameters: input_file_name='{input_file_name}', output_file_name='{output_file_name}', output_folder='{output_dir}'")
 
 
 def main():

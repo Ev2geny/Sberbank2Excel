@@ -154,9 +154,9 @@ def genarate_PDFtext2Excel_argparser()->argparse.ArgumentParser:
     
     # parser = argparse.ArgumentParser(description='Конвертация выписки банка из текстового формата в формат Excel или CSV. Для конвертации в текстовый формат, нужно воспользоваться утилитой pdf2txtev')
     parser = argparse.ArgumentParser(add_help=False)
-    parser.add_argument('input_file_name', type=str, help='Файла для конвертации')
-    parser.add_argument('-o','--output', type=str, default=None, dest='output_Excel_file_name', help='Имя файла (без расшмрения) который будет создан в формате Excel или CSV')
-    parser.add_argument('-b','--balcheck', action='store_false', default=True, dest='perform_balance_check', help='Игнорировать результаты сверки баланса по транзакциям и в шапке выписки')
+    parser.add_argument('input_file_name', type=str, help='Имя файла для конвертации')
+    parser.add_argument('-o','--output', type=str, default=None, dest='output_Excel_file_name', help='Имя файла (без разширения) который будет создан в формате Excel или CSV')
+    parser.add_argument('-b','--balcheck', action='store_true', default=False, dest='perform_balance_check', help='Игнорировать результаты сверки баланса по транзакциям и в шапке выписки')
     parser.add_argument('-f', '--format', type=str,default='auto', dest='format', choices = extractors.get_list_extractors_in_text(),help = 'Формат выписки. Если не указан, определяется автоматически' )
     parser.add_argument('-t', '--type', type=str,default='xlsx', dest='output_file_type', choices = ["xlsx","csv"],help = 'Тип создаваемого файла' )
     parser.add_argument('-r', '--reverse', action='store_true', default=False, dest='reversed_transaction_order', help='Изменить порядок транзакций на обратный')
