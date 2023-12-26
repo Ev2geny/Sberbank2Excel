@@ -162,25 +162,29 @@ github <https://github.com/Ev2geny/Sberbank2Excel/issues>`__
 Для запуска приложения из командной строки надо использовать модуль `sberbankPDF2Excel.py </core/sberbankPDF2Excel.py>`__
 
 ::
-
-   usage: sberbankPDF2Excel.py [-h] [-o OUTPUT_EXCEL_FILE_NAME] [-b]
-                               [-f {SBER_DEBIT_2107,SBER_DEBIT_2005,SBER_CREDIT_2107,SBER_PAYMENT_2208}] [-t {xlsx,csv}] [-i]
-                               input_file_name
+   usage: sberbankPDF2Excel.py [-h] [-o OUTPUT_EXCEL_FILE_NAME] [-b] [-f {SBER_DEBIT_2107,SBER_DEBIT_2005,SBER_CREDIT_2107,SBER_PAYMENT_2212,SBER_PAYMENT_2208,SBER_DEBIT_2212,SBER_SAVING_2303,SBER_DEBIT_2303_CHELYABINSK}]
+                              [-t {xlsx,csv}] [-r] [-i] [-d OUTPUT_DIR] [-c]
+                              input_file_name
 
    Конвертация выписки банка из формата PDF или из промежуточного текстового файла в формат Excel или CSV.
 
    positional arguments:
-     input_file_name       Файла для конвертации
+   input_file_name       Имя файла для конвертации
 
-   optional arguments:
-     -h, --help            show this help message and exit
-     -o OUTPUT_EXCEL_FILE_NAME, --output OUTPUT_EXCEL_FILE_NAME
-                           Имя файла (без расшмрения) который будет создан в формате Excel или CSV
-     -b, --balcheck        Игнорировать результаты сверки баланса по транзакциям и в шапке выписки
-     -f {SBER_DEBIT_2107,SBER_DEBIT_2005,SBER_CREDIT_2107,SBER_PAYMENT_2208}, --format {SBER_DEBIT_2107,SBER_DEBIT_2005,SBER_CREDIT_2107,SBER_PAYMENT_2208}
-                           Формат выписки. Если не указан, определяется автоматически
-     -t {xlsx,csv}, --type {xlsx,csv}
-                           Тип создаваемого файла
-     -i, --interm          Не удалять промежуточный текстовый файт
+   options:
+   -h, --help            show this help message and exit
+   -o OUTPUT_EXCEL_FILE_NAME, --output OUTPUT_EXCEL_FILE_NAME
+                           Имя файла (без разширения) который будет создан в формате Excel или CSV (default: None)
+   -b, --balcheck        Игнорировать результаты сверки баланса по транзакциям и в шапке выписки (default: False)
+   -f {SBER_DEBIT_2107,SBER_DEBIT_2005,SBER_CREDIT_2107,SBER_PAYMENT_2212,SBER_PAYMENT_2208,SBER_DEBIT_2212,SBER_SAVING_2303,SBER_DEBIT_2303_CHELYABINSK}, --format {SBER_DEBIT_2107,SBER_DEBIT_2005,SBER_CREDIT_2107,SBER_PAYMENT_2212,SBER_PAYMENT_2208,SBER_DEBIT_2212,SBER_SAVING_2303,SBER_DEBIT_2303_CHELYABINSK}
+                           Формат выписки. Если не указан, определяется автоматически (default: auto)
+   -t {xlsx,csv}, --type {xlsx,csv}
+                           Тип создаваемого файла (default: xlsx)
+   -r, --reverse         Изменить порядок транзакций на обратный (default: False)
+   -i, --interm          Не удалять промежуточный текстовый файт (default: False)
+   -d OUTPUT_DIR, --dir OUTPUT_DIR
+                           Имя директории, в которой будет создан файл. Может быть ли абсолютным путём, либо названием папки в директории конвертируемого файла. Если не указана, то файл будет создан в директории, в которой находится  
+                           конвертируемый файл, либо в папке "_output_" в этой директории, если таковая существует. (default: None)
+   -c, --create          Создать директорию, указанную в аргументе '-d' '--dir', если она не существует (default: False)
 
 На данный момент эта утилита не включена в `выпускаемые релизы <https://github.com/Ev2geny/Sberbank2Excel/releases/latest>`_ . Поэтому необходимо либо сгенерировать её самостоятельно либо запускать из среды Python (см. `CONTRIBUTING.md <CONTRIBUTING.md>`__)
