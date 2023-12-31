@@ -25,7 +25,7 @@ files = ()
 leave_intermediate_txt_file = 0
 no_balance_check = 0
 
-def btn_selectFiles_clicked():
+def btn_select_files_clicked():
     global files
 
     files = tkinter.filedialog.askopenfilenames(parent=window,
@@ -44,7 +44,7 @@ def btn_selectFiles_clicked():
     SelectedFiles_ScrolledText.configure(state=DISABLED)
     
 
-def btn_convertFiles_clicked():
+def btn_convert_files_clicked():
     """
     main function, which performs functionality by calling calls ProjectExpenditure2Excel.ProjectExpenditure2Excel(file)
      and converts file to Excel
@@ -72,16 +72,24 @@ def btn_convertFiles_clicked():
         print('Все файлы успешно сконвертированы')
     else:
         print(f'!!!!!!! {qntFiles-qntFilesConverted} файл(а) из {qntFiles} не были сконвертированы')
-
-window = Tk()
-menu = Menu(window)
-help_about=Menu(menu)
+        
+def btn_output_folder_clicked():
+    global output_folder_txt
+    folder = tkinter.filedialog.askdirectory(parent=window,
+                                                title='Выберете папку для сохранения файлов')
+    
+    output_folder_txt.delete(1.0, END)
+    output_folder_txt.insert(END, folder)
 
 def help_about_clicked():
 
     info_string = f'{version_info.NAME}\nВерсия={version_info.VERSION}\nАвтор={version_info.AUTHOR}\nГде скачать={version_info.PERMANENT_LOCATION}'
     print(info_string)
     messagebox.showinfo('', info_string)
+
+window = Tk()
+menu = Menu(window)
+help_about=Menu(menu)
 
 help_about.add_command(label='About',command=help_about_clicked)
 
@@ -90,13 +98,13 @@ window.config(menu=menu)
  
 window.title(f'{version_info.NAME} Версия={version_info.VERSION}')
  
-window.geometry('720x430')
+window.geometry('720x540')
  
 Label(window, text="""
 Шаг 1: Выберите один или несколько файлов в формате PDF
 """,justify=LEFT).grid(column=0, row=0,sticky="W")
  
-Button(window, text="Выбрать файлы", command=btn_selectFiles_clicked).grid(column=0, row=2)
+Button(window, text="Выбрать файлы", command=btn_select_files_clicked).grid(column=0, row=2)
  
 
 Label(window, text='Выбранные файлы:').grid(column=0,row=3,sticky="W")
@@ -105,22 +113,29 @@ SelectedFiles_ScrolledText.grid(column=0,row=4)
 
 Label(window, text="Шаг 2. Сконвертируйте файлы в формат Excel").grid(column=0,row=5,sticky="W")
 
-Button(window,text="Сконвертировать \n выбранные файлы", command=btn_convertFiles_clicked).grid(column=0,row=6)
+Button(window,text="Сконвертировать \n выбранные файлы", command=btn_convert_files_clicked).grid(column=0,row=6)
 
 Label(window, text='Созданные файлы в формате Excel:').grid(column=0,row=7,sticky="W")
 created_excel_files_scrollText = scrolledtext.ScrolledText(window,width=80,height=4)
 created_excel_files_scrollText.grid(column=0,row=8)
 
-Label(window, text="Опции:").grid(column=0,row=9,sticky="W")
+Label(window, text="\n").grid(column=0,row=9,sticky="W" )
+
+Label(window, text="Опции:").grid(column=0,row=10,sticky="W" )
 leave_intermediate_txt_file = IntVar()
-Checkbutton(window, text="Не удалять промежуточный текстовый файл", variable=leave_intermediate_txt_file).grid(row=10, sticky=W)
+Checkbutton(window, text="Не удалять промежуточный текстовый файл", variable=leave_intermediate_txt_file).grid(row=11, sticky=W)
 
 no_balance_check = IntVar()
-Checkbutton(window, text="Игнорировать результаты сверки баланса по трансакциям и в шапке выписки", variable=no_balance_check).grid(row=11, sticky=W)
+Checkbutton(window, text="Игнорировать результаты сверки баланса по трансакциям и в шапке выписки", variable=no_balance_check).grid(row=12, sticky=W)
 
 reversed_transaction_order = IntVar()
-Checkbutton(window, text="Изменить порядок трансакций на обратный", variable=reversed_transaction_order).grid(row=12, sticky=W)
+Checkbutton(window, text="Изменить порядок трансакций на обратный", variable=reversed_transaction_order).grid(row=13, sticky=W)
 
+Label(window, text='Папка для созданных файлов Excel:').grid(column=0,row=14,sticky="W")
+output_folder_txt = Text(window,width=80, height=1)
+output_folder_txt.grid(column=0,row=15)
+# output_folder_txt.pack()
+Button(window,text="Найти папку", command=btn_output_folder_clicked).grid(column=0,row=16)
 
 window.mainloop()
 
