@@ -6,42 +6,47 @@
 # https://likegeeks.com/python-gui-examples-tkinter-tutorial/
 
 
-
-from tkinter import *
-import tkinter.filedialog
-from tkinter import scrolledtext
-from tkinter import Menu
-from tkinter import messagebox, ttk
+import tkinter as tk
+# Not sure, whay this is needed, seems to be a bug in tkinter https://stackoverflow.com/a/72321743
+from tkinter import scrolledtext, ttk, filedialog, messagebox
+# from tkinter import Menu
+# from tkinter import ttk
 import traceback
 import sys
-import logging
+# import logging
 
 from sberbankPDF2Excel import sberbankPDF2Excel
 import version_info
 
 
 # defining global variable, which will hold files tuple
+
+WIDTH = 100 
+
 files = ()
 leave_intermediate_txt_file = 0
 no_balance_check = 0
 
+
+# *************  GUI logic *************
+
 def btn_select_files_clicked():
     global files
 
-    files = tkinter.filedialog.askopenfilenames(parent=window,
+    files = tk.filedialog.askopenfilenames(parent=window,
                                                 title='Выберете файл(ы)',
                                                 filetypes =(("PDF файл", "*.pdf"),("All Files","*.*")) )
 
-    SelectedFiles_ScrolledText.configure(state=NORMAL)
+    SelectedFiles_ScrolledText.configure(state=tk.NORMAL)
     # empty scrollText widget
-    SelectedFiles_ScrolledText.delete('1.0', END)
-    created_excel_files_scrollText.delete('1.0', END)
+    SelectedFiles_ScrolledText.delete('1.0', tk.END)
+    created_excel_files_scrollText.delete('1.0', tk.END)
 
     # Populating SelectedFiles_ScrolledText widget
     for file in files:
-        SelectedFiles_ScrolledText.insert(INSERT, file+'\n')
+        SelectedFiles_ScrolledText.insert(tk.INSERT, file+'\n')
 
-    SelectedFiles_ScrolledText.configure(state=DISABLED)
+    SelectedFiles_ScrolledText.configure(state=tk.DISABLED)
     
 
 def btn_convert_files_clicked():
@@ -51,16 +56,18 @@ def btn_convert_files_clicked():
     """
     # empty scrollText widget
     print(f"Версия {version_info.VERSION}")
-    created_excel_files_scrollText.delete('1.0',END)
+    created_excel_files_scrollText.delete('1.0',tk.END)
 
     qntFiles=len(files)
     qntFilesConverted=0
     for file in files:
         try:
-            created_excel_files_scrollText.insert(INSERT,
-                                                  sberbankPDF2Excel(file,
-                                                                    leave_intermediate_txt_file = leave_intermediate_txt_file.get(),
-                                                                    perform_balance_check = not no_balance_check.get() ) + '\n')
+            created_file_name = sberbankPDF2Excel(file,
+                                                leave_intermediate_txt_file = leave_intermediate_txt_file.get(),
+                                                perform_balance_check = not no_balance_check.get() )
+            
+            created_excel_files_scrollText.insert(tk.INSERT,
+                                                  created_file_name + '\n')
             qntFilesConverted=qntFilesConverted + 1
         except:
             print(f'Произошла ошибка при конвертации файла {file} {sys.exc_info()[0]}')
@@ -75,21 +82,26 @@ def btn_convert_files_clicked():
         
 def btn_output_folder_clicked():
     global output_folder_txt
-    folder = tkinter.filedialog.askdirectory(parent=window,
+    folder = tk.filedialog.askdirectory(parent=window,
                                                 title='Выберете папку для сохранения файлов')
     
-    output_folder_txt.delete(1.0, END)
-    output_folder_txt.insert(END, folder)
+    output_folder_txt.delete(1.0, tk.END)
+    output_folder_txt.insert(tk.END, folder)
 
 def help_about_clicked():
 
     info_string = f'{version_info.NAME}\nВерсия={version_info.VERSION}\nАвтор={version_info.AUTHOR}\nГде скачать={version_info.PERMANENT_LOCATION}'
     print(info_string)
-    messagebox.showinfo('', info_string)
+    tk.messagebox.showinfo('', info_string)
 
-window = Tk()
-menu = Menu(window)
-help_about=Menu(menu)
+
+
+# *************  GUI  *************
+
+
+window = tk.Tk()
+menu = tk.Menu(window)
+help_about=tk.Menu(menu)
 
 help_about.add_command(label='About',command=help_about_clicked)
 
@@ -98,44 +110,49 @@ window.config(menu=menu)
  
 window.title(f'{version_info.NAME} Версия={version_info.VERSION}')
  
-window.geometry('720x540')
+window.geometry('850x540')
  
-Label(window, text="""
+tk.Label(window, text="""
 Шаг 1: Выберите один или несколько файлов в формате PDF
-""",justify=LEFT).grid(column=0, row=0,sticky="W")
+""",justify=tk.LEFT).grid(column=0, row=0,sticky="W")
  
-Button(window, text="Выбрать файлы", command=btn_select_files_clicked).grid(column=0, row=2)
+tk.Button(window, text="Выбрать файлы", command=btn_select_files_clicked).grid(column=0, row=2)
  
 
-Label(window, text='Выбранные файлы:').grid(column=0,row=3,sticky="W")
-SelectedFiles_ScrolledText = scrolledtext.ScrolledText(window,width=80,height=4,state=DISABLED)
+tk.Label(window, text='Выбранные файлы:').grid(column=0,row=3,sticky="W")
+SelectedFiles_ScrolledText = tk.scrolledtext.ScrolledText(window,width=WIDTH,height=4,state=tk.DISABLED)
 SelectedFiles_ScrolledText.grid(column=0,row=4)
 
-Label(window, text="Шаг 2. Сконвертируйте файлы в формат Excel").grid(column=0,row=5,sticky="W")
+tk.Label(window, text="Шаг 2. Сконвертируйте файлы в формат Excel").grid(column=0,row=5,sticky="W")
 
-Button(window,text="Сконвертировать \n выбранные файлы", command=btn_convert_files_clicked).grid(column=0,row=6)
+tk.Button(window,text="Сконвертировать \n выбранные файлы", command=btn_convert_files_clicked).grid(column=0,row=6)
 
-Label(window, text='Созданные файлы в формате Excel:').grid(column=0,row=7,sticky="W")
-created_excel_files_scrollText = scrolledtext.ScrolledText(window,width=80,height=4)
+tk.Label(window, text='Созданные файлы в формате Excel:').grid(column=0,row=7,sticky="W")
+created_excel_files_scrollText = tk.scrolledtext.ScrolledText(window,width=WIDTH,height=4)
 created_excel_files_scrollText.grid(column=0,row=8)
 
-Label(window, text="\n").grid(column=0,row=9,sticky="W" )
+# Label(window, text="\n").grid(column=0,row=9,sticky="W" )
 
-Label(window, text="Опции:").grid(column=0,row=10,sticky="W" )
-leave_intermediate_txt_file = IntVar()
-Checkbutton(window, text="Не удалять промежуточный текстовый файл", variable=leave_intermediate_txt_file).grid(row=11, sticky=W)
+window.rowconfigure(9, minsize=2)
+# separator = ttk.Separator(window, orient='horizontal')
+separator = tk.ttk.Frame(window, relief='sunken', height=8)
+separator.grid(column=0,row=9,sticky="WE", rowspan=1, pady=20)
 
-no_balance_check = IntVar()
-Checkbutton(window, text="Игнорировать результаты сверки баланса по трансакциям и в шапке выписки", variable=no_balance_check).grid(row=12, sticky=W)
+tk.Label(window, text="Опции:").grid(column=0,row=10,sticky="W" )
+leave_intermediate_txt_file = tk.IntVar()
+tk.Checkbutton(window, text="Не удалять промежуточный текстовый файл", variable=leave_intermediate_txt_file).grid(row=11, sticky='W')
 
-reversed_transaction_order = IntVar()
-Checkbutton(window, text="Изменить порядок трансакций на обратный", variable=reversed_transaction_order).grid(row=13, sticky=W)
+no_balance_check = tk.IntVar()
+tk.Checkbutton(window, text="Игнорировать результаты сверки баланса по трансакциям и в шапке выписки", variable=no_balance_check).grid(row=12, sticky='W')
 
-Label(window, text='Папка для созданных файлов Excel:').grid(column=0,row=14,sticky="W")
-output_folder_txt = Text(window,width=80, height=1)
+reversed_transaction_order = tk.IntVar()
+tk.Checkbutton(window, text="Изменить порядок трансакций на обратный", variable=reversed_transaction_order).grid(row=13, sticky='W')
+
+tk.Label(window, text='Папка для созданных файлов Excel:').grid(column=0,row=14,sticky="W")
+output_folder_txt = tk.Text(window,width=WIDTH, height=1)
 output_folder_txt.grid(column=0,row=15)
 # output_folder_txt.pack()
-Button(window,text="Найти папку", command=btn_output_folder_clicked).grid(column=0,row=16)
+tk.Button(window,text="Найти папку", command=btn_output_folder_clicked).grid(column=0,row=16)
 
 window.mainloop()
 
