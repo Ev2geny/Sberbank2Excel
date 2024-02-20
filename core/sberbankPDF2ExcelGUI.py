@@ -18,11 +18,9 @@ import sys
 from sberbankPDF2Excel import sberbankPDF2Excel
 import version_info
 
-
-# defining global variable, which will hold files tuple
-
 WIDTH = 100 
 
+# defining global variable, which will hold files tuple
 files = ()
 leave_intermediate_txt_file = 0
 no_balance_check = 0
@@ -135,7 +133,7 @@ created_excel_files_scrollText.grid(column=0,row=8)
 
 window.rowconfigure(9, minsize=2)
 # separator = ttk.Separator(window, orient='horizontal')
-separator = tk.ttk.Frame(window, relief='sunken', height=8)
+separator = tk.ttk.Frame(window, relief='raised', height=8)
 separator.grid(column=0,row=9,sticky="WE", rowspan=1, pady=20)
 
 tk.Label(window, text="Опции:").grid(column=0,row=10,sticky="W" )
