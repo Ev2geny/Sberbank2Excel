@@ -43,7 +43,7 @@ class SBER_SAVING_2303(Extractor):
         if not test1:
             raise exceptions.InputFileStructureError("Не найдены паттерны, соответствующие выписке")
 
-    def get_period_balance(self)->str:
+    def get_period_balance(self)->float:
         """
         Function gets information about transaction balance from the header of the banl extract
         This balance is then returned as a float
@@ -56,7 +56,7 @@ class SBER_SAVING_2303(Extractor):
         :return:
         """
 
-        popolnenie_spisanie_re = re.search(r'Пополнение\t([\d,]*)\tСписание\t([\d,]*)', self.bank_text)
+        popolnenie_spisanie_re = re.search(r'Пополнение\t([\d,\s]*)\tСписание\t([\d,\s]*)', self.bank_text)
         if not popolnenie_spisanie_re:
             raise exceptions.InputFileStructureError('Не найдена структура с пополнениями и списаниями')
 
