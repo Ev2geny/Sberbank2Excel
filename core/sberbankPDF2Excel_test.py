@@ -62,5 +62,11 @@ def test_correctly_converts_SBER_DEBIT_2212_issue_33_txt():
 
 def test_correctly_converts_SBER_SAVING_2303_Activnoe_dolgolitie_issue_35_txt():
     sberbankPDF2Excel(no_github_module.SBER_SAVING_2303_Activnoe_dolgolitie_issue_35_txt)
+    
+def test_correctly_converts_SBER_DEBIT_2212_issue_36_txt():
+    sberbankPDF2Excel(no_github_module.SBER_DEBIT_2212_issue_36_txt)
+    
+def test_correctly_converts_SBER_DEBIT_2212_theoretical_case_for_issue_36_manually_created_line_22_txt():
+    sberbankPDF2Excel(no_github_module.SBER_DEBIT_2212_issue_36_theoretical_case_txt)
 
-# SBER_SAVING_2303_Activnoe_dolgolitie_issue_35_txt
+# SBER_DEBIT_2212_issue_36_txt

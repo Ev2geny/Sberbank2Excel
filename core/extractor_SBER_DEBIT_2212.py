@@ -176,9 +176,9 @@ class SBER_DEBIT_2212(Extractor):
         # ************** looking at the 2nd line
         line_parts = split_Sberbank_line(lines[1])
 
-        if len(line_parts) < 3 or len(line_parts) > 4:
+        if len(line_parts) < 2 or len(line_parts) > 4:
             raise exceptions.Bank2ExcelError(
-                "Line is expected to have 3 or 4 parts :" + str(lines[1]))
+                "Line is expected to have 2 or 4 parts :" + str(lines[1]))
 
         # print(line_parts[0])
 
@@ -188,22 +188,49 @@ class SBER_DEBIT_2212(Extractor):
         result['processing_date'] = datetime.strptime(result['processing_date'], '%d.%m.%Y')
 
         result['authorisation_code'] = line_parts[1]
-        result['description'] = line_parts[2]
-
-        # Выделяем сумму в валюте оперции, если присуиствует
-        if len(line_parts) == 4:
-            found = re.search(r'([\d\s,]*?)\s(\S*)$',
-                              line_parts[3])  # processing string like '1 515,76 €'
-            if found:
+        
+        # checking if the last part is a money like '1 515,76 €'
+        last_part_as_money:re.Match|None = re.search(r'(\d[\d\s]*?,\d\d)\s(\S*)$', line_parts[-1])  
+                
+        if len(line_parts) == 3:
+            
+            if last_part_as_money:
+                
+                # Обрабатываем вторую строчку в никогда не встречавшемся, но наверное теоретически возможном случае, когда 
+                # во второй строке отсутствует описание, но присутствует сумма в иностранной валюте
+                # https://github.com/Ev2geny/Sberbank2Excel/issues/36
+                """
+                     09.08.2022	21:46	Отдых и развлечения	140,04
+                -->  11.08.2022	214722  6,00 BYN
+                """
+                
                 result['value_operational_currency'] = get_float_from_money(
-                    found.group(1), True)
-                result['operational_currency'] = found.group(2)
+                    last_part_as_money.group(1), True)
+                result['operational_currency'] = last_part_as_money.group(2)
+            else:
+                # Обрабатываем вторую строчку "стандартной" трансакции
+                """
+                    06.08.2022	01:17	Отдых и развлечения	1 564,00
+                --> 06.08.2022	291231	YANDEX.TAXI
+                """
+                result['description'] = line_parts[2]
+            
+
+
+        if len(line_parts) == 4:
+            
+            result['description'] = line_parts[2]
+            
+            if last_part_as_money:
+                result['value_operational_currency'] = get_float_from_money(
+                    last_part_as_money.group(1), True)
+                result['operational_currency'] = last_part_as_money.group(2)
             else:
                 raise exceptions.InputFileStructureError(
                     "Ошибка в обработке текста. Ожидалась струтура типа '6,79 €', получено: " +
                     line_parts[3])
 
-        # ************** looking at the 3rd line
+        # ************** looking at the 3rd line, if present
         if len(lines) == 3:
             line_parts = split_Sberbank_line(lines[2])
             result['description'] = result['description'] + ' ' + line_parts[0]
