@@ -36,7 +36,7 @@ class SBER_SAVING_2303(Extractor):
         If these signatures are not found, then exceptions.InputFileStructureError() is raised
         """
 
-        test1 = re.search(r'Выписка из лицевого счёта по вкладу «Сберегательный счет»', self.bank_text, re.IGNORECASE)
+        test1 = re.search(r'Выписка из лицевого счёта по вкладу «[\w\s]*»', self.bank_text, re.IGNORECASE)
         # print(f"{test1=}")
 
 
@@ -74,7 +74,7 @@ class SBER_SAVING_2303(Extractor):
         ИТОГО ПО ОПЕРАЦИЯМ ЗА ПЕРИОД  09.03.2020 - 23.02.2023
         Остаток средств	0,00	Остаток средств	100,00
         """
-        ostatok_sredstv_re = re.search(r'ИТОГО ПО ОПЕРАЦИЯМ ЗА ПЕРИОД.+\nОстаток\sсредств\t(\d+,\d+)\tОстаток средств\t(\d+,\d+)', self.bank_text)
+        ostatok_sredstv_re = re.search(r'ИТОГО ПО ОПЕРАЦИЯМ ЗА ПЕРИОД.+\nОстаток\sсредств\t([\d,\s]*)\tОстаток средств\t([\d,\s]*)', self.bank_text)
         if not ostatok_sredstv_re:
             raise exceptions.InputFileStructureError('Не найдена структура с остатками средств на начало и конец периода')
 
