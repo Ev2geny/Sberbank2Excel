@@ -65,8 +65,6 @@ Sberbank2Excel
 
 **Способы переслать донаты**
 
-`Qiwi <https://qiwi.com/n/SBERBANK2EXCEL>`_  (Через карту любого банка, баланс телефона либо через Qiwi кшелёк) 
-
 `YooMoney <https://yoomoney.ru/fundraise/wa347QPzZdU.230501>`_  (МИР, UnionPay, Mastercard, Visa, Maestro) 
 
 На каких Операционных Системах (ОС) работает утилита?
