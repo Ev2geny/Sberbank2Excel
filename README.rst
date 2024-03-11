@@ -65,8 +65,6 @@ Sberbank2Excel
 
 **Способы переслать донаты**
 
-`Qiwi <https://qiwi.com/n/SBERBANK2EXCEL>`_  (Через карту любого банка, баланс телефона либо через Qiwi кшелёк) 
-
 `YooMoney <https://yoomoney.ru/fundraise/wa347QPzZdU.230501>`_  (МИР, UnionPay, Mastercard, Visa, Maestro) 
 
 На каких Операционных Системах (ОС) работает утилита?
@@ -122,7 +120,7 @@ github <https://github.com/Ev2geny/Sberbank2Excel/issues>`__
    Сбербанк, `SBER_PAYMENT_2208 </misc/format_examples/SBER_PAYMENT_2208.png>`__,  "Платёжный счёт образца августа 2022 года (ТДВФН)", НП,НП,НП? ,  
    Сбербанк, `SBER_DEBIT_2212 </misc/format_examples/SBER_DEBIT_2212.png>`__,  "Дебетовая карта образца декабря 2022 года",  "OK", ???, ОК,
    Сбербанк, `SBER_PAYMENT_2212 </misc/format_examples/SBER_PAYMENT_2212.png>`__,  "Платёжный счёт образца декабря 2022 года", НП,НП,ОК ,
-   Сбербанк, `SBER_SAVING_2303 </misc/format_examples/SBER_SAVING_2303.png>`__,  "Выписка из лицевого счёта по вкладу «Сберегательный счет» образца марта 2023 года (ТДВФН)", НП,НП,НП,
+   Сбербанк, `SBER_SAVING_2303 </misc/format_examples/SBER_SAVING_2303.png>`__,  "Выписка из лицевого счёта по вкладу «Сберегательный счет» образца марта 2023 года (ТДВФН). Также должно работать с другими типами сберегательных счетов (Активное долголетие и т.д.)", НП,НП,НП,
    Сбербанк, `SBER_DEBIT_2303_CHELYABINSK </misc/format_examples/SBER_DEBIT_2303_CHELYABINSK.png>`__,  "История операций по дебетовой карте за период. Образца марта 2023 года (ТДВФН). ???Челябинск??", ОК,?,НЕТ,
 
 **Легенда и сокращения**
