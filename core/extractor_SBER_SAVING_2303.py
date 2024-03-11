@@ -36,7 +36,7 @@ class SBER_SAVING_2303(Extractor):
         If these signatures are not found, then exceptions.InputFileStructureError() is raised
         """
 
-        test1 = re.search(r'Выписка из лицевого счёта по вкладу «[^\n]*»', self.bank_text, re.IGNORECASE)
+        test1 = re.search(r'Выписка из лицевого счёта по вкладу «[^\n]+»', self.bank_text, re.IGNORECASE)
         # print(f"{test1=}")
 
 
