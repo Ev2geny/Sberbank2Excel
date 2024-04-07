@@ -224,7 +224,7 @@ class SBER_CREDIT_2107(Extractor):
                 result['operational_currency'] = found.group(2)
             else:
                 raise exceptions.InputFileStructureError(
-                    "Ошибка в обработке текста. Ожидалась струтура типа '6,79 €', получено: " +
+                    "Ошибка в обработке текста. Ожидалась структура типа '6,79 €', получено: " +
                     line_parts[3])
 
         # ************** looking at the 3rd line
