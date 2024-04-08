@@ -62,12 +62,12 @@ def btn_convertFiles_clicked():
                                                                     leave_intermediate_txt_file = leave_intermediate_txt_file.get(),
                                                                     perform_balance_check = not no_balance_check.get() ) + '\n')
             qntFilesConverted=qntFilesConverted + 1
+        
         except:
-            print('Произошла ошибка при конвертации файла "'+'file'+'" '+ str(sys.exc_info()[0]))
+            print(f"Произошла ошибка при конвертации файла {file} \n{sys.exc_info()[0]}")
             print(traceback.format_exc())
             print('Пропускаем конвертацию этого файла')
 
-    
     if qntFiles==qntFilesConverted:
         print('Все файлы успешно сконвертированы')
     else:
