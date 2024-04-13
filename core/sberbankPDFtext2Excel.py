@@ -177,18 +177,18 @@ def main():
 
 
 if __name__=='__main__':
-    root_logger = logging.getLogger()
-    root_logger.setLevel(logging.DEBUG)
-    # Adding file handler
-    file_handler = logging.FileHandler("sberbankPDFtext2Excel.log", encoding="utf-8")
-    # Creating formatter, which displays time, level, module name, line number and message
-    file_handler_formatter = logging.Formatter('%(levelname)s -%(name)s- %(module)s - %(lineno)d - %(funcName)s - %(message)s')
+    # root_logger = logging.getLogger()
+    # root_logger.setLevel(logging.DEBUG)
+    # # Adding file handler
+    # file_handler = logging.FileHandler("sberbankPDFtext2Excel.log", encoding="utf-8")
+    # # Creating formatter, which displays time, level, module name, line number and message
+    # file_handler_formatter = logging.Formatter('%(levelname)s -%(name)s- %(module)s - %(lineno)d - %(funcName)s - %(message)s')
     
-    # Adding formatter to file handler
-    file_handler.setFormatter(file_handler_formatter)
-    root_logger.addHandler(file_handler)
-    logger = logging.getLogger(__name__)
+    # # Adding formatter to file handler
+    # file_handler.setFormatter(file_handler_formatter)
+    # root_logger.addHandler(file_handler)
+    # logger = logging.getLogger(__name__)
 
-    logger.debug( "\n************** Starting  testing*******************")
+    # logger.debug( "\n************** Starting  testing*******************")
     
     main()
