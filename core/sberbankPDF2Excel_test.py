@@ -47,10 +47,29 @@ def test_correctly_converts_SBER_DEBIT_2212_pdf():
 
 def test_correctly_converts_SBER_SAVING_2303_EURO_pdf():
     sberbankPDF2Excel(no_github_module.SBER_SAVING_2303_EURO_pdf)
+
+def test_correctly_converts_SBER_SAVING_2303_USD_pdf():
+    sberbankPDF2Excel(no_github_module.SBER_SAVING_2303_USD_pdf)
     
 def test_correctly_converts_SBER_DEBIT_2303_CHELYABINSK_pdf():
     sberbankPDF2Excel(no_github_module.SBER_DEBIT_2303_CHELYABINSK_pdf)
 
-# SBER_DEBIT_2303_CHELYABINSK_pdf
+def test_correctly_converts_SBER_PAYMENT_2212_issue_31_simulation_txt():
+    sberbankPDF2Excel(no_github_module.SBER_PAYMENT_2212_issue_31_simulation_txt)
+    
+def test_correctly_converts_SBER_DEBIT_2212_issue_33_txt():
+    sberbankPDF2Excel(no_github_module.SBER_DEBIT_2212_issue_33_txt)
 
-# SBER_SAVING_2303_EURO_pdf
+def test_correctly_converts_SBER_SAVING_2303_Activnoe_dolgolitie_issue_35_txt():
+    sberbankPDF2Excel(no_github_module.SBER_SAVING_2303_Activnoe_dolgolitie_issue_35_txt)
+    
+def test_correctly_converts_SBER_DEBIT_2212_issue_36_txt():
+    sberbankPDF2Excel(no_github_module.SBER_DEBIT_2212_issue_36_txt)
+    
+def test_correctly_converts_SBER_DEBIT_2212_theoretical_case_for_issue_36_manually_created_line_22_txt():
+    sberbankPDF2Excel(no_github_module.SBER_DEBIT_2212_issue_36_theoretical_case_txt)
+    
+def test_correctly_converts_SBER_DEBIT_2212_v20240413_issue_39():
+    sberbankPDF2Excel(no_github_module.SBER_DEBIT_2212_v20240413_issue_39)
+
+# SBER_DEBIT_2212_v20240413_issue_39

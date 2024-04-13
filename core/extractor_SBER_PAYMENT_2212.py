@@ -209,7 +209,7 @@ class SBER_PAYMENT_2212(Extractor):
         # ************** looking at the 2nd line
         line_parts = split_Sberbank_line(lines[1])
 
-        if len(line_parts) != 3 or len(line_parts) > 4:
+        if len(line_parts) < 3 or len(line_parts) > 4:
             raise exceptions.Bank2ExcelError(
                 "Line is expected to have 3 or 4 parts :" + str(lines[1]))
 
@@ -232,7 +232,7 @@ class SBER_PAYMENT_2212(Extractor):
                 result['operational_currency'] = found.group(2)
             else:
                 raise exceptions.InputFileStructureError(
-                    "Ошибка в обработке текста. Ожидалась струтура типа '6,79 €', получено: " +
+                    "Ошибка в обработке текста. Ожидалась структура типа '6,79 €', получено: " +
                     line_parts[3])
 
         # ************** looking at the 3rd line

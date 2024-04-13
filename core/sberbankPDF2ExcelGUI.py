@@ -53,25 +53,30 @@ def btn_convertFiles_clicked():
     print("Версия "+version_info.VERSION)
     created_excel_files_scrollText.delete('1.0',END)
 
-    qntFiles=len(files)
-    qntFilesConverted=0
+    qnt_files = len(files)
+    qnt_files_converted = 0
+    
     for file in files:
         try:
-            created_excel_files_scrollText.insert(INSERT,
-                                                  sberbankPDF2Excel(file,
-                                                                    leave_intermediate_txt_file = leave_intermediate_txt_file.get(),
-                                                                    perform_balance_check = not no_balance_check.get() ) + '\n')
-            qntFilesConverted=qntFilesConverted + 1
+            converted_file_name = sberbankPDF2Excel(file,
+                                                    leave_intermediate_txt_file=leave_intermediate_txt_file.get(),
+                                                    perform_balance_check=not no_balance_check.get(),
+                                                    reversed_transaction_order=reversed_transaction_order.get())            
+        
         except:
-            print('Произошла ошибка при конвертации файла "'+'file'+'" '+ str(sys.exc_info()[0]))
+            print(f"Произошла ошибка при конвертации файла {file} \n{sys.exc_info()[0]}")
             print(traceback.format_exc())
             print('Пропускаем конвертацию этого файла')
+            
+        created_excel_files_scrollText.insert(INSERT,
+                                        converted_file_name + '\n')
+            
+        qnt_files_converted = qnt_files_converted + 1
 
-    
-    if qntFiles==qntFilesConverted:
+    if qnt_files == qnt_files_converted:
         print('Все файлы успешно сконвертированы')
     else:
-        print(f'!!!!!!! {qntFiles-qntFilesConverted} файл(а) из {qntFiles} не были сконвертированы')
+        print(f'!!!!!!! {qnt_files-qnt_files_converted} файл(а) из {qnt_files} не были сконвертированы')
 
 window = Tk()
 menu = Menu(window)
@@ -121,6 +126,23 @@ Checkbutton(window, text="Игнорировать результаты свер
 reversed_transaction_order = IntVar()
 Checkbutton(window, text="Изменить порядок трансакций на обратный", variable=reversed_transaction_order).grid(row=12, sticky=W)
 
+if __name__ == '__main__':
+    
+    # logging.getLogger('pdfminer').setLevel(logging.INFO)
+    
+    # root_logger = logging.getLogger()
+    # root_logger.setLevel(logging.DEBUG)
+    # # Adding file handler
+    # file_handler = logging.FileHandler("sberbankPDF2ExcelGUI.log", encoding="utf-8")
+    # # Creating formatter, which displays time, level, module name, line number and message
+    # file_handler_formatter = logging.Formatter('%(levelname)s -%(name)s- %(module)s - %(lineno)d - %(funcName)s - %(message)s')
+    
+    # # Adding formatter to file handler
+    # file_handler.setFormatter(file_handler_formatter)
+    # root_logger.addHandler(file_handler)
+    # logger = logging.getLogger(__name__)
 
-window.mainloop()
+    # logger.debug( "\n************** Starting  testing*******************")
+    
+    window.mainloop()
 

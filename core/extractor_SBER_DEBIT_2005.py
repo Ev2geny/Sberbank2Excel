@@ -156,7 +156,7 @@ class SBER_DEBIT_2005(Extractor):
                 result['operational_currency'] = found.group(2)
             else:
                 raise exceptions.InputFileStructureError(
-                    "Ошибка в обработке текста. Ожидалась струтура типа (33,31 EUR), получено: " + line)
+                    "Ошибка в обработке текста. Ожидалась структура типа (33,31 EUR), получено: " + line)
 
         return result
 

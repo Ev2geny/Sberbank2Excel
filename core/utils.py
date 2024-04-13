@@ -71,7 +71,7 @@ def check_transactions_balance(input_pd: pd.DataFrame, balance: float, column_na
         """)
 
 def write_df_to_file(df:pd.DataFrame, 
-                        filename:str, 
+                        filename_stem:str, 
                         extractor_name:str, 
                         errors:str="",
                         output_file_format:str="xlsx")->None:
@@ -84,7 +84,7 @@ def write_df_to_file(df:pd.DataFrame,
     def print_message_about_file_creation(file_name:str)->None:
         print(f"Создан файл {file_name}")
 
-    filename = filename + "." + output_file_format
+    filename = filename_stem + "." + output_file_format
 
     if output_file_format == "xlsx":
 
@@ -115,7 +115,7 @@ def write_df_to_file(df:pd.DataFrame,
 
         print_message_about_file_creation(filename)
     else:
-        raise exceptions.UserInputError(f"not supported output file format '{output_file_format}' is gven to the function 'write_df_to_file'")
+        raise exceptions.UserInputError(f"not supported output file format '{output_file_format}' is given to the function 'write_df_to_file'")
 
 def main():
     print('this module is not designed to work standalone')

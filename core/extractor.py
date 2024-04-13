@@ -96,12 +96,11 @@ class Extractor(ABC):
             try:
                 entries_list_of_dicts.append(self.decompose_entry_to_dict(entry))
             except Exception as e:
-                print("Error while processing entry \n"+
-                      "-"*20 +
-                      "\n"+ 
-                      entry +
-                      "\n"+ 
-                      "-"*20)
-                raise e
+                raise RuntimeError("Ошибка при обработке трансакции\n" +
+                                    "-"*20 +
+                                    "\n" + 
+                                    entry +
+                                    "\n" + 
+                                    "-"*20) from e
         
         return entries_list_of_dicts
