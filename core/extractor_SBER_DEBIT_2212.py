@@ -188,10 +188,14 @@ class SBER_DEBIT_2212(Extractor):
         result['processing_date'] = datetime.strptime(result['processing_date'], '%d.%m.%Y')
 
         result['authorisation_code'] = line_parts[1]
-        
+ 
         # checking if the last part is a money like '1 515,76 €'
-        last_part_as_money:re.Match|None = re.search(r'(\d[\d\s]*?,\d\d)\s(\S*)$', line_parts[-1])  
-                
+        last_part_as_money: re.Match | None = re.search(r'(\d[\d\s]*?,\d\d)\s(\S*)$', line_parts[-1])
+        
+        # checking if the last part is a currency like in issue_39:
+        # 13.03.2024	814632	MAPP_SBERBANK_ONL@IN_PAY. Операция по карте ****XXX	₽
+        last_part_as_currency: re.Match | None = re.search(r'(\S)$', line_parts[-1])   
+             
         if len(line_parts) == 3:
             
             if last_part_as_money:
@@ -204,8 +208,7 @@ class SBER_DEBIT_2212(Extractor):
                 -->  11.08.2022	214722  6,00 BYN
                 """
                 
-                result['value_operational_currency'] = get_float_from_money(
-                    last_part_as_money.group(1), True)
+                result['value_operational_currency'] = get_float_from_money(last_part_as_money.group(1), True)
                 result['operational_currency'] = last_part_as_money.group(2)
             else:
                 # Обрабатываем вторую строчку "стандартной" трансакции
@@ -216,19 +219,22 @@ class SBER_DEBIT_2212(Extractor):
                 result['description'] = line_parts[2]
             
 
-
         if len(line_parts) == 4:
             
             result['description'] = line_parts[2]
             
             if last_part_as_money:
-                result['value_operational_currency'] = get_float_from_money(
-                    last_part_as_money.group(1), True)
+                result['value_operational_currency'] = get_float_from_money(last_part_as_money.group(1), True)
                 result['operational_currency'] = last_part_as_money.group(2)
+            
+            # Обрабатываем вот такую ситуацию (issue_39)
+            # 13.03.2024	814632	MAPP_SBERBANK_ONL@IN_PAY. Операция по карте ****XXX	₽
+            elif last_part_as_currency:
+                result['operational_currency'] = last_part_as_currency.group(1)
+                
             else:
                 raise exceptions.InputFileStructureError(
-                    "Ошибка в обработке текста. Ожидалась структура типа '6,79 €', получено: " +
-                    line_parts[3])
+                    f"Ошибка в обработке текста. Ожидалась структура типа '6,79 €', либо '₽' получено:  {line_parts[3]}")
 
         # ************** looking at the 3rd line, if present
         if len(lines) == 3:
