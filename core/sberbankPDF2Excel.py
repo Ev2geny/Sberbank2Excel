@@ -12,13 +12,13 @@ from sberbankPDFtext2Excel import sberbankPDFtext2Excel, genarate_PDFtext2Excel_
 
 
 
-def sberbankPDF2Excel(input_file_name:str,
-                      output_file_name:Union[str, None] =None,
-                      format:str= 'auto',
-                      leave_intermediate_txt_file:str = False,
-                      perform_balance_check = True,
-                      output_file_type:str="xlsx",
-                      reversed_transaction_order=True) ->str:
+def sberbankPDF2Excel(input_file_name: str,
+                      output_file_name: Union[str, None] = None,
+                      format: str = 'auto',
+                      leave_intermediate_txt_file: bool = False,
+                      perform_balance_check=True,
+                      output_file_type: str = "xlsx",
+                      reversed_transaction_order=False) -> str:
     """function converts pdf or text file with Sperbank extract to Excel or CSV format
 
     Args:

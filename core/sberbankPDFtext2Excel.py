@@ -17,6 +17,7 @@
 import sys
 import os
 import argparse
+import logging
 
 # importing own modules out of project
 import pandas as pd
@@ -27,7 +28,7 @@ import exceptions
 
 from extractors_generic import determine_extractor_auto
 
-
+logger = logging.getLogger()
 class bcolors:
     HEADER = '\033[95m'
     OKBLUE = '\033[94m'
@@ -39,10 +40,11 @@ class bcolors:
     BOLD = '\033[1m'
     UNDERLINE = '\033[4m'
 
-def sberbankPDFtext2Excel(input_txt_file_name:str,
-                          output_file_name:str|None = None,
-                          format = 'auto',
-                          perform_balance_check = True,
+
+def sberbankPDFtext2Excel(input_txt_file_name: str,
+                          output_file_name: str | None = None,
+                          format='auto',
+                          perform_balance_check=True,
                           output_file_type='xlsx',
                           reversed_transaction_order=False) -> str:
     """ Функция конвертирует текстовый файл Сбербанка, полученный из выписки PDF в Excel или CSV форматы
@@ -62,6 +64,8 @@ def sberbankPDFtext2Excel(input_txt_file_name:str,
     Returns:
         str: file name of the created file
     """
+    
+    logger.debug(f"reversed_transaction_order = {reversed_transaction_order}")
 
     # creating output file name for Excel file, if not provided
     if not output_file_name:
@@ -100,6 +104,9 @@ def sberbankPDFtext2Excel(input_txt_file_name:str,
     # converting list of dictionaries to pandas dataframe
     df = pd.DataFrame(individual_entries,
                       columns=extractor.get_columns_info().keys())
+    
+    logger.debug(f"Dataframe created from text file {input_txt_file_name}")
+    logger.debug(df)
 
     # getting balance, written in the bank statement
     extracted_balance = extractor.get_period_balance()
@@ -170,4 +177,18 @@ def main():
 
 
 if __name__=='__main__':
+    root_logger = logging.getLogger()
+    root_logger.setLevel(logging.DEBUG)
+    # Adding file handler
+    file_handler = logging.FileHandler("sberbankPDFtext2Excel.log", encoding="utf-8")
+    # Creating formatter, which displays time, level, module name, line number and message
+    file_handler_formatter = logging.Formatter('%(levelname)s -%(name)s- %(module)s - %(lineno)d - %(funcName)s - %(message)s')
+    
+    # Adding formatter to file handler
+    file_handler.setFormatter(file_handler_formatter)
+    root_logger.addHandler(file_handler)
+    logger = logging.getLogger(__name__)
+
+    logger.debug( "\n************** Starting  testing*******************")
+    
     main()
