@@ -125,8 +125,7 @@ def write_df_to_file(df:pd.DataFrame,
     
     
 def assert_path_is_not_multi_level_relative(path:Path)->None:
-    """
-    Checks, that the path is not multi-level relative path
+    """ Checks, that the path is not multi-level relative path
     
     Returns:
         None
@@ -143,22 +142,24 @@ def assert_path_is_not_multi_level_relative(path:Path)->None:
     
     raise exceptions.UserInputError(f"Path '{path}' is a multi-level relative path, but it should be a single file or folder or an absolute path")    
     
-def get_output_extentionless_file_name(input_file_name:str|Path,
-                                       output_file_name:str|Path|None = None,
-                                        output_dir:str|Path|None = None,
-                                        create_output_dir:bool=False)->Path:
-    """Claculates the name of the output file based on the combilation of the input file name and output file name and output folder name
-        Optionally creates the output folder if it does not exist
+def get_output_extentionless_file_name(input_file_name: str | Path,
+                                       output_file_name: str | Path | None = None,
+                                       output_dir: str | Path | None = None,
+                                       create_output_dir: bool = False,
+                                       default_output_folder='_output_') -> Path:
+    
+    """ Calculates the name of the output file based on the combination of the input file name and output file name and 
+    output folder name. Optionally creates the output folder if it does not exist
+    
+    If output_file_name is provided, and it is an absolute path, then it is returned as is. Alternatively Function 1st 
+    determines the output folder, then the output file name and then combines them.
+    
+    If output_folder is not provided, then the file check for the folder with the name {default_output_folder} in the 
+    same folder as the input file. If such folder exists, then it is used as the output folder. Otherwise the input file
+    folder is used as the output folder.
         
-        If output_file_name is provided, and it is an absolute path, then it is returned as is.
-        Alternatively Function 1st determines the output folder, then the output file name and then combines them.
-        
-        If output_folder is not provided, then the file check for the folder with the name RELATIVE_OUTPUT_FOLDER_TO_CHECK in the same folder as the input file.
-        If such folder exists, then it is used as the output folder. Otherwise the input file folder is used as the output folder.
-        
-
     Args:
-        input_file_name: single file or absolute path
+        input_file_name: absolute path or relative path, which can be resolved to an existing file
         output_file_name: single file or absolute path. If output_folder is provided, then output_file_name can only be a single file name or None
         output_folder: single folder or absolute path
         create_output_folder: whether to create the output folder if it does not exist
@@ -166,8 +167,6 @@ def get_output_extentionless_file_name(input_file_name:str|Path,
     Returns:
         absolute path to the output file
     """
-    
-    RELATIVE_OUTPUT_FOLDER_TO_CHECK = '_output_'
     
     if not input_file_name:
         raise exceptions.UserInputError("input file name is not provided")
@@ -183,12 +182,19 @@ def get_output_extentionless_file_name(input_file_name:str|Path,
         output_file_name_path = Path(output_file_name)
         
         if output_file_name_path.is_absolute():
-            return output_file_name_path
+            # return output_file_name_path without extention
+            
+            if not output_file_name_path.parent.is_dir():
+                raise exceptions.UserInputError(f"output file '{output_file_name_path}' is an absolute path, but the parent folder does not exist")
+            
+            return output_file_name_path.parent / output_file_name_path.stem
+            # return output_file_name_path
         
         assert_path_is_not_multi_level_relative(output_file_name_path)
         
     
     final_output_folder_path = None
+    
     if output_dir:
         output_folder_path = Path(output_dir)
         assert_path_is_not_multi_level_relative(output_folder_path)
@@ -197,7 +203,10 @@ def get_output_extentionless_file_name(input_file_name:str|Path,
             final_output_folder_path = input_file_name_path.parent / output_folder_path
         else:
             final_output_folder_path = output_folder_path
-            
+            # checking that the final_output_folder_path exists
+            if not final_output_folder_path.is_dir():
+                raise exceptions.UserInputError(f"output folder '{final_output_folder_path}' is not an existing directory")
+             
         if not final_output_folder_path.is_dir():
             if create_output_dir:
                 final_output_folder_path.mkdir()
@@ -205,10 +214,10 @@ def get_output_extentionless_file_name(input_file_name:str|Path,
                 raise exceptions.UserInputError(f"output folder '{final_output_folder_path}' does not exist and it is not requested to create it")
     else:
         
-        # If outpot folder was not provided, then we check if there is a folder with the name RELATIVE_OUTPUT_FOLDER_TO_CHECK
+        # If output folder was not provided, then we check if there is a folder with the name RELATIVE_OUTPUT_FOLDER_TO_CHECK
         # in the same folder as the input file. If it exists, then we use it as the output folder
         
-        would_be_absolute_output_folder_path_to_check = input_file_name_path.parent/RELATIVE_OUTPUT_FOLDER_TO_CHECK
+        would_be_absolute_output_folder_path_to_check = input_file_name_path.parent/default_output_folder
         
         if would_be_absolute_output_folder_path_to_check.is_dir():
             final_output_folder_path = would_be_absolute_output_folder_path_to_check
@@ -252,12 +261,12 @@ def main():
 
 if __name__=='__main__':
     main()
-    # print(get_output_extentionless_file_name('input_file.txt'))
-    # print(get_output_extentionless_file_name('C:\_code\py\Sberbank2Excel\Sberbank2Excel\core\input_file.txt'))
-    # print(get_output_extentionless_file_name('input_file.txt', output_file_name='output_file_changed.xlsx'))
-    # # print(get_output_extentionless_file_name('input_file.txt', output_folder='output_folder'))
-    # # print(get_output_extentionless_file_name('input_file.txt', output_file_name='output.txt',output_folder='output_folder', create_output_folder=True))
-    # print(get_output_extentionless_file_name('input_file.txt', output_file_name='output.txt'))
+    print(get_output_extentionless_file_name('input_file.txt'))
+    print(get_output_extentionless_file_name('C:\_code\py\Sberbank2Excel\Sberbank2Excel\core\input_file.txt'))
+    print(get_output_extentionless_file_name('input_file.txt', output_file_name='output_file_changed.xlsx'))
+    print(get_output_extentionless_file_name('input_file.txt', output_dir='output_folder'))
+    # print(get_output_extentionless_file_name('input_file.txt', output_file_name='output.txt',output_folder='output_folder', create_output_folder=True))
+    print(get_output_extentionless_file_name('input_file.txt', output_file_name='output.txt'))
     
     
         

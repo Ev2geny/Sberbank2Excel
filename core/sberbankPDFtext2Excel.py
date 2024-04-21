@@ -41,9 +41,7 @@ class bcolors:
     ENDC = '\033[0m'
     BOLD = '\033[1m'
     UNDERLINE = '\033[4m'
-    
-    
-    
+
 
 def sberbankPDFtext2Excel(input_file_name:str|Path,
                           output_file_name:str|Path|None = None,
