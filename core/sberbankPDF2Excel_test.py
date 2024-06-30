@@ -71,5 +71,8 @@ def test_correctly_converts_SBER_DEBIT_2212_theoretical_case_for_issue_36_manual
     
 def test_correctly_converts_SBER_DEBIT_2212_v20240413_issue_39():
     sberbankPDF2Excel(no_github_module.SBER_DEBIT_2212_v20240413_issue_39)
+    
+def test_correctly_converts_SBER_PAYMENT_2406_20231001_20240628_issue_42():
+    sberbankPDF2Excel(no_github_module.SBER_PAYMENT_2406_20231001_20240628_issue_42)
 
 # SBER_DEBIT_2212_v20240413_issue_39

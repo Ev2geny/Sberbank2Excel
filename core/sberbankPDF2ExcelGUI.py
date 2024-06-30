@@ -56,6 +56,8 @@ def btn_convertFiles_clicked():
     qnt_files = len(files)
     qnt_files_converted = 0
     
+    converted_file_name = ''
+    
     for file in files:
         try:
             converted_file_name = sberbankPDF2Excel(file,
