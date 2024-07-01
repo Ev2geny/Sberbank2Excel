@@ -116,13 +116,13 @@ github <https://github.com/Ev2geny/Sberbank2Excel/issues>`__
  
    Сбербанк, `SBER_DEBIT_2005 </misc/format_examples/SBER_DEBIT_2005.png>`__,  "Дебетовая карта образца мая 2020 года",  "OK", ???, ОК, 
    Сбербанк, `SBER_DEBIT_2107 </misc/format_examples/SBER_DEBIT_2107.png>`__,  "Дебетовая карта образца июля 2021 года",  "OK", ???, ОК, 
-   Сбербанк, `SBER_CREDIT_2110 </misc/format_examples/SBER_CREDIT_2110.png>`__,  "Кредитная карта образца октября 2021 года (ТДВФН)",   ???,OK,OK? ,  `Сбер иногда неправильно считает баланс <https://github.com/Ev2geny/Sberbank2Excel/issues/13>`__
+   Сбербанк, `SBER_CREDIT_2110 </misc/format_examples/SBER_CREDIT_2110.png>`__,  "Кредитная карта образца октября 2021 года (ТДВФН)",   ???,OK,OK? , https://github.com/Ev2geny/Sberbank2Excel/issues/13
    Сбербанк, `SBER_PAYMENT_2208 </misc/format_examples/SBER_PAYMENT_2208.png>`__,  "Платёжный счёт образца августа 2022 года (ТДВФН)", НП,НП,НП? ,  
    Сбербанк, `SBER_DEBIT_2212 </misc/format_examples/SBER_DEBIT_2212.png>`__,  "Дебетовая карта образца декабря 2022 года",  "OK", ???, ОК,
    Сбербанк, `SBER_PAYMENT_2212 </misc/format_examples/SBER_PAYMENT_2212.png>`__,  "Платёжный счёт образца декабря 2022 года", НП,НП,ОК ,
    Сбербанк, `SBER_SAVING_2303 </misc/format_examples/SBER_SAVING_2303.png>`__,  "Выписка из лицевого счёта по вкладу «Сберегательный счет» образца марта 2023 года (ТДВФН). Также должно работать с другими типами сберегательных счетов (Активное долголетие и т.д.)", НП,НП,НП,
    Сбербанк, `SBER_DEBIT_2303_CHELYABINSK </misc/format_examples/SBER_DEBIT_2303_CHELYABINSK.png>`__,  "История операций по дебетовой карте за период. Образца марта 2023 года (ТДВФН). ???Челябинск??", ОК,?,НЕТ,
-   Сбербанк, `SBER_PAYMENT_2406 </misc/format_examples/SBER_PAYMENT_2406.png>`__,  "Платёжный счёт образца июня 2024 года", НП,НП,ОК ,
+   Сбербанк, `SBER_PAYMENT_2406 </misc/format_examples/SBER_PAYMENT_2406.png>`__,  "Платёжный счёт образца июня 2024 года", НП,НП,ОК, https://github.com/Ev2geny/Sberbank2Excel/issues/43
 
 **Легенда и сокращения**
 
