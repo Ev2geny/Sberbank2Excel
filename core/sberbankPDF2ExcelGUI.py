@@ -63,17 +63,18 @@ def btn_convertFiles_clicked():
             converted_file_name = sberbankPDF2Excel(file,
                                                     leave_intermediate_txt_file=leave_intermediate_txt_file.get(),
                                                     perform_balance_check=not no_balance_check.get(),
-                                                    reversed_transaction_order=reversed_transaction_order.get())            
+                                                    reversed_transaction_order=reversed_transaction_order.get())   
+            
+            created_excel_files_scrollText.insert(INSERT,
+                                        converted_file_name + '\n')
+            
+            qnt_files_converted = qnt_files_converted + 1         
         
         except:
             print(f"Произошла ошибка при конвертации файла {file} \n{sys.exc_info()[0]}")
             print(traceback.format_exc())
             print('Пропускаем конвертацию этого файла')
             
-        created_excel_files_scrollText.insert(INSERT,
-                                        converted_file_name + '\n')
-            
-        qnt_files_converted = qnt_files_converted + 1
 
     if qnt_files == qnt_files_converted:
         print('Все файлы успешно сконвертированы')
