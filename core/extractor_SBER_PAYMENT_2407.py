@@ -28,7 +28,7 @@ from extractor import Extractor
 
 import extractors_generic
 
-class SBER_PAYMENT_2406(Extractor):
+class SBER_PAYMENT_2407(Extractor):
 
     def check_specific_signatures(self):
         """
@@ -47,7 +47,7 @@ class SBER_PAYMENT_2406(Extractor):
         
         test_dlya_proverki_podlinnosti = re.search(r'Для проверки подлинности документа', self.bank_text, re.IGNORECASE)
 
-        if (not test1  or not test2) or test_ostatok_po_schetu or test_dlya_proverki_podlinnosti:
+        if (not test1  or not test2) or test_ostatok_po_schetu or not test_dlya_proverki_podlinnosti:
             raise exceptions.InputFileStructureError("Не найдены паттерны, соответствующие выписке")
 
     def get_period_balance(self)->float:
