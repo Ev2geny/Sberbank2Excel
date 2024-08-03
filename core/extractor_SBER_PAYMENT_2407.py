@@ -119,6 +119,28 @@ class SBER_PAYMENT_2407(Extractor):
         ----------------------------------------------------------------------------------------------------------
 
         """
+        
+        # Removing the page breakes, which contain text like
+        """
+        Продолжение на следующей странице
+        Выписка по платёжному счёту	Страница 3 из 8
+        ДАТА ОПЕРАЦИИ (МСК)	КАТЕГОРИЯ	СУММА В ВАЛЮТЕ СЧЁТА	ОСТАТОК СРЕДСТВ
+        В ВАЛЮТЕ СЧЁТА
+        Дата обработки¹ и код авторизации	Описание операции	Сумма в валюте
+        операции²
+        """
+        
+        bank_text_cleaned = re.sub(r"""
+                                   Продолжение
+                                   [\s\S]+?                                # Any character, including new line. !!None-greedy!!
+                                   операции²\n""",
+                                   repl='', 
+                                   string=self.bank_text, 
+                                   flags=re.VERBOSE)  
+        
+        print("############## Cleaned text #################################")
+        print(bank_text_cleaned)
+        
         # extracting entries (operations) from text file on
         individual_entries = re.findall(r"""
             \d\d\.\d\d\.\d\d\d\d\t\d\d:\d\d\t\d+\t                        # Линия типа    29.06.2022	08:44	736015                             
@@ -130,7 +152,7 @@ class SBER_PAYMENT_2407(Extractor):
              \d\d\.\d\d\.\d\d\d\d\t\d\d:\d\d\t\d+\t|                       # Либо до начала новой трансакции
              Дергунова\sК\.\sА\.)                                          # Либо да конца выписки
             """,
-            self.bank_text, re.VERBOSE)
+            bank_text_cleaned, re.VERBOSE)
 
         if len(individual_entries) == 0:
             raise exceptions.InputFileStructureError(
@@ -263,7 +285,7 @@ if __name__ == '__main__':
         print(__doc__)
 
     else:
-        extractors_generic.debug_extractor(SBER_PAYMENT_2406,
+        extractors_generic.debug_extractor(SBER_PAYMENT_2407,
                                            test_text_file_name=sys.argv[1])
 
 
