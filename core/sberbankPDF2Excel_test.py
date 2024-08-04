@@ -75,4 +75,7 @@ def test_correctly_converts_SBER_DEBIT_2212_v20240413_issue_39():
 def test_correctly_converts_SBER_PAYMENT_2406_20231001_20240628_issue_42():
     sberbankPDF2Excel(no_github_module.SBER_PAYMENT_2406_20231001_20240628_issue_42)
 
-# SBER_DEBIT_2212_v20240413_issue_39
+# SBER_PAYMENT_2407__MIR_20240803__20240101_20240801_issue_44
+
+def test_correctly_converts_SBER_PAYMENT_2407__MIR_20240803__20240101_20240801_issue_44():
+    sberbankPDF2Excel(no_github_module.SBER_PAYMENT_2407__MIR_20240803__20240101_20240801_issue_44)

@@ -131,15 +131,16 @@ class SBER_PAYMENT_2407(Extractor):
         """
         
         bank_text_cleaned = re.sub(r"""
-                                   Продолжение
+                                   Продолжение\sна\sследующей\sстранице
                                    [\s\S]+?                                # Any character, including new line. !!None-greedy!!
+                                   Сумма\sв\sвалюте\n
                                    операции²\n""",
                                    repl='', 
                                    string=self.bank_text, 
                                    flags=re.VERBOSE)  
         
-        print("############## Cleaned text #################################")
-        print(bank_text_cleaned)
+        # print("############## Cleaned text #################################")
+        # print(bank_text_cleaned)
         
         # extracting entries (operations) from text file on
         individual_entries = re.findall(r"""
@@ -147,10 +148,8 @@ class SBER_PAYMENT_2407(Extractor):
             .*?\n                                                         # Anything till end of the line including a line break
             \d\d\.\d\d\.\d\d\d\d\t                                        # дата обработки и 1 табуляция
             [\s\S]*?                                                      # any character, including new line. !!None-greedy!!
-            (?=Продолжение\sна\sследующей\sстранице|                      # lookahead до "Продолжение на следующей странице"
-             Выписка\sпо\sплатёжному\sсчёту|                               # Либо до 'Выписка по платёжному счёту'
-             \d\d\.\d\d\.\d\d\d\d\t\d\d:\d\d\t\d+\t|                       # Либо до начала новой трансакции
-             Дергунова\sК\.\sА\.)                                          # Либо да конца выписки
+            (?=\d\d\.\d\d\.\d\d\d\d\t\d\d:\d\d\t\d+\t|                    # Либо до начала новой трансакции
+             Дергунова\sК\.\sА\.)                                         # Либо да конца выписки
             """,
             bank_text_cleaned, re.VERBOSE)
 
@@ -198,9 +197,9 @@ class SBER_PAYMENT_2407(Extractor):
         lines = entry.split('\n')
         lines = list(filter(None, lines))
 
-        if len(lines) < 2 or len(lines) > 3:
+        if len(lines) < 2 or len(lines) > 4:
             raise exceptions.InputFileStructureError(
-                "entry is expected to have from 2 to 3 lines\n" + str(entry))
+                "entry is expected to have from 2 to 4 lines\n" + str(entry))
 
         result = {}
         # ************** looking at the 1st line
@@ -245,8 +244,14 @@ class SBER_PAYMENT_2407(Extractor):
                     line_parts[3])
 
         # ************** looking at the 3rd line
-        if len(lines) == 3:
+        if len(lines) >= 3:
             line_parts = split_Sberbank_line(lines[2])
+            result['description'] = result['description'] + ' ' + line_parts[0]
+            
+            
+        # ************** looking at the 4th line
+        if len(lines) == 4:
+            line_parts = split_Sberbank_line(lines[3])
             result['description'] = result['description'] + ' ' + line_parts[0]
 
         # print(result)

@@ -17,6 +17,11 @@ extractors_list.append(SBER_CREDIT_2107)
 # from core.extractor_SBER_DEBIT_2111_VISA_draft import  SBER_DEBIT_2111_VISA
 # extractors_list.append(SBER_DEBIT_2111_VISA)
 
+# extractor_SBER_PAYMENT_2407
+
+from extractor_SBER_PAYMENT_2407 import SBER_PAYMENT_2407
+extractors_list.append(SBER_PAYMENT_2407)
+
 from extractor_SBER_PAYMENT_2406 import SBER_PAYMENT_2406
 extractors_list.append(SBER_PAYMENT_2406)
 
