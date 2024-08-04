@@ -4,10 +4,10 @@
 ## Ubuntu
 Установить Python
 ```
-sudo apt-get install -y python3.11
-sudo apt-get install -y python3.11-venv
-sudo apt-get install python3.11-tk
-sudo apt-get install python3.11-dev
+sudo apt-get install -y python3.12
+sudo apt-get install -y python3.12-venv
+sudo apt-get install python3.12-tk
+sudo apt-get install python3.12-dev
 ```
 Скачать исходный код с github
 ``` 
@@ -16,7 +16,7 @@ git clone https://github.com/Ev2geny/Sberbank2Excel.git
 
 создать и активировать виртуальную среду
 ```
-python3.11 -m venv .venv
+python3.12 -m venv .venv
 source .venv/bin/activate
 ```
 Установить пакеты
