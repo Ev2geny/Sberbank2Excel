@@ -28,7 +28,7 @@ from extractor import Extractor
 
 import extractors_generic
 
-class SBER_PAYMENT_2406(Extractor):
+class SBER_PAYMENT_2407(Extractor):
 
     def check_specific_signatures(self):
         """
@@ -47,7 +47,7 @@ class SBER_PAYMENT_2406(Extractor):
         
         test_dlya_proverki_podlinnosti = re.search(r'Для проверки подлинности документа', self.bank_text, re.IGNORECASE)
 
-        if (not test1  or not test2) or test_ostatok_po_schetu or test_dlya_proverki_podlinnosti:
+        if (not test1  or not test2) or test_ostatok_po_schetu or not test_dlya_proverki_podlinnosti:
             raise exceptions.InputFileStructureError("Не найдены паттерны, соответствующие выписке")
 
     def get_period_balance(self)->float:
@@ -119,18 +119,39 @@ class SBER_PAYMENT_2406(Extractor):
         ----------------------------------------------------------------------------------------------------------
 
         """
+        
+        # Removing the page breakes, which contain text like
+        """
+        Продолжение на следующей странице
+        Выписка по платёжному счёту	Страница 3 из 8
+        ДАТА ОПЕРАЦИИ (МСК)	КАТЕГОРИЯ	СУММА В ВАЛЮТЕ СЧЁТА	ОСТАТОК СРЕДСТВ
+        В ВАЛЮТЕ СЧЁТА
+        Дата обработки¹ и код авторизации	Описание операции	Сумма в валюте
+        операции²
+        """
+        
+        bank_text_cleaned = re.sub(r"""
+                                   Продолжение\sна\sследующей\sстранице
+                                   [\s\S]+?                                # Any character, including new line. !!None-greedy!!
+                                   Сумма\sв\sвалюте\n
+                                   операции²\n""",
+                                   repl='', 
+                                   string=self.bank_text, 
+                                   flags=re.VERBOSE)  
+        
+        # print("############## Cleaned text #################################")
+        # print(bank_text_cleaned)
+        
         # extracting entries (operations) from text file on
         individual_entries = re.findall(r"""
             \d\d\.\d\d\.\d\d\d\d\t\d\d:\d\d\t\d+\t                        # Линия типа    29.06.2022	08:44	736015                             
             .*?\n                                                         # Anything till end of the line including a line break
             \d\d\.\d\d\.\d\d\d\d\t                                        # дата обработки и 1 табуляция
             [\s\S]*?                                                      # any character, including new line. !!None-greedy!!
-            (?=Продолжение\sна\sследующей\sстранице|                      # lookahead до "Продолжение на следующей странице"
-             Выписка\sпо\sплатёжному\sсчёту|                               # Либо до 'Выписка по платёжному счёту'
-             \d\d\.\d\d\.\d\d\d\d\t\d\d:\d\d\t\d+\t|                       # Либо до начала новой трансакции
-             Дергунова\sК\.\sА\.)                                          # Либо да конца выписки
+            (?=\d\d\.\d\d\.\d\d\d\d\t\d\d:\d\d\t\d+\t|                    # Либо до начала новой трансакции
+             Дергунова\sК\.\sА\.)                                         # Либо да конца выписки
             """,
-            self.bank_text, re.VERBOSE)
+            bank_text_cleaned, re.VERBOSE)
 
         if len(individual_entries) == 0:
             raise exceptions.InputFileStructureError(
@@ -176,9 +197,9 @@ class SBER_PAYMENT_2406(Extractor):
         lines = entry.split('\n')
         lines = list(filter(None, lines))
 
-        if len(lines) < 2 or len(lines) > 3:
+        if len(lines) < 2 or len(lines) > 4:
             raise exceptions.InputFileStructureError(
-                "entry is expected to have from 2 to 3 lines\n" + str(entry))
+                "entry is expected to have from 2 to 4 lines\n" + str(entry))
 
         result = {}
         # ************** looking at the 1st line
@@ -223,8 +244,14 @@ class SBER_PAYMENT_2406(Extractor):
                     line_parts[3])
 
         # ************** looking at the 3rd line
-        if len(lines) == 3:
+        if len(lines) >= 3:
             line_parts = split_Sberbank_line(lines[2])
+            result['description'] = result['description'] + ' ' + line_parts[0]
+            
+            
+        # ************** looking at the 4th line
+        if len(lines) == 4:
+            line_parts = split_Sberbank_line(lines[3])
             result['description'] = result['description'] + ' ' + line_parts[0]
 
         # print(result)
@@ -263,7 +290,7 @@ if __name__ == '__main__':
         print(__doc__)
 
     else:
-        extractors_generic.debug_extractor(SBER_PAYMENT_2406,
+        extractors_generic.debug_extractor(SBER_PAYMENT_2407,
                                            test_text_file_name=sys.argv[1])
 
 

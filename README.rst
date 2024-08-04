@@ -123,6 +123,7 @@ github <https://github.com/Ev2geny/Sberbank2Excel/issues>`__
    Сбербанк, `SBER_SAVING_2303 </misc/format_examples/SBER_SAVING_2303.png>`__,  "Выписка из лицевого счёта по вкладу «Сберегательный счет» образца марта 2023 года (ТДВФН). Также должно работать с другими типами сберегательных счетов (Активное долголетие и т.д.)", НП,НП,НП,
    Сбербанк, `SBER_DEBIT_2303_CHELYABINSK </misc/format_examples/SBER_DEBIT_2303_CHELYABINSK.png>`__,  "История операций по дебетовой карте за период. Образца марта 2023 года (ТДВФН). ???Челябинск??", ОК,?,НЕТ,
    Сбербанк, `SBER_PAYMENT_2406 </misc/format_examples/SBER_PAYMENT_2406.png>`__,  "Платёжный счёт образца июня 2024 года", НП,НП,ОК, https://github.com/Ev2geny/Sberbank2Excel/issues/43
+   Сбербанк, `SBER_PAYMENT_2407 </misc/format_examples/SBER_PAYMENT_2407.png>`__,  "Платёжный счёт образца июля 2024 года", НП,НП,ОК ,
 
 **Легенда и сокращения**
 

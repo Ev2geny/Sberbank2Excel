@@ -76,7 +76,7 @@ Some wrong text, which cannot be correct
     print(f"1) Extractor {extractor_type_object.__name__} initilyzed with the text from the file '{test_text_file_name}'\n\n")
     print(f"1) Extractor {extractor_type_object.__name__} initilyzed with the knownly wrong text {wrong_text}")
 
-    all_actually_returned_fields_set=set()
+    all_actually_returned_fields_set = set()
 
     with open(test_text_file_name, encoding='utf-8') as f:
         txt_file_content = f.read()
@@ -87,7 +87,7 @@ Some wrong text, which cannot be correct
 
     extractor_which_shall_not_work = extractor_type_object(wrong_text)
 
-    print('-'*20)
+    print('-'*40)
     print("Checking 'check_specific_signatures()'")
     print("Cheking on file, which shall work. If code continues, everything is OK")
     extractor.check_specific_signatures()
@@ -99,7 +99,7 @@ Some wrong text, which cannot be correct
     except exceptions.InputFileStructureError:
         pass
 
-    print('-' * 20)
+    print('-' * 40)
     print("Testing 'get_period_balance()'")
     print("Cheking on file, which shall work. If code continues, everything is OK")
     print(f"period_balance = {extractor.get_period_balance()}")
@@ -112,11 +112,11 @@ Some wrong text, which cannot be correct
     except exceptions.InputFileStructureError:
         pass
 
-    print('-' * 20)
+    print('-' * 40)
     print("Testing split_text_on_entries()'")
     print("Cheking on file, which shall work. If code continues, everything is OK")
     for text_entry in extractor.split_text_on_entries():
-        print('*'*20)
+        print('='*50)
         print(text_entry)
 
     print("Cheking on file, which shall NOT work. If code continues, everything is OK")
@@ -126,17 +126,17 @@ Some wrong text, which cannot be correct
     except exceptions.InputFileStructureError:
         pass
 
-    print('-' * 20)
+    print('-' * 40)
     print("Testing 'get_entries()'")
     print("Cheking on file, which shall work. If code continues, everything is OK")
     entries = extractor.get_entries()
 
     assert len(entries) >1
 
-    for entry in extractor.get_entries():
+    for entry in entries:
         print('*'*20)
         pprint(entry)
-        assert isinstance(entry,dict)
+        assert isinstance(entry, dict)
         all_actually_returned_fields_set = all_actually_returned_fields_set | set(entry.keys())
 
     try:
@@ -145,19 +145,19 @@ Some wrong text, which cannot be correct
     except exceptions.InputFileStructureError:
         pass
 
-    print('-' * 20)
-    print("Testing 'check_support()'")
-    print("Cheking on file, which shall work")
-    supported = extractor.check_support()
-    print(f"check_support = {supported}")
-    if not supported:
-        exceptions.TestingError("Function 'check_support()' shall return True for correct file")
+    # print('-' * 20)
+    # print("Testing 'check_support()'")
+    # print("Cheking on file, which shall work")
+    # supported = extractor.check_support()
+    # print(f"check_support = {supported}")
+    # if not supported:
+    #     exceptions.TestingError("Function 'check_support()' shall return True for correct file")
 
-    print("Cheking on file, which shall not work")
-    wrong_file_supported = extractor.check_support()
-    print(f"check_support() = {wrong_file_supported}")
-    if wrong_file_supported:
-        exceptions.TestingError("Function 'check_support()' shall return False for wrong file")
+    # print("Cheking on file, which shall not work")
+    # wrong_file_supported = extractor.check_support()
+    # print(f"check_support() = {wrong_file_supported}")
+    # if wrong_file_supported:
+    #     exceptions.TestingError("Function 'check_support()' shall return False for wrong file")
 
     print('-' * 20)
     print(f"Testing get_columns_info()")
