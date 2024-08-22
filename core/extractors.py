@@ -34,6 +34,9 @@ extractors_list.append(SBER_PAYMENT_2208)
 from extractor_SBER_DEBIT_2212 import SBER_DEBIT_2212
 extractors_list.append(SBER_DEBIT_2212)
 
+from extractor_SBER_DEBIT_2408 import SBER_DEBIT_2408
+extractors_list.append(SBER_DEBIT_2408)
+
 from extractor_SBER_SAVING_2303 import SBER_SAVING_2303
 extractors_list.append(SBER_SAVING_2303)
 
