@@ -14,15 +14,20 @@ class SBER_DEBIT_2408(Extractor):
 
     def check_specific_signatures(self):
 
-        test1 = re.search(r'сбербанк', self.bank_text, re.IGNORECASE)
+        test_sberbank = re.search(r'сбербанк', self.bank_text, re.IGNORECASE)
         # print(f"{test1=}")
 
-        test2 = re.search(r'Выписка по счёту дебетовой карты', self.bank_text, re.IGNORECASE)
+        test_vipiska_po_schetu = re.search(r'Выписка по счёту дебетовой карты', self.bank_text, re.IGNORECASE)
         # print(f"{test2=}")
+        
+        test_data_zakritiya = re.search(r'Дата закрытия счёта', self.bank_text, re.IGNORECASE)
+        
+        
+        test_dya_proverki_podlinnosti = re.search(r'Для проверки подлинности документа', self.bank_text, re.IGNORECASE)
 
         test_ostatok_po_schetu = re.search(r'ОСТАТОК ПО СЧЁТУ', self.bank_text, re.IGNORECASE)
 
-        if (not test1  or not test2) or test_ostatok_po_schetu:
+        if not (test_sberbank  and test_vipiska_po_schetu and test_dya_proverki_podlinnosti) or test_ostatok_po_schetu:
             raise exceptions.InputFileStructureError("Не найдены паттерны, соответствующие выписке")
 
     def get_period_balance(self)->float:
@@ -49,8 +54,8 @@ class SBER_DEBIT_2408(Extractor):
 
         line_parts = res.group(1).split('\t')
 
-        summa_spisaniy = line_parts[1]
-        summa_popolneniy = line_parts[2]
+        summa_spisaniy = line_parts[2]
+        summa_popolneniy = line_parts[1]
 
         # print('summa_spisaniy ='+summa_spisaniy)
         # print('summa_popolneniy =' + summa_popolneniy)
@@ -157,9 +162,9 @@ class SBER_DEBIT_2408(Extractor):
         lines = entry.split('\n')
         lines = list(filter(None, lines))
 
-        if len(lines) < 2 or len(lines) > 3:
+        if len(lines) < 2 or len(lines) > 4:
             raise exceptions.InputFileStructureError(
-                "entry is expected to have from 2 to 3 lines\n" + str(entry))
+                "entry is expected to have from 2 to 4 lines\n" + str(entry))
 
         result = {}
         # ************** looking at the 1st line
@@ -245,6 +250,11 @@ class SBER_DEBIT_2408(Extractor):
         # ************** looking at the 3rd line, if present
         if len(lines) == 3:
             line_parts = split_Sberbank_line(lines[2])
+            result['description'] = result['description'] + ' ' + line_parts[0]
+
+        # ************** looking at the 4th line, if present
+        if len(lines) == 4:
+            line_parts = split_Sberbank_line(lines[3])
             result['description'] = result['description'] + ' ' + line_parts[0]
 
         # print(result)

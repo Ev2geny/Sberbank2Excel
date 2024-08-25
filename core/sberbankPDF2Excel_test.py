@@ -82,3 +82,6 @@ def test_correctly_converts_SBER_PAYMENT_2407__MIR_20240803__20240101_20240801_i
     
 def test_correctly_converts_SBER_SAVING2407_issue47():
     sberbankPDF2Excel(no_github_module.SBER_SAVING_2407_issue47)
+    
+def test_correctly_converts_SBER_DEBIT_2408_issue_48():
+    sberbankPDF2Excel(no_github_module.SBER_DEBIT_2408_issue_48)
