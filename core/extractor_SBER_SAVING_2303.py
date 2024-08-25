@@ -40,7 +40,7 @@ class SBER_SAVING_2303(Extractor):
         # print(f"{test1=}")
 
         # Специфический паттерн, характерный для SBER_SAVING_2407, но который не должен присутствовать здесь
-        spesific_pattern_SBER_SAVING_2407 = re.search(r'Дата\sпредыдущей\sоперации\sпо\sсчёту', self.bank_text, re.IGNORECASE)
+        spesific_pattern_SBER_SAVING_2407 = re.search(r'Дата предыдущей операции по счёту', self.bank_text, re.IGNORECASE)
 
         if (not test1 ) or spesific_pattern_SBER_SAVING_2407:
             raise exceptions.InputFileStructureError("Не найдены паттерны, соответствующие выписке")

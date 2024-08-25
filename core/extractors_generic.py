@@ -26,7 +26,7 @@ def determine_extractor_auto(pdf_text:str) -> type:
         raise exceptions.InputFileStructureError("Неизвecтный формат выписки, ни один из экстракторов не подходят")
 
     if len(supported_extractors) > 1 :
-        raise exceptions.InputFileStructureError(f"Непонятный формат выписки. Больше чем один экстрактор говорят, что понимают его")
+        raise exceptions.InputFileStructureError(f"Непонятный формат выписки. Больше чем один экстрактор говорят, что понимают его \n {supported_extractors}")
 
     # If only one supported extractor if found - then all OK
     return supported_extractors[0]

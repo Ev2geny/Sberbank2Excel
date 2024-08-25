@@ -38,9 +38,11 @@ class SBER_SAVING_2407(Extractor):
 
         test1 = re.search(r'Выписка из лицевого счёта по вкладу «[^\n]+»', self.bank_text, re.IGNORECASE)
         # print(f"{test1=}")
+        
+        spesific_pattern_SBER_SAVING_2407 = re.search(r'Дата предыдущей операции по счёту', self.bank_text, re.IGNORECASE)
 
 
-        if not test1:
+        if not (test1 and spesific_pattern_SBER_SAVING_2407):
             raise exceptions.InputFileStructureError("Не найдены паттерны, соответствующие выписке")
 
     def get_period_balance(self)->float:
