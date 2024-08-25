@@ -1,4 +1,4 @@
-# Currently being released with 3.11
+# Currently being released with 3.12
 pdfminer.six
 pandas
 PyInstaller
