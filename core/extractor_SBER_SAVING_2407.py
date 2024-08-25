@@ -168,10 +168,10 @@ class SBER_SAVING_2407(Extractor):
         result['description'] = line_parts[1]
 
         code_part = line_parts[2]
-        if ', ' in code_part:
-            code_parts = code_part.split(', ')
-            result['code'] = code_parts[0]
-            result['document_number'] = code_parts[1]
+        if ',' in code_part:
+            code_parts = code_part.split(',')
+            result['code'] = code_parts[0].strip()
+            result['document_number'] = code_parts[1].strip()
         else:
             result['code'] = code_part
 
