@@ -35,10 +35,6 @@ class SBER_DEBIT_2408(Extractor):
         функция ищет в тексте значения "ВСЕГО СПИСАНИЙ" и "ВСЕГО ПОПОЛНЕНИЙ" и возвращает разницу
         используется для контрольной проверки вычислений
 
-        В выписке подписи столбцов перепутаны
-        Действительный порядок столбцов:
-        ОСТАТОК НА 30.06.2021     ВСЕГО СПИСАНИЙ     ВСЕГО ПОПОЛНЕНИЙ     ОСТАТОК НА 06.07.2021
-
         Пример текста
         ----------------------------------------------------------
         ОСТАТОК НА 30.06.2021     ВСЕГО ПОПОЛНЕНИЙ     ВСЕГО СПИСАНИЙ     ОСТАТОК НА 06.07.2021
@@ -248,12 +244,12 @@ class SBER_DEBIT_2408(Extractor):
                     f"Ошибка в обработке текста. Ожидалась структура типа '6,79 €', либо '₽' получено:  {line_parts[3]}")
 
         # ************** looking at the 3rd line, if present
-        if len(lines) == 3:
+        if len(lines) >= 3:
             line_parts = split_Sberbank_line(lines[2])
             result['description'] = result['description'] + ' ' + line_parts[0]
 
         # ************** looking at the 4th line, if present
-        if len(lines) == 4:
+        if len(lines) >= 4:
             line_parts = split_Sberbank_line(lines[3])
             result['description'] = result['description'] + ' ' + line_parts[0]
 
@@ -281,7 +277,6 @@ class SBER_DEBIT_2408(Extractor):
 
 
 if __name__ == '__main__':
-
 
     if len(sys.argv) < 2:
         print('Не указано имя текстового файла для проверки экстрактора')
