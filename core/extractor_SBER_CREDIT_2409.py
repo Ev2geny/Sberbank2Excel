@@ -1,5 +1,5 @@
 """
-Модуль экстрактора информации из текстового файла выписки типа SBER_CREDIT_2107
+Модуль экстрактора информации из текстового файла выписки типа SBER_CREDIT_2409
 
 Для отладки модуля сделать следующее:
 
@@ -7,7 +7,7 @@
 
 ШАГ 2: Запустить этот файл из командной строки:
 
-    py extractor_SBER_CREDIT_2110.py <test_text_file_name>
+    py extractor_SBER_CREDIT_2409.py <test_text_file_name>
 
 ШАГ 3: Убедиться, что модуль закончит работу без ошибок
 
@@ -28,6 +28,7 @@ from extractor import Extractor
 
 import extractors_generic
 
+
 class SBER_CREDIT_2409(Extractor):
 
     def check_specific_signatures(self):
@@ -36,16 +37,18 @@ class SBER_CREDIT_2409(Extractor):
         If these signatures are not found, then exceptions.InputFileStructureError() is raised
         """
 
-        test1 = re.search(r'сбербанк', self.bank_text, re.IGNORECASE)
+        test_SberBank = re.search(r'сбербанк', self.bank_text, re.IGNORECASE)
         # print(f"{test1=}")
 
-        test2 = re.search(r'Выписка по счёту кредитной карты', self.bank_text, re.IGNORECASE)
+        test_Vipiska_po_schetu = re.search(r'Выписка по счёту кредитной карты', self.bank_text, re.IGNORECASE)
         # print(f"{test2=}")
+        
+        test_OSTATOK_SREDSTV = re.search(r'ОСТАТОК СРЕДСТВ', self.bank_text, re.IGNORECASE)
 
-        if not test1  or not test2:
+        if not (test_SberBank and test_Vipiska_po_schetu and test_OSTATOK_SREDSTV):
             raise exceptions.InputFileStructureError("Не найдены паттерны, соответствующие выписке")
 
-    def get_period_balance(self)->str:
+    def get_period_balance(self) -> float:
         """
         Function gets information about transaction balance from the header of the banl extract
         This balance is then returned as a float
@@ -59,7 +62,8 @@ class SBER_CREDIT_2409(Extractor):
         :return:
         """
 
-        res = re.search(r'СУММА\sПОПОЛНЕНИЙ\tСУММА\sСПИСАНИЙ\tСУММА\sСПИСАНИЙ БАНКА\n(.*?)\n', self.bank_text, re.MULTILINE)
+        res = re.search(r'СУММА\sПОПОЛНЕНИЙ\tСУММА\sСПИСАНИЙ\tСУММА\sСПИСАНИЙ\sБАНКА\n(.*?)\n', self.bank_text, re.MULTILINE)
+ 
         if not res:
             pass
             raise exceptions.InputFileStructureError('Не найдена структура с пополнениями и списаниями')
@@ -108,18 +112,23 @@ class SBER_CREDIT_2409(Extractor):
         ----------------------------------------------------------------------------------------------------------
 
         """
+        # Удаляем куски текста, которые являются разделами между страницами PDF, не несущими информации
+        cleaned_text = re.sub(r'Продолжение на следующей странице[\s\S]*?Сумма в валюте операции²\n', '', self.bank_text)
+        
+        # print("*********** cleaned_text ***********")
+        # print(cleaned_text)
+        
+        
         # extracting entries (operations) from text file on
         individual_entries = re.findall(r"""
-            \d\d\.\d\d\.\d\d\d\d\s{1}\d\d:\d\d                             # Date and time like '06.07.2021 15:46'                                        
+            \d\d\.\d\d\.\d\d\d\d\t\d\d:\d\d\t\d{3,8}                       # Structure like '02.09.2024	09:28	097626'                                        
             .*?\n                                                          # Anything till end of the line including a line break
-            \d\d\.\d\d\.\d\d\d\d\s{1}                                      # дата обработки и 1 пробел 
-            (?=\d{3,8}|-)                                                  # код авторизации либо "-". Код авторизациии который я видел всегда состоит и 6 цифр, но на всякий случай укажим с 3 до 8
+            \d\d\.\d\d\.\d\d\d\d\t                                         # дата обработки и 1 табуляция
             [\s\S]*?                                                       # any character, including new line. !!None-greedy!!
-            (?=Продолжение\sна\sследующей\sстранице|                       # lookahead до "Продолжение на следующей странице"
-             \d\d\.\d\d\.\d\d\d\d\s{1}\d\d:\d\d|                           # Либо до начала новой страницы
-              Реквизиты\sдля\sперевода)                                    # Либо да конца выписки
+            (?=\d\d\.\d\d\.\d\d\d\d\s{1}\d\d:\d\d|                         # lookahead до начала следующей транзакции
+            Дергунова)                                                     # Либо да конца выписки
             """,
-                                        self.bank_text, re.VERBOSE)
+                                        cleaned_text, re.VERBOSE)
 
         if len(individual_entries) == 0:
             raise exceptions.InputFileStructureError(
@@ -181,28 +190,29 @@ class SBER_CREDIT_2409(Extractor):
         lines = entry.split('\n')
         lines = list(filter(None, lines))
 
-        if len(lines) < 2 or len(lines) > 3:
+        if len(lines) < 2 or len(lines) > 4:
             raise exceptions.InputFileStructureError(
-                "entry is expected to have from 2 to 3 lines\n" + str(entry))
+                "entry is expected to have from 2 to 4 lines\n" + str(entry))
 
         result = {}
         # ************** looking at the 1st line
         line_parts = split_Sberbank_line(lines[0])
 
         result['operation_date'] = line_parts[0] + " " + line_parts[1]
-        # https://docs.python.org/3/library/datetime.html#strftime-and-strptime-behavior
         result['operation_date'] = datetime.strptime(result['operation_date'], '%d.%m.%Y %H:%M')
+        
+        result['authorisation_code'] = line_parts[2]
 
-        result['category'] = line_parts[2]
-        result['value_account_currency'] = get_float_from_money(line_parts[3], True)
-        # result['remainder_account_currency'] = get_float_from_money(line_parts[4])
+        result['category'] = line_parts[3]
+        result['value_rubles'] = get_float_from_money(line_parts[4], True)
+        result['remainder_account_currency'] = get_float_from_money(line_parts[5], True)
 
         # ************** looking at the 2nd line
         line_parts = split_Sberbank_line(lines[1])
 
-        if len(line_parts) < 3 or len(line_parts) > 4:
+        if len(line_parts) < 2 or len(line_parts) > 3:
             raise exceptions.Bank2ExcelError(
-                "Line is expected to have 3 or 4 parts :" + str(lines[1]))
+                "Line is expected to have 2 or 3 parts :" + str(lines[1]))
 
         # print(line_parts[0])
 
@@ -211,13 +221,13 @@ class SBER_CREDIT_2409(Extractor):
         # https://docs.python.org/3/library/datetime.html#strftime-and-strptime-behavior
         result['processing_date'] = datetime.strptime(result['processing_date'], '%d.%m.%Y')
 
-        result['authorisation_code'] = line_parts[1]
-        result['description'] = line_parts[2]
+        
+        result['description'] = line_parts[1]
 
         # Выделяем сумму в валюте оперции, если присуиствует
-        if len(line_parts) == 4:
+        if len(line_parts) == 3:
             found = re.search(r'(.*?)\s(\S*)',
-                              line_parts[3])  # processing string like '6,79 €'
+                              line_parts[2])  # processing string like '6,79 €'
             if found:
                 result['value_operational_currency'] = get_float_from_money(
                     found.group(1), True)
@@ -225,43 +235,62 @@ class SBER_CREDIT_2409(Extractor):
             else:
                 raise exceptions.InputFileStructureError(
                     "Ошибка в обработке текста. Ожидалась структура типа '6,79 €', получено: " +
-                    line_parts[3])
+                    line_parts[2])
 
         # ************** looking at the 3rd line
-        if len(lines) == 3:
+        if len(lines) > 2:
             line_parts = split_Sberbank_line(lines[2])
             result['description'] = result['description'] + ' ' + line_parts[0]
 
-        # print(result)
+        # ************** looking at the 4rth line
+        if len(lines) == 4:
+            line_parts = split_Sberbank_line(lines[3])
+            
+            if not line_parts[0] == "Погашение процентов":
+                if len(line_parts) > 1:
+                    raise exceptions.InputFileStructureError("Ожидалась строка с продолжением описания, либо строка 'Погашение процентов   XXX', получено: \n" + lines[3])
+                
+                result['description'] = result['description'] + ' ' + line_parts[0]
+            else:
+                # Если строка начинается с "Погашение процентов", то это особый случай, как описан здесь https://github.com/Ev2geny/Sberbank2Excel/issues/51
+                # В этом случае, возвращаем список словарей
+                result_b = dict()
+                result_b['operation_date'] = result['operation_date']
+                result_b['processing_date'] = result['processing_date']
+                result_b['category'] = result['category']
+                result_b['authorisation_code'] = result['authorisation_code']
+                result_b['description'] = line_parts[0]
+                result_b['value_rubles']= get_float_from_money(line_parts[1], True)
+                
+                result = [result, result_b]
 
         return result
 
     def get_column_name_for_balance_calculation(self)->str:
         """
-        Retrun name of the transaction field, which later can be used to calculate a complete balance of the period
+        Returns the name of the transaction field, which later can be used to calculate a complete balance of the period
         E.g. 'value_account_currency'
         """
-        return 'value_account_currency'
+        return 'value_rubles'
 
     def get_columns_info(self)->dict:
         """
         Returns full column names in the order and in the form they shall appear in Excel
         The keys in dictionary shall correspond to keys of the result of the function self.decompose_entry_to_dict()
         """
-        return {'operation_date': 'Дата операции',
+        return {'operation_date': 'ДАТА ОПЕРАЦИИ',
                 'processing_date': 'Дата обработки',
                 'authorisation_code': 'Код авторизации',
                 'description': 'Описание операции',
-                'category': 'Категория',
-                'value_account_currency': 'Сумма в валюте счёта',
+                'category': 'КАТЕГОРИЯ',
+                'value_rubles': 'СУММА В РУБЛЯХ',
                 'value_operational_currency': 'Сумма в валюте операции',
                 'operational_currency': 'Валюта операции',
-                # 'remainder_account_currency': 'Остаток по счёту в валюте счёта'
+                'remainder_account_currency': 'ОСТАТОК СРЕДСТВ'
                 }
 
 
 if __name__ == '__main__':
-
 
     if len(sys.argv) < 2:
         print('Не указано имя текстового файла для проверки экстрактора')

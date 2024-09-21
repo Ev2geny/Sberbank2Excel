@@ -37,14 +37,16 @@ class Extractor(ABC):
         pass
 
     @abstractmethod
-    def decompose_entry_to_dict(self, entry:str)->dict:
-        """Function decomposes entry into a dictionary
+    def decompose_entry_to_dict(self, entry: str) -> dict | list[dict]:
+        """Function decomposes entry into a dictionary or a list of dictionaries
 
         Args:
             entry (str): _description_
 
         Returns:
-            dict: _description_
+            list[dict]: resulting dictionary or list of dictionaries. The possibility to return a list of dictionaries 
+                        is added to support to support cases like this https://github.com/Ev2geny/Sberbank2Excel/issues/51
+                        which are probably can be considered to be bugs
         """
         pass
 
@@ -94,7 +96,14 @@ class Extractor(ABC):
         
         for entry in self.split_text_on_entries():
             try:
-                entries_list_of_dicts.append(self.decompose_entry_to_dict(entry))
+                result = self.decompose_entry_to_dict(entry)
+                if isinstance(result, dict):
+                    entries_list_of_dicts.append(result)
+                elif isinstance(result, list):
+                    entries_list_of_dicts.extend(result)
+                else:
+                    raise RuntimeError("decompose_entry_to_dict() shall return either dict or list[dict]")
+                
             except Exception as e:
                 raise RuntimeError("Ошибка при обработке трансакции\n" +
                                     "-"*20 +

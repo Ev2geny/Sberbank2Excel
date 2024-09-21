@@ -3,7 +3,9 @@ This module lists all extractor calsses available
 It shall be edited with every new extractor class created
 """
 
-extractors_list = []
+from extractor import Extractor
+
+extractors_list: list[Extractor] = []
 
 from extractor_SBER_DEBIT_2107 import SBER_DEBIT_2107
 extractors_list.append(SBER_DEBIT_2107)
@@ -46,6 +48,8 @@ extractors_list.append(SBER_SAVING_2407)
 from extractor_SBER_DEBIT_2303_CHELYABINSK import SBER_DEBIT_2303_CHELYABINSK
 extractors_list.append(SBER_DEBIT_2303_CHELYABINSK)
 
+from extractor_SBER_CREDIT_2409 import SBER_CREDIT_2409
+extractors_list.append(SBER_CREDIT_2409)
 
 def get_list_extractors_in_text():
     return [extractor.__name__ for extractor in extractors_list]
