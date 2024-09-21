@@ -79,8 +79,9 @@ class SBER_PAYMENT_2407(Extractor):
         ostatok_start_of_period = get_float_from_money(line_parts[0])
         ostatok_end_of_period = get_float_from_money(line_parts[3])
 
-        if not abs(balance - (ostatok_end_of_period - ostatok_start_of_period))<0.01:
-            raise exceptions.InputFileStructureError(f'Что-то пошло не так:\n[ ВСЕГО ПОПОЛНЕНИЙ ({summa_popolneniy}) - ВСЕГО СПИСАНИЙ ({summa_spisaniy}) ] != [ОСТАТОК В КОНЦЕ ({ostatok_end_of_period}) - ОСТАТОК В НАЧАЛЕ ({ostatok_start_of_period})]  ')
+        # Удаляем это т.к. Сбер сам не правильно выводит информацию в шапку https://github.com/Ev2geny/Sberbank2Excel/issues/52
+        # if not abs(balance - (ostatok_end_of_period - ostatok_start_of_period))<0.01:
+        #     raise exceptions.InputFileStructureError(f'Что-то пошло не так:\n[ ВСЕГО ПОПОЛНЕНИЙ ({summa_popolneniy}) - ВСЕГО СПИСАНИЙ ({summa_spisaniy}) ] != [ОСТАТОК В КОНЦЕ ({ostatok_end_of_period}) - ОСТАТОК В НАЧАЛЕ ({ostatok_start_of_period})]  ')
 
         return balance
 
