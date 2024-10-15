@@ -24,7 +24,7 @@ class SBER_DEBIT_2107(Extractor):
         if not test1  or not test2 or not test_ostatok_po_schetu:
             raise exceptions.InputFileStructureError("Не найдены паттерны, соответствующие выписке")
 
-    def get_period_balance(self)->str:
+    def get_period_balance(self) -> float:
         """
         функция ищет в тексте значения "ВСЕГО СПИСАНИЙ" и "ВСЕГО ПОПОЛНЕНИЙ" и возвращает разницу
         используется для контрольной проверки вычислений
@@ -156,7 +156,7 @@ class SBER_DEBIT_2107(Extractor):
             raise exceptions.InputFileStructureError(
                 "entry is expected to have from 2 to 3 lines\n" + str(entry))
 
-        result = {}
+        result: dict = {}
         # ************** looking at the 1st line
         line_parts = split_Sberbank_line(lines[0])
 

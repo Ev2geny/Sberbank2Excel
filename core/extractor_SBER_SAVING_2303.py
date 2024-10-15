@@ -155,7 +155,7 @@ class SBER_SAVING_2303(Extractor):
             raise exceptions.InputFileStructureError(
                 "Трансакция должна состоять из 2 строк\n" + str(entry))
 
-        result = {}
+        result: dict = {}
         # ************** looking at the 1st line
         line_parts = split_Sberbank_line(lines[0])
 

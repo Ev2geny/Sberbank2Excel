@@ -9,7 +9,7 @@ import exceptions
 
 from extractor import Extractor
 
-def determine_extractor_auto(pdf_text:str) -> type:
+def determine_extractor_auto(pdf_text:str) -> Extractor:
     """
     Function determines which extractor to use with this particular text representation of PDF extract
 
@@ -31,7 +31,7 @@ def determine_extractor_auto(pdf_text:str) -> type:
     # If only one supported extractor if found - then all OK
     return supported_extractors[0]
 
-def determine_extractor_by_name(extractor_name:str) -> type:
+def determine_extractor_by_name(extractor_name:str) -> Extractor:
     """
     Checks if the is an Extractor class available, which has a name, iqual to the 'extractor_name' string
     If such extractor is available, then this class is returned, otherwise an exception is raised

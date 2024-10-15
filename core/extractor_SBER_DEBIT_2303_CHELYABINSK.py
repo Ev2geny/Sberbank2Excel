@@ -24,7 +24,7 @@ class SBER_DEBIT_2303_CHELYABINSK(Extractor):
         if not test1:
             raise exceptions.InputFileStructureError("Не найдены паттерны, соответствующие выписке")
 
-    def get_period_balance(self) -> str:
+    def get_period_balance(self) -> float:
         """
         Function gets information about transaction balance from the header of the banlk extract
         This balance is then returned as a float
@@ -50,7 +50,8 @@ class SBER_DEBIT_2303_CHELYABINSK(Extractor):
             raise exceptions.InputFileStructureError('Не найдена структура с наличными')
 
         popolneniye_karty = re.search(r'Пополнение карты\t[.]{5,}\t(.*)', self.bank_text)
-        # print(popolneniye_karty.group(1))
+        if not popolneniye_karty:
+            raise exceptions.InputFileStructureError('Не найдена структура с пополнением карты')
 
         beznalichniye_num = get_float_from_money(beznalichniye.group(1))
         # print(beznalichniye_num)
@@ -117,7 +118,7 @@ class SBER_DEBIT_2303_CHELYABINSK(Extractor):
         lines = entry.split('\n')
         lines = list(filter(None, lines))
 
-        result = {}
+        result: dict = {}
         # ************** looking at the 1st line
 
         line_parts = split_Sberbank_line(lines[0])

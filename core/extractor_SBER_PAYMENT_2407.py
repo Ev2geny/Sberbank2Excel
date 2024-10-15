@@ -202,7 +202,7 @@ class SBER_PAYMENT_2407(Extractor):
             raise exceptions.InputFileStructureError(
                 "entry is expected to have from 2 to 4 lines\n" + str(entry))
 
-        result = {}
+        result: dict = {}
         # ************** looking at the 1st line
         line_parts = split_Sberbank_line(lines[0])
 

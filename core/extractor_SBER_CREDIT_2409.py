@@ -139,7 +139,7 @@ class SBER_CREDIT_2409(Extractor):
 
         return individual_entries
 
-    def decompose_entry_to_dict(self, entry:str)->dict:
+    def decompose_entry_to_dict(self, entry: str) -> dict | list[dict]:
         """
         Function decomposes individual entry text to an information structure in a form of dictionary
         If something unexpected is found, exception exceptions.InputFileStructureError() is raised
@@ -194,7 +194,7 @@ class SBER_CREDIT_2409(Extractor):
             raise exceptions.InputFileStructureError(
                 "entry is expected to have from 2 to 4 lines\n" + str(entry))
 
-        result = {}
+        result = dict()
         # ************** looking at the 1st line
         line_parts = split_Sberbank_line(lines[0])
 
@@ -229,8 +229,7 @@ class SBER_CREDIT_2409(Extractor):
             found = re.search(r'(.*?)\s(\S*)',
                               line_parts[2])  # processing string like '6,79 €'
             if found:
-                result['value_operational_currency'] = get_float_from_money(
-                    found.group(1), True)
+                result['value_operational_currency'] = get_float_from_money(found.group(1), True)
                 result['operational_currency'] = found.group(2)
             else:
                 raise exceptions.InputFileStructureError(
@@ -260,7 +259,7 @@ class SBER_CREDIT_2409(Extractor):
                 result_b['category'] = result['category']
                 result_b['authorisation_code'] = result['authorisation_code']
                 result_b['description'] = line_parts[0]
-                result_b['value_rubles']= get_float_from_money(line_parts[1], True)
+                result_b['value_rubles'] = get_float_from_money(line_parts[1], True)
                 
                 result = [result, result_b]
 

@@ -24,7 +24,7 @@ class SBER_DEBIT_2005(Extractor):
         if not test1  or not test2:
             raise exceptions.InputFileStructureError("Не найдены паттерны, соответствующие выписке")
 
-    def get_period_balance(self)->str:
+    def get_period_balance(self) -> float:
         """
         функция ищет в тексте значения "СУММА ПОПОЛНЕНИЙ" и "СУММА СПИСАНИЙ" и возвращает раницу
         используется для контрольной проверки вычислений
@@ -115,7 +115,7 @@ class SBER_DEBIT_2005(Extractor):
         lines = entry.split('\n')
         lines = list(filter(None, lines))
 
-        result = {}
+        result: dict = {}
         # ************** looking at the 1st line
 
         line_parts = split_Sberbank_line(lines[0])

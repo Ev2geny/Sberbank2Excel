@@ -3,7 +3,8 @@
 
 Для отладки модуля сделать следующее:
 
-ШАГ 1: Сконвертировать выписку из формата .pdf в формат .txt используя либо sberbankPDF2ExcelGUI.py либо непосредственно pdf2txtev.py
+ШАГ 1: Сконвертировать выписку из формата .pdf в формат .txt используя либо sberbankPDF2ExcelGUI.py либо непосредственно
+pdf2txtev.py
 
 ШАГ 2: Запустить этот файл из командной строки:
 
@@ -155,7 +156,7 @@ class SBER_SAVING_2407(Extractor):
             raise exceptions.InputFileStructureError(
                 "Трансакция должна состоять из 2 строк\n" + str(entry))
 
-        result = {}
+        result: dict = {}
         # ************** looking at the 1st line
         line_parts = split_Sberbank_line(lines[0])
 
@@ -216,8 +217,8 @@ class SBER_SAVING_2407(Extractor):
                 'value': 'СУММА ОПЕРАЦИИ',
                 'remaining_value': 'ОСТАТОК НА СЧЁТЕ'}
 
-if __name__ == '__main__':
 
+if __name__ == '__main__':
 
     if len(sys.argv) < 2:
         print('Не указано имя текстового файла для проверки экстрактора')
