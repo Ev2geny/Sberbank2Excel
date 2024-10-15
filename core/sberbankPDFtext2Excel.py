@@ -22,6 +22,7 @@ import logging
 # importing own modules out of project
 import pandas as pd
 
+from extractor import Extractor
 import utils
 import extractors
 import exceptions
@@ -76,7 +77,7 @@ def sberbankPDFtext2Excel(input_txt_file_name: str,
     with open(input_txt_file_name, encoding="utf8") as file:
         file_text = file.read()
 
-    extractor_type = None
+    extractor_type: type
 
     if format=='auto':
         extractor_type = determine_extractor_auto(file_text)
@@ -96,20 +97,20 @@ def sberbankPDFtext2Excel(input_txt_file_name: str,
 
     # in this case extractor_type is not a function, but a class
     # if you call it like this extractor_type() it returns an object with the type of extractor_type
-    extractor = extractor_type(file_text)
+    actual_extractor: Extractor = extractor_type(file_text)
 
     # extracting entries (operations) from big text to list of dictionaries
-    individual_entries = extractor.get_entries()
+    individual_entries = actual_extractor.get_entries()
 
     # converting list of dictionaries to pandas dataframe
-    df = pd.DataFrame(individual_entries,
-                      columns=extractor.get_columns_info().keys())
+    df = pd.DataFrame(data = individual_entries,
+                      columns=actual_extractor.get_columns_info().keys())
     
     logger.debug(f"Dataframe created from text file {input_txt_file_name}")
     logger.debug(df)
 
     # getting balance, written in the bank statement
-    extracted_balance = extractor.get_period_balance()
+    extracted_balance = actual_extractor.get_period_balance()
 
     # checking, if balance, extracted from text file is equal to the balance, found by summing column in Pandas dataframe
 
@@ -118,7 +119,7 @@ def sberbankPDFtext2Excel(input_txt_file_name: str,
     try:
         utils.check_transactions_balance(input_pd=df,
                                          balance=extracted_balance,
-                                         column_name_for_balance_calculation=extractor.get_column_name_for_balance_calculation())
+                                         column_name_for_balance_calculation=actual_extractor.get_column_name_for_balance_calculation())
 
     except exceptions.BalanceVerificationError as e:
         if perform_balance_check:
@@ -129,7 +130,7 @@ def sberbankPDFtext2Excel(input_txt_file_name: str,
 
 
     df = utils.rename_sort_df(df = df,
-                              columns_info=extractor.get_columns_info())
+                              columns_info=actual_extractor.get_columns_info())
     
     if reversed_transaction_order:
         df = df.iloc[::-1]  # reversing the order of transactions

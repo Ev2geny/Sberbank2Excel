@@ -5,7 +5,7 @@ It shall be edited with every new extractor class created
 
 from extractor import Extractor
 
-extractors_list: list[Extractor] = []
+extractors_list: list[type] = []
 
 from extractor_SBER_DEBIT_2107 import SBER_DEBIT_2107
 extractors_list.append(SBER_DEBIT_2107)
@@ -53,4 +53,3 @@ extractors_list.append(SBER_CREDIT_2409)
 
 def get_list_extractors_in_text():
     return [extractor.__name__ for extractor in extractors_list]
-

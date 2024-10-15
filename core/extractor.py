@@ -82,7 +82,7 @@ class Extractor(ABC):
         except exceptions.InputFileStructureError:
             return False
 
-    def get_entries(self)->list[dict]:
+    def get_entries(self) -> list[dict]:
         """Function returns list of dictionaries, where each dictionary corresponds to one entry
 
         Raises:

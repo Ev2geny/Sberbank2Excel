@@ -194,7 +194,7 @@ class SBER_CREDIT_2409(Extractor):
             raise exceptions.InputFileStructureError(
                 "entry is expected to have from 2 to 4 lines\n" + str(entry))
 
-        result = dict()
+        result: dict = dict()
         # ************** looking at the 1st line
         line_parts = split_Sberbank_line(lines[0])
 
@@ -261,7 +261,7 @@ class SBER_CREDIT_2409(Extractor):
                 result_b['description'] = line_parts[0]
                 result_b['value_rubles'] = get_float_from_money(line_parts[1], True)
                 
-                result = [result, result_b]
+                return [result, result_b]
 
         return result
 
@@ -272,7 +272,7 @@ class SBER_CREDIT_2409(Extractor):
         """
         return 'value_rubles'
 
-    def get_columns_info(self)->dict:
+    def get_columns_info(self) -> dict:
         """
         Returns full column names in the order and in the form they shall appear in Excel
         The keys in dictionary shall correspond to keys of the result of the function self.decompose_entry_to_dict()

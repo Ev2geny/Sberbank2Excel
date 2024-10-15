@@ -9,6 +9,7 @@ from utils import split_Sberbank_line
 from extractor import Extractor
 import extractors_generic
 
+
 class SBER_DEBIT_2107(Extractor):
 
     def check_specific_signatures(self):
