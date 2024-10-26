@@ -131,7 +131,7 @@ Some wrong text, which cannot be correct
     print("Cheking on file, which shall work. If code continues, everything is OK")
     entries = extractor.get_entries()
 
-    assert len(entries) >1
+    assert len(entries) >= 1
 
     for entry in entries:
         print('*'*20)

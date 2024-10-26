@@ -62,7 +62,7 @@ class SBER_CREDIT_2409(Extractor):
         :return:
         """
 
-        res = re.search(r'СУММА\sПОПОЛНЕНИЙ\tСУММА\sСПИСАНИЙ\tСУММА\sСПИСАНИЙ\sБАНКА\n(.*?)\n', self.bank_text, re.MULTILINE)
+        res = re.search(r'ОСТАТОК ПО СЧЁТУ НА \d\d\.\d\d\.\d\d\d\d\tОСТАТОК ПО СЧЁТУ НА \d\d\.\d\d\.\d\d\d\d\n(.*?)\n', self.bank_text, re.MULTILINE)
  
         if not res:
             pass
@@ -70,12 +70,11 @@ class SBER_CREDIT_2409(Extractor):
 
         line_parts = res.group(1).split('\t')
 
-        summa_popolneniy = get_float_from_money(line_parts[0])
-        summa_spisaniy = get_float_from_money(line_parts[1])
-        summa_spisaniy_banka = get_float_from_money(line_parts[2])
+        summa_beginning = get_float_from_money(line_parts[0])
+        summa_end = get_float_from_money(line_parts[1])
 
 
-        return summa_popolneniy - summa_spisaniy -summa_spisaniy_banka
+        return summa_end - summa_beginning
 
     def split_text_on_entries(self)->list[str]:
         """
@@ -121,7 +120,7 @@ class SBER_CREDIT_2409(Extractor):
         
         # extracting entries (operations) from text file on
         individual_entries = re.findall(r"""
-            \d\d\.\d\d\.\d\d\d\d\t\d\d:\d\d\t\d{3,8}                       # Structure like '02.09.2024	09:28	097626'                                        
+            \d\d\.\d\d\.\d\d\d\d\t\d\d:\d\d\t\d{3,8}                       # Structure like '02.09.2024	09:28	097626'  
             .*?\n                                                          # Anything till end of the line including a line break
             \d\d\.\d\d\.\d\d\d\d\t                                         # дата обработки и 1 табуляция
             [\s\S]*?                                                       # any character, including new line. !!None-greedy!!
@@ -190,9 +189,9 @@ class SBER_CREDIT_2409(Extractor):
         lines = entry.split('\n')
         lines = list(filter(None, lines))
 
-        if len(lines) < 2 or len(lines) > 4:
+        if len(lines) < 2:
             raise exceptions.InputFileStructureError(
-                "entry is expected to have from 2 to 4 lines\n" + str(entry))
+                "Ожидается, что в трансакция будет состоять не менее чем из 2 строк.\n" + str(entry))
 
         result: dict = dict()
         # ************** looking at the 1st line
@@ -235,35 +234,51 @@ class SBER_CREDIT_2409(Extractor):
                 raise exceptions.InputFileStructureError(
                     "Ошибка в обработке текста. Ожидалась структура типа '6,79 €', получено: " +
                     line_parts[2])
-
-        # ************** looking at the 3rd line
-        if len(lines) > 2:
-            line_parts = split_Sberbank_line(lines[2])
-            result['description'] = result['description'] + ' ' + line_parts[0]
-
-        # ************** looking at the 4rth line
-        if len(lines) == 4:
-            line_parts = split_Sberbank_line(lines[3])
+                
+        
+        # sub_transactions будет хранить вложенные транзакции, если они есть. 
+        # См. https://github.com/Ev2geny/Sberbank2Excel/issues/54
+        sub_transactions: list[dict] = []
+                
+        # **********  Обрабатываем строки, начиная с 3-й
+        for line in lines[2:]:
+            line_parts = split_Sberbank_line(line)
             
-            if not line_parts[0] == "Погашение процентов":
-                if len(line_parts) > 1:
-                    raise exceptions.InputFileStructureError("Ожидалась строка с продолжением описания, либо строка 'Погашение процентов   XXX', получено: \n" + lines[3])
+            if len(line_parts) > 2:
+                raise exceptions.InputFileStructureError("Ожидалась строка с 1-2 частями, получено: \n" + line)
+            
+            if len(line_parts) == 1:
+                # Если строка содержит только одну часть, то значит это не может быть форматом "Описание -> сумма"
+                # проверяем, была ли уже найдена хотя бы одна вложенная транзакция
+                if len(sub_transactions) > 0:
+                    # Ожидаем, что если была найдена хотя бы одна вложенная транзакция, то все последующие строки должны 
+                    # быть также вложенными транзакциями формата "Описание -> сумма"
+                    raise exceptions.InputFileStructureError("Ожидалась строка с описанием и суммой, получено: \n" + line)
                 
                 result['description'] = result['description'] + ' ' + line_parts[0]
+                # continue
+            
             else:
-                # Если строка начинается с "Погашение процентов", то это особый случай, как описан здесь https://github.com/Ev2geny/Sberbank2Excel/issues/51
-                # В этом случае, возвращаем список словарей
-                result_b = dict()
-                result_b['operation_date'] = result['operation_date']
-                result_b['processing_date'] = result['processing_date']
-                result_b['category'] = result['category']
-                result_b['authorisation_code'] = result['authorisation_code']
-                result_b['description'] = line_parts[0]
-                result_b['value_rubles'] = get_float_from_money(line_parts[1], True)
+            
+                sub_transaction = dict()
+                sub_transaction['operation_date'] = result['operation_date']
+                sub_transaction['processing_date'] = result['processing_date']
+                sub_transaction['category'] = result['category']
+                sub_transaction['authorisation_code'] = result['authorisation_code']
+                sub_transaction['description'] = line_parts[0]
+                sub_transaction['value_rubles'] = get_float_from_money(line_parts[1], True)
                 
-                return [result, result_b]
+                sub_transactions.append(sub_transaction)
+                
+        # In this case return only dictionary
+        if len(sub_transactions) == 0:
+            return result        
+        
+        # In this case return list of dictionaries
+        else:
+            return [result] + sub_transactions
 
-        return result
+
 
     def get_column_name_for_balance_calculation(self)->str:
         """
@@ -290,7 +305,7 @@ class SBER_CREDIT_2409(Extractor):
 
 
 if __name__ == '__main__':
-
+    
     if len(sys.argv) < 2:
         print('Не указано имя текстового файла для проверки экстрактора')
         print(__doc__)

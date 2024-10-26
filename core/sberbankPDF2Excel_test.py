@@ -92,3 +92,15 @@ def test_correctly_converts_SBER_DEBIT_2408_issue_48():
 def test_correctly_converts_SBER_CREDIT_2409_issue_50():
     sberbankPDF2Excel(no_github_module.SBER_CREDIT_2409_issue_50)
     
+def test_correctly_converts_SBER_CREDIT_2409_issue_54():
+    sberbankPDF2Excel(no_github_module.SBER_CREDIT_2409_issue_54)
+    
+def test_does_not_convert_wrong_SBER_CREDIT_2409_issue_54():
+    with pytest.raises(RuntimeError) as excinfo:
+        sberbankPDF2Excel(no_github_module.SBER_CREDIT_2409_issue_54_wrong)
+        
+    assert isinstance(excinfo.value.__cause__, exceptions.InputFileStructureError)
+
+
+if __name__ == "__main__":
+    print("Running tests")
