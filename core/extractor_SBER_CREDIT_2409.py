@@ -121,8 +121,6 @@ class SBER_CREDIT_2409(Extractor):
         # extracting entries (operations) from text file on
         individual_entries = re.findall(r"""
             \d\d\.\d\d\.\d\d\d\d\t\d\d:\d\d\t\d{3,8}                       # Structure like '02.09.2024	09:28	097626'  
-            .*?\n                                                          # Anything till end of the line including a line break
-            \d\d\.\d\d\.\d\d\d\d\t                                         # дата обработки и 1 табуляция
             [\s\S]*?                                                       # any character, including new line. !!None-greedy!!
             (?=\d\d\.\d\d\.\d\d\d\d\s{1}\d\d:\d\d|                         # lookahead до начала следующей транзакции
             Дергунова)                                                     # Либо да конца выписки
@@ -137,6 +135,52 @@ class SBER_CREDIT_2409(Extractor):
         #     print(entry)
 
         return individual_entries
+
+    @staticmethod
+    def process_line_data_obrabotki(line: str, result: dict) -> dict:
+        """
+        Обрабатывает строку с датой обработки
+        Типа:
+            а) Без валюты операции
+            
+            26.09.2024 -> Kurgan OICO WEB
+            
+            б) С валютой операции
+            
+            26.09.2024 -> Kurgan OICO WEB -> 6,79 €
+        
+        """
+
+        line_parts = split_Sberbank_line(line)
+
+        if len(line_parts) < 2 or len(line_parts) > 3 and not re.search(r'^\d{2}\.\d{2}\.\d{4}', line_parts[1]):
+            raise exceptions.Bank2ExcelError(
+                "Ожидалась строка из 2 или 3 частей и начинающаяся с дд.мм.гггг. получено:\n" + line)
+
+        # print(line_parts[0])
+
+        # processing_date__authorisation_code = re.search(r'(dd\.dd\.dddd)\s(.*)', line_parts[0])
+        result['processing_date'] = line_parts[0]
+        # https://docs.python.org/3/library/datetime.html#strftime-and-strptime-behavior
+        result['processing_date'] = datetime.strptime(result['processing_date'], '%d.%m.%Y')
+
+        
+        result['description'] = line_parts[1]
+
+        # Выделяем сумму в валюте оперции, если присуиствует
+        if len(line_parts) == 3:
+            found = re.search(r'(.*?)\s(\S*)',
+                              line_parts[2])  # processing string like '6,79 €'
+            if found:
+                result['value_operational_currency'] = get_float_from_money(found.group(1), True)
+                result['operational_currency'] = found.group(2)
+            else:
+                raise exceptions.InputFileStructureError(
+                    "Ошибка в обработке текста. Ожидалась структура типа '6,79 €', получено: " +
+                    line_parts[2])
+                
+        return result
+                
 
     def decompose_entry_to_dict(self, entry: str) -> dict | list[dict]:
         """
@@ -206,42 +250,31 @@ class SBER_CREDIT_2409(Extractor):
         result['value_rubles'] = get_float_from_money(line_parts[4], True)
         result['remainder_account_currency'] = get_float_from_money(line_parts[5], True)
 
-        # ************** looking at the 2nd line
+        # ************** looking at the 2nd line and 3rd line in case of issue 56 
         line_parts = split_Sberbank_line(lines[1])
-
-        if len(line_parts) < 2 or len(line_parts) > 3:
-            raise exceptions.Bank2ExcelError(
-                "Line is expected to have 2 or 3 parts :" + str(lines[1]))
-
-        # print(line_parts[0])
-
-        # processing_date__authorisation_code = re.search(r'(dd\.dd\.dddd)\s(.*)', line_parts[0])
-        result['processing_date'] = line_parts[0]
-        # https://docs.python.org/3/library/datetime.html#strftime-and-strptime-behavior
-        result['processing_date'] = datetime.strptime(result['processing_date'], '%d.%m.%Y')
-
         
-        result['description'] = line_parts[1]
-
-        # Выделяем сумму в валюте оперции, если присуиствует
-        if len(line_parts) == 3:
-            found = re.search(r'(.*?)\s(\S*)',
-                              line_parts[2])  # processing string like '6,79 €'
-            if found:
-                result['value_operational_currency'] = get_float_from_money(found.group(1), True)
-                result['operational_currency'] = found.group(2)
-            else:
-                raise exceptions.InputFileStructureError(
-                    "Ошибка в обработке текста. Ожидалась структура типа '6,79 €', получено: " +
-                    line_parts[2])
-                
+        next_line = None
         
+        if len(line_parts) == 1 and  not re.search(r'^\d{2}\.\d{2}\.\d{4}', line_parts[0]):
+            # this must be this case: https://github.com/Ev2geny/Sberbank2Excel/issues/56
+            result['category'] += ' ' + line_parts[0]
+            
+            # Looking at the 3rd line in this case
+            result = self.process_line_data_obrabotki(lines[2], result)
+            
+            next_line = 3
+            
+        else:
+            result = self.process_line_data_obrabotki(lines[1], result)
+            next_line = 2
+
+        # **********  Обрабатываем строки, следующие за строкой с датой обработки
         # sub_transactions будет хранить вложенные транзакции, если они есть. 
         # См. https://github.com/Ev2geny/Sberbank2Excel/issues/54
         sub_transactions: list[dict] = []
                 
-        # **********  Обрабатываем строки, начиная с 3-й
-        for line in lines[2:]:
+        
+        for line in lines[next_line:]:
             line_parts = split_Sberbank_line(line)
             
             if len(line_parts) > 2:

@@ -135,7 +135,7 @@ Some wrong text, which cannot be correct
 
     for entry in entries:
         print('*'*20)
-        pprint(entry)
+        pprint(entry, width=120)
         assert isinstance(entry, dict)
         all_actually_returned_fields_set = all_actually_returned_fields_set | set(entry.keys())
 

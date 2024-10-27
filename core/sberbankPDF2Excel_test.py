@@ -89,18 +89,22 @@ def test_correctly_converts_SBER_SAVING2407_issue47():
 def test_correctly_converts_SBER_DEBIT_2408_issue_48():
     sberbankPDF2Excel(no_github_module.SBER_DEBIT_2408_issue_48)
     
-def test_correctly_converts_SBER_CREDIT_2409_issue_50():
-    sberbankPDF2Excel(no_github_module.SBER_CREDIT_2409_issue_50)
+class Test_SBER_CREDIT_2409:    
     
-def test_correctly_converts_SBER_CREDIT_2409_issue_54():
-    sberbankPDF2Excel(no_github_module.SBER_CREDIT_2409_issue_54)
-    
-def test_does_not_convert_wrong_SBER_CREDIT_2409_issue_54():
-    with pytest.raises(RuntimeError) as excinfo:
-        sberbankPDF2Excel(no_github_module.SBER_CREDIT_2409_issue_54_wrong)
+    def test_correctly_converts_SBER_CREDIT_2409_issue_50(self):
+        sberbankPDF2Excel(no_github_module.SBER_CREDIT_2409_issue_50)
         
-    assert isinstance(excinfo.value.__cause__, exceptions.InputFileStructureError)
+    def test_correctly_converts_SBER_CREDIT_2409_issue_54(self):
+        sberbankPDF2Excel(no_github_module.SBER_CREDIT_2409_issue_54)
+        
+    def test_does_not_convert_wrong_SBER_CREDIT_2409_issue_54(self):
+        with pytest.raises(RuntimeError) as excinfo:
+            sberbankPDF2Excel(no_github_module.SBER_CREDIT_2409_issue_54_wrong)
+            
+        assert isinstance(excinfo.value.__cause__, exceptions.InputFileStructureError)
 
+    def test_correctly_converts_SBER_CREDIT_2409_issue_56_simulated_txt(self):
+        sberbankPDF2Excel(no_github_module.SBER_CREDIT_2409_issue_56_simulated_txt)
 
 if __name__ == "__main__":
     print("Running tests")
