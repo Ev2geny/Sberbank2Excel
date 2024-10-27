@@ -87,7 +87,7 @@ Some wrong text, which cannot be correct
 
     extractor_which_shall_not_work = extractor_type_object(wrong_text)
 
-    print('-'*40)
+    print('------------------------------------------------------------------------------------------')
     print("Checking 'check_specific_signatures()'")
     print("Cheking on file, which shall work. If code continues, everything is OK")
     extractor.check_specific_signatures()
@@ -99,7 +99,7 @@ Some wrong text, which cannot be correct
     except exceptions.InputFileStructureError:
         pass
 
-    print('-' * 40)
+    print('------------------------------------------------------------------------------------------')
     print("Testing 'get_period_balance()'")
     print("Cheking on file, which shall work. If code continues, everything is OK")
     print(f"period_balance = {extractor.get_period_balance()}")
@@ -112,7 +112,7 @@ Some wrong text, which cannot be correct
     except exceptions.InputFileStructureError:
         pass
 
-    print('-' * 40)
+    print('------------------------------------------------------------------------------------------')
     print("Testing split_text_on_entries()'")
     print("Cheking on file, which shall work. If code continues, everything is OK")
     for text_entry in extractor.split_text_on_entries():
@@ -126,7 +126,7 @@ Some wrong text, which cannot be correct
     except exceptions.InputFileStructureError:
         pass
 
-    print('-' * 40)
+    print('------------------------------------------------------------------------------------------')
     print("Testing 'get_entries()'")
     print("Cheking on file, which shall work. If code continues, everything is OK")
     entries = extractor.get_entries()
@@ -145,7 +145,7 @@ Some wrong text, which cannot be correct
     except exceptions.InputFileStructureError:
         pass
 
-    # print('-' * 20)
+    # print('------------------------------------------------------------------------------------------')
     # print("Testing 'check_support()'")
     # print("Cheking on file, which shall work")
     # supported = extractor.check_support()
@@ -159,7 +159,7 @@ Some wrong text, which cannot be correct
     # if wrong_file_supported:
     #     exceptions.TestingError("Function 'check_support()' shall return False for wrong file")
 
-    print('-' * 20)
+    print('------------------------------------------------------------------------------------------')
     print(f"Testing get_columns_info()")
     columns_info_dic = extractor.get_columns_info()
     pprint(columns_info_dic)
@@ -175,7 +175,7 @@ Some wrong text, which cannot be correct
 Some of the fields, returned by the function 'get_entries()' are not retured by the function 'get_columns_info()'
 Specifically the following fields are missing {undefined_fiels_set}""")
 
-    print('-' * 20)
+    print('------------------------------------------------------------------------------------------')
     print(f"Testing 'get_column_name_for_balance_calculation()'")
     column_name_for_balance_calculation = extractor.get_column_name_for_balance_calculation()
     print(f"get_column_name_for_balance_calculation = {column_name_for_balance_calculation}")
