@@ -91,6 +91,11 @@ class SBER_DEBIT_2408(Extractor):
     ---------------------------------------------------------------------------------------------------------
 
         """
+        
+        # Удаляем куски текста, которые являются разделами между страницами PDF, не несущими информации
+        cleaned_text = re.sub(r'Продолжение на следующей странице[\s\S]*?операции²\n', '', self.bank_text)
+        
+        
         # extracting entries (operations) from text file on
         individual_entries = re.findall(r"""
             \d\d\.\d\d\.\d\d\d\d\s{1}\d\d:\d\d\s{1}        # Date and time like '06.07.2021 15:46' and one space
@@ -100,11 +105,10 @@ class SBER_DEBIT_2408(Extractor):
             .*?\n                                          # Anything till end of the line including a line break
             \d\d\.\d\d\.\d\d\d\d\s{1}                      # дата обработки
             [\s\S]*?                                       # any character, including new line. !!None-greedy!!
-            (?=Продолжение\sна\sследующей\sстранице|       # lookahead до "Продолжение на следующей странице"
-             \d\d\.\d\d\.\d\d\d\d\s{1}\d\d:\d\d|           # Либо до начала новой трансакции
+            (?=\d\d\.\d\d\.\d\d\d\d\s{1}\d\d:\d\d|         # lookahead до начала новой трансакции
              Дергунова\sК\.\sА\.)                          # Либо да конца выписки
             """,
-                                        self.bank_text, re.VERBOSE)
+                                        cleaned_text, re.VERBOSE)
 
         if len(individual_entries) == 0:
             raise exceptions.InputFileStructureError(
