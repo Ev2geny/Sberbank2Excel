@@ -24,7 +24,7 @@ import version_info
 files = ()
 leave_intermediate_txt_file = 0
 no_balance_check = 0
-output_file_type = StringVar()
+output_file_type = "xlsx"
 
 def btn_selectFiles_clicked():
     global files
@@ -120,6 +120,7 @@ frame.grid(column=0,row=5,sticky="W")
 label_type_file_select = Label(frame, text="Шаг 2. Сконвертируйте файлы в выбранный формат")
 
 type_files = ("xlsx", "csv")
+output_file_type = StringVar()
 output_file_type.set(type_files[0])
 combobox = ttk.Combobox(frame, textvariable=output_file_type, state="readonly", values=type_files)
 
