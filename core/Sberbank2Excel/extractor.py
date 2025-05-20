@@ -5,7 +5,7 @@ All real extractors need to inherit from it and overwrite  all @abstractmethod
 
 from abc import ABC, abstractmethod
 
-import exceptions
+from . import exceptions
 
 class Extractor(ABC):
     def __init__(self, bank_text: str):

@@ -16,8 +16,8 @@ import traceback
 import sys
 import logging
 
-from sberbankPDF2Excel import sberbankPDF2Excel
-import version_info
+from .sberbankPDF2Excel import sberbankPDF2Excel
+from . import version_info
 
 
 # defining global variable, which will hold files tuple

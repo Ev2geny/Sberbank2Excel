@@ -16,17 +16,17 @@
 """
 
 
-import exceptions
+from . import exceptions
 import re
 from datetime import datetime
 import sys
 
-from utils import get_float_from_money
-from utils import split_Sberbank_line
+from .utils import get_float_from_money
+from .utils import split_Sberbank_line
 
-from extractor import Extractor
+from .extractor import Extractor
 
-import extractors_generic
+from . import extractors_generic
 
 class SBER_PAYMENT_2212(Extractor):
 

@@ -3,10 +3,10 @@ import os
 from typing import Union
 import argparse
 
-import exceptions
-import extractors
-from pdf2txtev import pdf_2_txt_file
-from sberbankPDFtext2Excel import sberbankPDFtext2Excel, genarate_PDFtext2Excel_argparser
+from . import exceptions
+from . import extractors
+from .pdf2txtev import pdf_2_txt_file
+from .sberbankPDFtext2Excel import sberbankPDFtext2Excel, genarate_PDFtext2Excel_argparser
 
 
 

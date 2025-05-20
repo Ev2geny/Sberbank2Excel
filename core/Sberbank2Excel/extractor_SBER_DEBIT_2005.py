@@ -1,14 +1,14 @@
-import exceptions
+from . import exceptions
 import re
 from datetime import datetime
 import sys
 
 
-from utils import get_float_from_money
-from utils import split_Sberbank_line
-import extractors_generic
+from .utils import get_float_from_money
+from .utils import split_Sberbank_line
+from . import extractors_generic
 
-from extractor import Extractor
+from .extractor import Extractor
 
 class SBER_DEBIT_2005(Extractor):
 

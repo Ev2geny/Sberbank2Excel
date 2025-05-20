@@ -1,6 +1,6 @@
 import pytest
-import exceptions
-from sberbankPDF2Excel import sberbankPDF2Excel
+from . import exceptions
+from .sberbankPDF2Excel import sberbankPDF2Excel
 
 
 import no_github_module
