@@ -4,7 +4,7 @@ This file is used purely during debugging
 
 import logging
 
-import pdf2txtev
+from . import pdf2txtev
 
 import sberbankPDFtext2Excel
 
