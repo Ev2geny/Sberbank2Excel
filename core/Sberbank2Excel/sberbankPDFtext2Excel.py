@@ -22,12 +22,12 @@ import logging
 # importing own modules out of project
 import pandas as pd
 
-from extractor import Extractor
-import utils
-import extractors
-import exceptions
+from .extractor import Extractor
+from . import utils
+from . import extractors
+from . import exceptions
 
-from extractors_generic import determine_extractor_auto
+from .extractors_generic import determine_extractor_auto
 
 logger = logging.getLogger()
 class bcolors:

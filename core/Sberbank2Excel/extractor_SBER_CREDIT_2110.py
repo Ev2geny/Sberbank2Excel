@@ -1,5 +1,5 @@
 """
-Модуль экстрактора информации из текстового файла выписки типа SBER_PAYMENT_2208
+Модуль экстрактора информации из текстового файла выписки типа SBER_CREDIT_2107
 
 Для отладки модуля сделать следующее:
 
@@ -16,19 +16,19 @@
 """
 
 
-import exceptions
+from . import exceptions
 import re
 from datetime import datetime
 import sys
 
-from utils import get_float_from_money
-from utils import split_Sberbank_line
+from .utils import get_float_from_money
+from .utils import split_Sberbank_line
 
-from extractor import Extractor
+from .extractor import Extractor
 
-import extractors_generic
+from . import extractors_generic
 
-class SBER_PAYMENT_2208(Extractor):
+class SBER_CREDIT_2107(Extractor):
 
     def check_specific_signatures(self):
         """
@@ -39,16 +39,13 @@ class SBER_PAYMENT_2208(Extractor):
         test1 = re.search(r'сбербанк', self.bank_text, re.IGNORECASE)
         # print(f"{test1=}")
 
-        test2 = re.search(r'Выписка по платёжному счёту', self.bank_text, re.IGNORECASE)
+        test2 = re.search(r'Выписка по счёту кредитной карты', self.bank_text, re.IGNORECASE)
         # print(f"{test2=}")
 
-        test_ostatok_po_schetu = re.search(r'ОСТАТОК ПО СЧЁТУ', self.bank_text, re.IGNORECASE)
-        # print(f"{test2=}")
-
-        if not test1  or not test2 or not test_ostatok_po_schetu:
+        if not test1  or not test2:
             raise exceptions.InputFileStructureError("Не найдены паттерны, соответствующие выписке")
 
-    def get_period_balance(self)-> float:
+    def get_period_balance(self)->float:
         """
         Function gets information about transaction balance from the header of the banl extract
         This balance is then returned as a float
@@ -62,25 +59,19 @@ class SBER_PAYMENT_2208(Extractor):
         :return:
         """
 
-        res = re.search(r'ОСТАТОК\sНА.*ВСЕГО\sСПИСАНИЙ\tВСЕГО\sПОПОЛНЕНИЙ.*\n(.*?)\n', self.bank_text, re.MULTILINE)
+        res = re.search(r'СУММА\sПОПОЛНЕНИЙ\tСУММА\sСПИСАНИЙ\tСУММА\sСПИСАНИЙ БАНКА\n(.*?)\n', self.bank_text, re.MULTILINE)
         if not res:
             pass
             raise exceptions.InputFileStructureError('Не найдена структура с пополнениями и списаниями')
 
         line_parts = res.group(1).split('\t')
 
-        summa_popolneniy = get_float_from_money(line_parts[3])
-        summa_spisaniy = get_float_from_money(line_parts[2])
+        summa_popolneniy = get_float_from_money(line_parts[0])
+        summa_spisaniy = get_float_from_money(line_parts[1])
+        summa_spisaniy_banka = get_float_from_money(line_parts[2])
 
-        balance = summa_popolneniy - summa_spisaniy
 
-        ostatok_start_of_period = get_float_from_money(line_parts[0])
-        ostatok_end_of_period = get_float_from_money(line_parts[1])
-
-        if not abs(balance - (ostatok_end_of_period - ostatok_start_of_period))<0.01:
-            raise exceptions.InputFileStructureError(f'Что-то пошло не так:\n[ ВСЕГО ПОПОЛНЕНИЙ ({summa_popolneniy}) - ВСЕГО СПИСАНИЙ ({summa_spisaniy}) ] != [ОСТАТОК В КОНЦЕ ({ostatok_end_of_period}) - ОСТАТОК В НАЧАЛЕ ({ostatok_start_of_period})]  ')
-
-        return balance
+        return summa_popolneniy - summa_spisaniy -summa_spisaniy_banka
 
     def split_text_on_entries(self)->list[str]:
         """
@@ -202,9 +193,9 @@ class SBER_PAYMENT_2208(Extractor):
         # https://docs.python.org/3/library/datetime.html#strftime-and-strptime-behavior
         result['operation_date'] = datetime.strptime(result['operation_date'], '%d.%m.%Y %H:%M')
 
-        result['description'] = line_parts[2]
-        result['value_account_currency'] = get_float_from_money(line_parts[3])
-        result['remainder_account_currency'] = get_float_from_money(line_parts[4])
+        result['category'] = line_parts[2]
+        result['value_account_currency'] = get_float_from_money(line_parts[3], True)
+        # result['remainder_account_currency'] = get_float_from_money(line_parts[4])
 
         # ************** looking at the 2nd line
         line_parts = split_Sberbank_line(lines[1])
@@ -221,14 +212,15 @@ class SBER_PAYMENT_2208(Extractor):
         result['processing_date'] = datetime.strptime(result['processing_date'], '%d.%m.%Y')
 
         result['authorisation_code'] = line_parts[1]
-        result['category'] = line_parts[2]
+        result['description'] = line_parts[2]
 
         # Выделяем сумму в валюте оперции, если присуиствует
         if len(line_parts) == 4:
             found = re.search(r'(.*?)\s(\S*)',
                               line_parts[3])  # processing string like '6,79 €'
             if found:
-                result['value_operational_currency'] = get_float_from_money(found.group(1))
+                result['value_operational_currency'] = get_float_from_money(
+                    found.group(1), True)
                 result['operational_currency'] = found.group(2)
             else:
                 raise exceptions.InputFileStructureError(
@@ -256,15 +248,15 @@ class SBER_PAYMENT_2208(Extractor):
         Returns full column names in the order and in the form they shall appear in Excel
         The keys in dictionary shall correspond to keys of the result of the function self.decompose_entry_to_dict()
         """
-        return {'operation_date': 'ДАТА ОПЕРАЦИИ (МСК)',
+        return {'operation_date': 'Дата операции',
                 'processing_date': 'Дата обработки',
                 'authorisation_code': 'Код авторизации',
-                'description': 'НАЗВАНИЕ ОПЕРАЦИИ',
+                'description': 'Описание операции',
                 'category': 'Категория',
-                'value_account_currency': 'СУММА В ВАЛЮТЕ СЧЁТА',
+                'value_account_currency': 'Сумма в валюте счёта',
                 'value_operational_currency': 'Сумма в валюте операции',
                 'operational_currency': 'Валюта операции',
-                'remainder_account_currency': 'Остаток по счёту в валюте счёта'
+                # 'remainder_account_currency': 'Остаток по счёту в валюте счёта'
                 }
 
 
@@ -276,7 +268,7 @@ if __name__ == '__main__':
         print(__doc__)
 
     else:
-        extractors_generic.debug_extractor(SBER_PAYMENT_2208,
+        extractors_generic.debug_extractor(SBER_CREDIT_2107,
                                            test_text_file_name=sys.argv[1])
 
 

@@ -1,16 +1,16 @@
-import exceptions
+from . import exceptions
 import re
 from datetime import datetime
 import sys
+from typing import Any
 
-from utils import get_float_from_money
-from utils import split_Sberbank_line
+from .utils import get_float_from_money
+from .utils import split_Sberbank_line
 
-from extractor import Extractor
-import extractors_generic
+from .extractor import Extractor
+from . import extractors_generic
 
-
-class SBER_DEBIT_2107(Extractor):
+class SBER_DEBIT_2212(Extractor):
 
     def check_specific_signatures(self):
 
@@ -22,10 +22,10 @@ class SBER_DEBIT_2107(Extractor):
 
         test_ostatok_po_schetu = re.search(r'ОСТАТОК ПО СЧЁТУ', self.bank_text, re.IGNORECASE)
 
-        if not test1  or not test2 or not test_ostatok_po_schetu:
+        if (not test1  or not test2) or test_ostatok_po_schetu:
             raise exceptions.InputFileStructureError("Не найдены паттерны, соответствующие выписке")
 
-    def get_period_balance(self) -> float:
+    def get_period_balance(self)->float:
         """
         функция ищет в тексте значения "ВСЕГО СПИСАНИЙ" и "ВСЕГО ПОПОЛНЕНИЙ" и возвращает разницу
         используется для контрольной проверки вычислений
@@ -90,14 +90,15 @@ class SBER_DEBIT_2107(Extractor):
         """
         # extracting entries (operations) from text file on
         individual_entries = re.findall(r"""
-            \d\d\.\d\d\.\d\d\d\d\s{1}\d\d:\d\d                             # Date and time like '06.07.2021 15:46'                                        
-            .*?\n                                                          # Anything till end of the line including a line break
-            \d\d\.\d\d\.\d\d\d\d\s{1}                                      # дата обработки и 1 пробел 
-            (?=\d{3,8}|-)                                                  # код авторизации либо "-". Код авторизациии который я видел всегда состоит и 6 цифр, но на всякий случай укажим с 3 до 8
-            [\s\S]*?                                                       # any character, including new line. !!None-greedy!!
-            (?=Продолжение\sна\sследующей\sстранице|                       # lookahead до "Продолжение на следующей странице"
-             \d\d\.\d\d\.\d\d\d\d\s{1}\d\d:\d\d|                           # Либо до начала новой страницы
-              Реквизиты\sдля\sперевода)                                    # Либо да конца выписки
+            \d\d\.\d\d\.\d\d\d\d\s{1}\d\d:\d\d                              # Date and time like '06.07.2021 15:46'                                        
+            .*?\n                                                           # Anything till end of the line including a line break
+            \d\d\.\d\d\.\d\d\d\d\s{1}                                       # дата обработки и 1 пробел 
+            (?=\d{3,8}|-|0)                                                 # код авторизации, либо "-", либо 0 (issue 33). 
+                                                                            # Код авторизациии который я видел всегда состоит и 6 цифр, но на всякий случай укажим с 3 до 8
+            [\s\S]*?                                                        # any character, including new line. !!None-greedy!!
+            (?=Продолжение\sна\sследующей\sстранице|                        # lookahead до "Продолжение на следующей странице"
+             \d\d\.\d\d\.\d\d\d\d\s{1}\d\d:\d\d|                            # Либо до начала новой страницы
+              Реквизиты\sдля\sперевода)                                     # Либо да конца выписки
             """,
                                         self.bank_text, re.VERBOSE)
 
@@ -110,7 +111,7 @@ class SBER_DEBIT_2107(Extractor):
 
         return individual_entries
 
-    def decompose_entry_to_dict(self, entry:str)->dict:
+    def decompose_entry_to_dict(self, entry:str)->dict[str, Any]:
         """
         Выделяем данные из одной записи в dictionary
 
@@ -168,17 +169,16 @@ class SBER_DEBIT_2107(Extractor):
         result['operation_date'] = datetime.strptime(result['operation_date'], '%d.%m.%Y %H:%M')
 
         result['category'] = line_parts[2]
-        result['value_account_currency'] = get_float_from_money(line_parts[3],
-                                                                True)
-        result['remainder_account_currency'] = get_float_from_money(
-            line_parts[4])
+        result['value_account_currency'] = get_float_from_money(line_parts[3], True)
+        # result['remainder_account_currency'] = get_float_from_money(
+        #     line_parts[4])
 
         # ************** looking at the 2nd line
         line_parts = split_Sberbank_line(lines[1])
 
-        if len(line_parts) < 3 or len(line_parts) > 4:
+        if len(line_parts) < 2 or len(line_parts) > 4:
             raise exceptions.Bank2ExcelError(
-                "Line is expected to have 3 or 4 parts :" + str(lines[1]))
+                "Line is expected to have 2 or 4 parts :" + str(lines[1]))
 
         # print(line_parts[0])
 
@@ -188,22 +188,55 @@ class SBER_DEBIT_2107(Extractor):
         result['processing_date'] = datetime.strptime(result['processing_date'], '%d.%m.%Y')
 
         result['authorisation_code'] = line_parts[1]
-        result['description'] = line_parts[2]
+ 
+        # checking if the last part is a money like '1 515,76 €'
+        last_part_as_money: re.Match | None = re.search(r'(\d[\d\s]*?,\d\d)\s(\S*)$', line_parts[-1])
+        
+        # checking if the last part is a currency like in issue_39:
+        # 13.03.2024	814632	MAPP_SBERBANK_ONL@IN_PAY. Операция по карте ****XXX	₽
+        last_part_as_currency: re.Match | None = re.search(r'(\S)$', line_parts[-1])   
+             
+        if len(line_parts) == 3:
+            
+            if last_part_as_money:
+                
+                # Обрабатываем вторую строчку в никогда не встречавшемся, но наверное теоретически возможном случае, когда 
+                # во второй строке отсутствует описание, но присутствует сумма в иностранной валюте
+                # https://github.com/Ev2geny/Sberbank2Excel/issues/36
+                """
+                     09.08.2022	21:46	Отдых и развлечения	140,04
+                -->  11.08.2022	214722  6,00 BYN
+                """
+                
+                result['value_operational_currency'] = get_float_from_money(last_part_as_money.group(1), True)
+                result['operational_currency'] = last_part_as_money.group(2)
+            else:
+                # Обрабатываем вторую строчку "стандартной" трансакции
+                """
+                    06.08.2022	01:17	Отдых и развлечения	1 564,00
+                --> 06.08.2022	291231	YANDEX.TAXI
+                """
+                result['description'] = line_parts[2]
+            
 
-        # Выделяем сумму в валюте оперции, если присуиствует
         if len(line_parts) == 4:
-            found = re.search(r'(.*?)\s(\S*)',
-                              line_parts[3])  # processing string like '6,79 €'
-            if found:
-                result['value_operational_currency'] = get_float_from_money(
-                    found.group(1), True)
-                result['operational_currency'] = found.group(2)
+            
+            result['description'] = line_parts[2]
+            
+            if last_part_as_money:
+                result['value_operational_currency'] = get_float_from_money(last_part_as_money.group(1), True)
+                result['operational_currency'] = last_part_as_money.group(2)
+            
+            # Обрабатываем вот такую ситуацию (issue_39)
+            # 13.03.2024	814632	MAPP_SBERBANK_ONL@IN_PAY. Операция по карте ****XXX	₽
+            elif last_part_as_currency:
+                result['operational_currency'] = last_part_as_currency.group(1)
+                
             else:
                 raise exceptions.InputFileStructureError(
-                    "Ошибка в обработке текста. Ожидалась структура типа '6,79 €', получено: " +
-                    line_parts[3])
+                    f"Ошибка в обработке текста. Ожидалась структура типа '6,79 €', либо '₽' получено:  {line_parts[3]}")
 
-        # ************** looking at the 3rd line
+        # ************** looking at the 3rd line, if present
         if len(lines) == 3:
             line_parts = split_Sberbank_line(lines[2])
             result['description'] = result['description'] + ' ' + line_parts[0]
@@ -227,8 +260,7 @@ class SBER_DEBIT_2107(Extractor):
                 'category': 'Категория',
                 'value_account_currency': 'Сумма в валюте счёта',
                 'value_operational_currency': 'Сумма в валюте операции',
-                'operational_currency': 'Валюта операции',
-                'remainder_account_currency': 'Остаток по счёту в валюте счёта'}
+                'operational_currency': 'Валюта операции'}
 
 
 if __name__ == '__main__':
@@ -239,5 +271,5 @@ if __name__ == '__main__':
         print(__doc__)
 
     else:
-        extractors_generic.debug_extractor(SBER_DEBIT_2107,
+        extractors_generic.debug_extractor(SBER_DEBIT_2212,
                                            test_text_file_name=sys.argv[1])
