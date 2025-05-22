@@ -232,6 +232,10 @@ Sberbank2Excel, то возможны следующие варианты дей
 
 Для запуска приложения из командной строки надо использовать модуль
 [sberbankPDF2Excel.py](/core/Sberbank2Excel/sberbankPDF2Excel.py)
+На данный момент исполняемая (.exe) версия этого модуля не включается в [выпускаемые релизы](https://github.com/Ev2geny/Sberbank2Excel/releases/latest). 
+Поэтому необходимо либо запускать этот модуль из среды python (см. [CONTRIBUTING.md](CONTRIBUTING.md)), либо сгенерировать исполняемую (.exe) версию
+самостоятельно.
+
 
     usage: sberbankPDF2Excel.py [-h] [-o OUTPUT_EXCEL_FILE_NAME] [-b]
                                 [-f {SBER_DEBIT_2107,SBER_DEBIT_2005,SBER_CREDIT_2107,SBER_PAYMENT_2208}] [-t {xlsx,csv}] [-i]
@@ -253,5 +257,4 @@ Sberbank2Excel, то возможны следующие варианты дей
                             Тип создаваемого файла
       -i, --interm          Не удалять промежуточный текстовый файт
 
-На данный момент эта утилита не включена в [выпускаемые релизы](https://github.com/Ev2geny/Sberbank2Excel/releases/latest). 
-Поэтому необходимо либо сгенерировать её самостоятельно либо запускать из среды Python (см. [CONTRIBUTING.md](CONTRIBUTING.md))
+
