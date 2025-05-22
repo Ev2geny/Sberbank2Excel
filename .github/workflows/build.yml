@@ -1,0 +1,30 @@
+name: Build Sberbank2Excel
+
+on:
+  push:
+    paths:
+      - 'core/**'
+  workflow_dispatch:
+
+jobs:
+  build_linux:
+    name: Build Python pyz file
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Declare short commit variable
+        id: vars
+        run: |
+          echo "sha_short=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+
+      - name: Build pyz file
+        run: |
+          pip install shiv
+          shiv --console-script Sberbank2Excel --compile-pyc --compressed -o Sberbank2Excel-${{ steps.vars.outputs.sha_short }}.pyz .
+
+      - name: Upload output file x86
+        uses: actions/upload-artifact@v4
+        with:
+          name: Sberbank2Excel-${{ steps.vars.outputs.sha_short }}.pyz
+          path: Sberbank2Excel-${{ steps.vars.outputs.sha_short }}.pyz
