@@ -53,7 +53,7 @@ def sberbankPDF2Excel(input_file_name: str,
         tmp_txt_file_name = input_file_name
 
     else:
-        raise exceptions.InputFileStructureError("Неподдерживаемое расширение файла: "+ extension)
+        raise exceptions.InputFileStructureError("Неподдерживаемое расширение файла: " + extension)
 
 
     if not output_file_name:

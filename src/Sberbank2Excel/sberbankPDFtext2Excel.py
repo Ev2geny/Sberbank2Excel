@@ -136,9 +136,9 @@ def sberbankPDFtext2Excel(input_txt_file_name: str,
         df = df.iloc[::-1]  # reversing the order of transactions
 
     utils.write_df_to_file(df, output_file_name,
-                            extractor_name=extractor_type.__name__,
-                            errors=error,
-                            output_file_format=output_file_type)
+                           extractor_name=extractor_type.__name__,
+                           errors=error,
+                           output_file_format=output_file_type)
 
     # print(f"Создан файл {output_file_name}")
 
@@ -154,7 +154,7 @@ def genarate_PDFtext2Excel_argparser()->argparse.ArgumentParser:
     parser.add_argument('input_file_name', type=str, help='Файла для конвертации')
     parser.add_argument('-o','--output', type=str, default=None, dest='output_Excel_file_name', help='Имя файла (без расшмрения) который будет создан в формате Excel или CSV')
     parser.add_argument('-b','--balcheck', action='store_false', default=True, dest='perform_balance_check', help='Игнорировать результаты сверки баланса по транзакциям и в шапке выписки')
-    parser.add_argument('-f', '--format', type=str,default='auto', dest='format', choices = extractors.get_list_extractors_in_text(),help = 'Формат выписки. Если не указан, определяется автоматически' )
+    parser.add_argument('-f', '--format', type=str, default='auto', dest='format', choices = extractors.get_list_extractors_in_text(), help ='Формат выписки. Если не указан, определяется автоматически')
     parser.add_argument('-t', '--type', type=str,default='xlsx', dest='output_file_type', choices = ["xlsx","csv"],help = 'Тип создаваемого файла' )
     parser.add_argument('-r', '--reverse', action='store_true', default=False, dest='reversed_transaction_order', help='Изменить порядок транзакций на обратный')
 

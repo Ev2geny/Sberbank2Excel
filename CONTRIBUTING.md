@@ -38,9 +38,9 @@ python core/sberbankPDF2ExcelGUI.py
 
 ### Шаг 1. Создать новый модуль типа extractor_XXXX.py
 
-Модуль типа `extractor_XXXX.py` должен содержать класс, который наследует от абстрактного класса [`Extractor`](core/extractor.py) и должен содержать имплементацию всех абстрактных методов этого класса.
+Модуль типа `extractor_XXXX.py` должен содержать класс, который наследует от абстрактного класса [`Extractor`](src/Sberbank2Excel/extractor.py) и должен содержать имплементацию всех абстрактных методов этого класса.
 
-Проще всего скопировать один из существующих экстракторов (например [`extractor_SBER_CREDIT_2110.py`](core/extractor_SBER_CREDIT_2110.py), который специально для этого содержит большое число комментариев) и изменить код так, чтобы он соответствовал бы новому типу выписки.
+Проще всего скопировать один из существующих экстракторов (например [`extractor_SBER_CREDIT_2110.py`](src/Sberbank2Excel/extractor_SBER_CREDIT_2110.py), который специально для этого содержит большое число комментариев) и изменить код так, чтобы он соответствовал бы новому типу выписки.
 
 Для облегчения разработки модули экстракторов содержат код для самотестирования, который работает, когда [модуль запускается в качестве основной программы](https://coderoad.ru/419163/%D0%A7%D1%82%D0%BE-%D0%B4%D0%B5%D0%BB%D0%B0%D0%B5%D1%82-if-__name__-__main__-do)  
 ```py 
@@ -49,7 +49,7 @@ if __name__ == '__main__':
 
 Шаги по создания нового модуля экстрактора:
 
-**Шаг 1.1** Скопировать [`extractor_SBER_CREDIT_2110.py`](core/extractor_SBER_CREDIT_2110.py) под новым именем.
+**Шаг 1.1** Скопировать [`extractor_SBER_CREDIT_2110.py`](src/Sberbank2Excel/extractor_SBER_CREDIT_2110.py) под новым именем.
 
 **Шаг 1.2** В только что созданном модуле переименовать `class SBER_CREDIT_2107(Extractor)` (к примеру `class SOME_NEW_FORMAT(Extractor)`)
 
@@ -66,11 +66,11 @@ extractors_generic.debug_extractor(SBER_CREDIT_2107, test_text_file_name=sys.arg
 Это будет запускать функцию `extractors_generic.debug_extractor`, которая сама расскажет, что она делает. В конечном итоге функция `extractors_generic.debug_extractor` должна отрабатывать без ошибок.
 
 ### Шаг 2. Зарегистрировать модуль экстрактора
-После того как новый модуль экстрактора полностью протестирован изолированно, его надо зарегистрировать в модуле [`extractors.py`](core/extractors.py), используя в качестве образца уже зарегистрированные экстракторы
+После того как новый модуль экстрактора полностью протестирован изолированно, его надо зарегистрировать в модуле [`extractors.py`](src/Sberbank2Excel/extractors.py), используя в качестве образца уже зарегистрированные экстракторы
 
 Теперь можно приступать к тестированию, пытаясь сконвертируя выписку обычным способом.
 
 ### Шаг 3. Документация
-Если в планах сделать [github pull request](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/about-pull-requests), то необходимо так же приложить анонимизированный графический образец новой выписки (см. [примеры](misc/format_examples))
+Если в планах сделать [github pull request](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/about-pull-requests), то необходимо так же приложить анонимизированный графический образец новой выписки (см. [примеры](docs/format_examples))
 
 Пример полного набора изменений для добавления одного формата выписки можно посмотреть в [этом коммите](https://github.com/Ev2geny/Sberbank2Excel/commit/0f6c85e4b042ab088b89d5ea1dfe13fcf6f13037)

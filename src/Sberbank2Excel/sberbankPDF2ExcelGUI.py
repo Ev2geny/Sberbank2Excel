@@ -51,7 +51,7 @@ def btn_convertFiles_clicked():
      and converts file to Excel
     """
     # empty scrollText widget
-    print("Версия "+version_info.VERSION)
+    print("Версия " + version_info.VERSION)
     created_excel_files_scrollText.delete('1.0',END)
 
     qnt_files = len(files)
