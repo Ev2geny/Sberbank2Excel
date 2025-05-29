@@ -62,4 +62,4 @@ wheels/
 ~$*.docx
 
 # Special file, which contains confidential information
-src/Sberbank2Excel/no_github_module.py
+tests/no_github_module.py

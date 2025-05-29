@@ -143,23 +143,26 @@ Checkbutton(window, text="Игнорировать результаты свер
 reversed_transaction_order = IntVar()
 Checkbutton(window, text="Изменить порядок трансакций на обратный", variable=reversed_transaction_order).grid(row=12, sticky=W)
 
-if __name__ == '__main__':
-    
+def main():
     # logging.getLogger('pdfminer').setLevel(logging.INFO)
-    
+
     # root_logger = logging.getLogger()
     # root_logger.setLevel(logging.DEBUG)
     # # Adding file handler
     # file_handler = logging.FileHandler("sberbankPDF2ExcelGUI.log", encoding="utf-8")
     # # Creating formatter, which displays time, level, module name, line number and message
     # file_handler_formatter = logging.Formatter('%(levelname)s -%(name)s- %(module)s - %(lineno)d - %(funcName)s - %(message)s')
-    
+
     # # Adding formatter to file handler
     # file_handler.setFormatter(file_handler_formatter)
     # root_logger.addHandler(file_handler)
     # logger = logging.getLogger(__name__)
 
     # logger.debug( "\n************** Starting  testing*******************")
-    
+
     window.mainloop()
+
+if __name__ == '__main__':
+    main()
+
 
