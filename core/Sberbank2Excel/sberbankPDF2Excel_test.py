@@ -3,7 +3,7 @@ from . import exceptions
 from .sberbankPDF2Excel import sberbankPDF2Excel
 
 
-import no_github_module
+from . import no_github_module
 """
 no_github_module.py contains information, which is not shared via github due to confidential nature
 
