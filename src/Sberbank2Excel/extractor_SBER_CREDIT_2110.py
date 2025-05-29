@@ -16,17 +16,15 @@
 """
 
 
-from . import exceptions
+from Sberbank2Excel import exceptions
+from Sberbank2Excel.utils import get_float_from_money
+from Sberbank2Excel.utils import split_Sberbank_line
+from Sberbank2Excel.extractor import Extractor
+from Sberbank2Excel import extractors_generic
+
 import re
 from datetime import datetime
 import sys
-
-from .utils import get_float_from_money
-from .utils import split_Sberbank_line
-
-from .extractor import Extractor
-
-from . import extractors_generic
 
 class SBER_CREDIT_2107(Extractor):
 
