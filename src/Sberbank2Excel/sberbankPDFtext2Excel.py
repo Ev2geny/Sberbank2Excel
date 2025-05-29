@@ -21,13 +21,9 @@ import logging
 
 # importing own modules out of project
 import pandas as pd
-
-from extractor import Extractor
-import utils
-import extractors
-import exceptions
-
-from extractors_generic import determine_extractor_auto
+from Sberbank2Excel import utils, extractors, exceptions
+from Sberbank2Excel.extractor import Extractor
+from Sberbank2Excel.extractors_generic import determine_extractor_auto
 
 logger = logging.getLogger()
 class bcolors:

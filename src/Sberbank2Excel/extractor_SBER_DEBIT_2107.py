@@ -1,13 +1,10 @@
-import exceptions
+from Sberbank2Excel import exceptions
 import re
 from datetime import datetime
 import sys
-
-from utils import get_float_from_money
-from utils import split_Sberbank_line
-
-from extractor import Extractor
-import extractors_generic
+from Sberbank2Excel import utils
+from Sberbank2Excel.extractor import Extractor
+from Sberbank2Excel import extractors_generic
 
 
 class SBER_DEBIT_2107(Extractor):
@@ -53,8 +50,8 @@ class SBER_DEBIT_2107(Extractor):
         # print('summa_spisaniy ='+summa_spisaniy)
         # print('summa_popolneniy =' + summa_popolneniy)
 
-        summa_popolneniy = get_float_from_money(summa_popolneniy)
-        summa_spisaniy = get_float_from_money(summa_spisaniy)
+        summa_popolneniy = utils.get_float_from_money(summa_popolneniy)
+        summa_spisaniy = utils.get_float_from_money(summa_spisaniy)
 
         return summa_popolneniy - summa_spisaniy
 
@@ -159,7 +156,7 @@ class SBER_DEBIT_2107(Extractor):
 
         result: dict = {}
         # ************** looking at the 1st line
-        line_parts = split_Sberbank_line(lines[0])
+        line_parts = utils.split_Sberbank_line(lines[0])
 
         # print( f"1st line line_parts {line_parts}")
 
@@ -168,13 +165,13 @@ class SBER_DEBIT_2107(Extractor):
         result['operation_date'] = datetime.strptime(result['operation_date'], '%d.%m.%Y %H:%M')
 
         result['category'] = line_parts[2]
-        result['value_account_currency'] = get_float_from_money(line_parts[3],
+        result['value_account_currency'] = utils.get_float_from_money(line_parts[3],
                                                                 True)
-        result['remainder_account_currency'] = get_float_from_money(
+        result['remainder_account_currency'] = utils.get_float_from_money(
             line_parts[4])
 
         # ************** looking at the 2nd line
-        line_parts = split_Sberbank_line(lines[1])
+        line_parts = utils.split_Sberbank_line(lines[1])
 
         if len(line_parts) < 3 or len(line_parts) > 4:
             raise exceptions.Bank2ExcelError(
@@ -195,7 +192,7 @@ class SBER_DEBIT_2107(Extractor):
             found = re.search(r'(.*?)\s(\S*)',
                               line_parts[3])  # processing string like '6,79 €'
             if found:
-                result['value_operational_currency'] = get_float_from_money(
+                result['value_operational_currency'] = utils.get_float_from_money(
                     found.group(1), True)
                 result['operational_currency'] = found.group(2)
             else:
@@ -205,7 +202,7 @@ class SBER_DEBIT_2107(Extractor):
 
         # ************** looking at the 3rd line
         if len(lines) == 3:
-            line_parts = split_Sberbank_line(lines[2])
+            line_parts = utils.split_Sberbank_line(lines[2])
             result['description'] = result['description'] + ' ' + line_parts[0]
 
         # print(result)

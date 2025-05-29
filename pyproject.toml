@@ -1,0 +1,35 @@
+[build-system]
+requires = ["setuptools>=64", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "Sberbank2Excel"
+version = "4.11.0"
+description = "Конвертер выписки Сбербанка по карте из формата PDF в формат Excel"
+readme = "README.md"
+license = { file = "LICENSE" }
+authors = [ { name = "Ev2geny", email = "ev2geny@gmail.com" } ]
+keywords = ["sberbank", "excel", "pdf", "converter"]
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "License :: OSI Approved :: MIT License",
+  "Operating System :: OS Independent",
+]
+dependencies = [
+  "pdfminer.six",
+  "pandas",
+  "Unidecode",
+  "XlsxWriter",
+]
+
+[project.urls]
+Homepage = "https://github.com/Ev2geny/Sberbank2Excel"
+Repository = "https://github.com/Ev2geny/Sberbank2Excel.git"
+"Release Notes" = "https://github.com/Ev2geny/Sberbank2Excel/releases/latest"
+
+# [project.scripts]
+# sberbank2excel = "Sberbank2Excel.sberbankPDF2Excel:main"
+# sberbank2excel-gui = "Sberbank2Excel.sberbankPDF2ExcelGUI:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]

@@ -1,0 +1,1 @@
+# setup.py is no longer required with PEP 621 declarative config in pyproject.toml

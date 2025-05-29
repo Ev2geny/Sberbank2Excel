@@ -8,8 +8,7 @@ import re
 import pandas as pd
 from typing import *
 
-import exceptions
-import version_info
+from Sberbank2Excel import exceptions, version_info
 
 
 def get_float_from_money(money_str: str, process_no_sign_as_negative=False) -> float:
@@ -122,10 +121,10 @@ def main():
 
 if __name__=='__main__':
     main()
-    
-        
-    
-    
-    
+
+
+
+
+
 
 

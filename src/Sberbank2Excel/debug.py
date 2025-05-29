@@ -4,9 +4,7 @@ This file is used purely during debugging
 
 import logging
 
-import pdf2txtev
-
-import sberbankPDFtext2Excel
+from Sberbank2Excel import pdf2txtev, sberbankPDFtext2Excel
 
 # import os
 # path =r"C:\_code\py\Sberbank2Excel_no_github"
