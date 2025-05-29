@@ -22,12 +22,12 @@ import logging
 # importing own modules out of project
 import pandas as pd
 
-from .extractor import Extractor
-from . import utils
-from . import extractors
-from . import exceptions
+from Sberbank2Excel.extractor import Extractor
+from Sberbank2Excel import utils
+from Sberbank2Excel import extractors
+from Sberbank2Excel import exceptions
 
-from .extractors_generic import determine_extractor_auto
+from Sberbank2Excel.extractors_generic import determine_extractor_auto
 
 logger = logging.getLogger()
 class bcolors:
@@ -144,7 +144,7 @@ def sberbankPDFtext2Excel(input_txt_file_name: str,
 
     return output_file_name
 
-def genarate_PDFtext2Excel_argparser()->argparse.ArgumentParser:
+def generate_PDFtext2Excel_argparser()->argparse.ArgumentParser:
     """
     The function generates the argparser object. It is used in this module and later on as a parent in other module
     """
@@ -164,7 +164,7 @@ def main():
 
     # print(extractors.get_list_extractors_in_text())
     parser = argparse.ArgumentParser(description='Конвертация выписки банка из текстового формата в формат Excel или CSV',
-                                     parents=[genarate_PDFtext2Excel_argparser()])
+                                     parents=[generate_PDFtext2Excel_argparser()])
     args = parser.parse_args()
 
     print(args)

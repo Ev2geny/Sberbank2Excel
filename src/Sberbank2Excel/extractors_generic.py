@@ -4,10 +4,9 @@ Code, generic for extractors functionality
 import logging
 from pprint import pprint
 
-from .extractors import extractors_list
-from . import exceptions
-
-from .extractor import Extractor
+from Sberbank2Excel.extractors import extractors_list
+from Sberbank2Excel import exceptions
+from Sberbank2Excel.extractor import Extractor
 
 def determine_extractor_auto(pdf_text:str) -> type:
     """

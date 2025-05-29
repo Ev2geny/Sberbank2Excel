@@ -3,7 +3,7 @@ This module lists all extractor calsses available
 It shall be edited with every new extractor class created
 """
 
-from .extractor import Extractor
+from Sberbank2Excel.extractor import Extractor
 
 extractors_list: list[type] = []
 
