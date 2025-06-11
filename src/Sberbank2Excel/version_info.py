@@ -1,4 +1,30 @@
-NAME = 'Конвертер выписки Сбербанка по карте из формата PDF в формат Excel'
-AUTHOR = 'ev2geny@gmail.com'
-PERMANENT_LOCATION = 'https://github.com/Ev2geny/Sberbank2Excel/releases/latest'
-VERSION = '4.11.0'
+"""
+Deriving version information from the package metadata.
+this information is used in the GUI and CLI
+"""
+
+from importlib.metadata import version, metadata
+
+
+meta = metadata("Sberbank2Excel") 
+
+NAME =  meta["Summary"]
+
+AUTHOR = meta["Author-email"] 
+
+urls = {label: url for label, url in
+        (line.split(", ", 1) for line in meta.get_all("Project-URL") or [])}
+
+HOMEPAGE = urls.get("Homepage")
+
+VERSION = version("Sberbank2Excel")
+
+def main():
+
+    print(f"NAME =  {NAME}")
+    print(f"AUTHOR: {AUTHOR}")
+    print(f"HOMEPAGE: {HOMEPAGE}")
+    print(f"VERSION: {VERSION}")
+    
+if __name__ == "__main__":
+    main()

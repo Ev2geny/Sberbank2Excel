@@ -7,8 +7,8 @@ build-backend = "setuptools.build_meta"
 # ─────────────────────────────
 [project]
 name            = "Sberbank2Excel"
-version         = "4.11.0"
-description     = "конвертация выписки сбербанка по карте из формата PDF в формат Excel"
+version         = "4.12.0_dev"
+description     = "Конвертация выписки сбербанка по карте из формата PDF в формат Excel"
 readme          = {file = "README.md", content-type = "text/markdown"}
 requires-python = ">=3.12"
 
@@ -25,8 +25,7 @@ dependencies = [
   "pdfminer.six",
   "pandas",
   "Unidecode",
-  "XlsxWriter",
-  "pytest"                # keeps pytest as a runtime dep, just like before
+  "XlsxWriter"
 ]
 
 [project.optional-dependencies]
