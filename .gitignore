@@ -63,3 +63,5 @@ wheels/
 
 # Special file, which contains confidential information
 tests/no_github_module.py
+
+tests/test_data/*.xlsx

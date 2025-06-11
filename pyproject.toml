@@ -44,6 +44,14 @@ sberbankPDF2Excel    = "Sberbank2Excel.sberbankPDF2Excel:main"
 sberbankPDF2ExcelGUI = "Sberbank2Excel.sberbankPDF2ExcelGUI:main"
 
 # ─────────────────────────────
+#        Pytest
+#─────────────────────────────
+[tool.pytest.ini_options]
+markers = [
+    "private: mark test as private, not for public use, as requires private data"
+  ]
+
+# ─────────────────────────────
 #      Setuptools options
 # ─────────────────────────────
 [tool.setuptools]

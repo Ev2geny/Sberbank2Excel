@@ -42,7 +42,7 @@ def _list_LTTextBoxHorizontal_2_matrix(list_LTTextBoxHorizontal:List[LTTextBoxHo
     """
 
     # Sorting input list in reverse order by bottom Y coordinate of the horizontal text box : LTTextBoxHorizontal.y0]
-    list_LTTextBoxHorizontal = sorted(list_LTTextBoxHorizontal, key = lambda box:box.y0,reverse= True)
+    list_LTTextBoxHorizontal = sorted(list_LTTextBoxHorizontal, key=lambda box: box.y0, reverse=True)
 
     # Initialising matrix with the 1st most top element on the page
     matrix= [
@@ -53,7 +53,7 @@ def _list_LTTextBoxHorizontal_2_matrix(list_LTTextBoxHorizontal:List[LTTextBoxHo
         return matrix
 
     """ 
-    If the LTTextBoxHorizontal top side (y1) is higher then the vertical middle of the previose 
+    If the LTTextBoxHorizontal top side (y1) is higher then the vertical middle of the previous 
     LTTextBoxHorizontal ([i-1]), then both current and previous LTTextBoxHorizontal are considered to be on the same 
     line/ row. In this case current LTTextBoxHorizontal element is added as the next element of the current row
     Otherwise current LTTextBoxHorizontal is added to a new line / row of the matrix
@@ -148,7 +148,7 @@ def pdf_2_text(pdf_file_name:str,
     return result
 
 
-def pdf_2_txt_file(pdf_file_name:str,
+def pdf_2_txt_file(pdf_file_name: str,
                    txt_output_file_name: Union[None, str] = None,
                    password='',
                    page_numbers=None,

@@ -1,4 +1,7 @@
+from pathlib import Path
+
 import pytest
+
 from Sberbank2Excel import exceptions
 from Sberbank2Excel.sberbankPDF2Excel import sberbankPDF2Excel
 
@@ -16,93 +19,131 @@ SBER_DEBIT_2005_pdf = r"Path to some other file on the drive"
 
 """
 
+HERE = Path(__file__).parent 
+
+TEST_DATA: Path = HERE / "test_data" # A directory with test data files
+
+
+@pytest.mark.private
 def test_correctly_converts_SBER_CREDIT_2110_txt():
     sberbankPDF2Excel(no_github_module.path2_SBER_CREDIT_2110_file_name_text)
 
-def test_correctly_converts_SBER_DEBIT_2107_pdf():
-    sberbankPDF2Excel(no_github_module.path2_SBER_DEBIT_2107_pdf)
+class Test_SBER_CREDIT_2107:
 
-def test_correctly_converts_SBER_DEBIT_2107_Tinkoff_problem_pdf():
-    sberbankPDF2Excel(no_github_module.path2_SBER_DEBIT_2107_Tinkoff_problem_pdf)
+    @pytest.mark.private
+    def test_correctly_converts_SBER_DEBIT_2107_pdf(self):
+        sberbankPDF2Excel(no_github_module.path2_SBER_DEBIT_2107_pdf)
+        
+    def test_correctly_converts_SBER_DEBIT_2107_txt_anonim(self):
+        print(f"TEST_DATA: {TEST_DATA}")
+        sberbankPDF2Excel(str(TEST_DATA / "_SBER_DEBIT_2107_anonymized_reduced.txt"))
 
+    @pytest.mark.private
+    def test_correctly_converts_SBER_DEBIT_2107_Tinkoff_problem_pdf(self):
+        sberbankPDF2Excel(no_github_module.path2_SBER_DEBIT_2107_Tinkoff_problem_pdf)
+
+@pytest.mark.private
 def test_correctly_balance_error_SBER_DEBIT_2107_pdf():
     with pytest.raises(exceptions.BalanceVerificationError):
         sberbankPDF2Excel(no_github_module.path2_SBER_DEBIT_2107_wrong_balance_txt)
 
+@pytest.mark.private
 def test_correctly_converts_SBER_DEBIT_2005_pdf():
     sberbankPDF2Excel(no_github_module.path2_SBER_DEBIT_2005_pdf)
 
+@pytest.mark.private
 def test_correctly_does_not_convert_SBER_DEBIT_old_not_supported():
     with pytest.raises(exceptions.InputFileStructureError):
         sberbankPDF2Excel(no_github_module.path2_SBER_DEBIT_old_not_supported_pdf)
 
+@pytest.mark.private
 def test_correctly_converts_SBER_PAYMENT_2208_txt():
     sberbankPDF2Excel(no_github_module.path2_SBER_PAYMENT_2208_txt)
 
+@pytest.mark.private
 def test_correctly_converts_SBER_PAYMENT_2212_pdf():
     sberbankPDF2Excel(no_github_module.path2_SBER_PAYMENT_2212_pdf)
 
+@pytest.mark.private
 def test_correctly_converts_SBER_DEBIT_2212_pdf():
     sberbankPDF2Excel(no_github_module.path2_SBER_DEBIT_2212_pdf)
 
+@pytest.mark.private
 def test_correctly_converts_SBER_SAVING_2303_EURO_pdf():
     sberbankPDF2Excel(no_github_module.path2_SBER_SAVING_2303_EURO_pdf)
 
+@pytest.mark.private
 def test_correctly_converts_SBER_SAVING_2303_USD_pdf():
     sberbankPDF2Excel(no_github_module.path2_SBER_SAVING_2303_USD_pdf)
-    
+
+@pytest.mark.private    
 def test_correctly_converts_SBER_DEBIT_2303_CHELYABINSK_pdf():
     sberbankPDF2Excel(no_github_module.path2_SBER_DEBIT_2303_CHELYABINSK_pdf)
 
+@pytest.mark.private
 def test_correctly_converts_SBER_PAYMENT_2212_issue_31_simulation_txt():
     sberbankPDF2Excel(no_github_module.path2_SBER_PAYMENT_2212_issue_31_simulation_txt)
-    
+
+@pytest.mark.private    
 def test_correctly_converts_SBER_DEBIT_2212_issue_33_txt():
     sberbankPDF2Excel(no_github_module.path2_SBER_DEBIT_2212_issue_33_txt)
 
+@pytest.mark.private
 def test_correctly_converts_SBER_SAVING_2303_Activnoe_dolgolitie_issue_35_txt():
     sberbankPDF2Excel(no_github_module.path2_SBER_SAVING_2303_Activnoe_dolgolitie_issue_35_txt)
-    
+
+@pytest.mark.private    
 def test_correctly_converts_SBER_DEBIT_2212_issue_36_txt():
     sberbankPDF2Excel(no_github_module.path2_SBER_DEBIT_2212_issue_36_txt)
-    
+
+@pytest.mark.private    
 def test_correctly_converts_SBER_DEBIT_2212_theoretical_case_for_issue_36_manually_created_line_22_txt():
     sberbankPDF2Excel(no_github_module.path2_SBER_DEBIT_2212_issue_36_theoretical_case_txt)
-    
+
+@pytest.mark.private    
 def test_correctly_converts_SBER_DEBIT_2212_v20240413_issue_39():
     sberbankPDF2Excel(no_github_module.path2_SBER_DEBIT_2212_v20240413_issue_39)
-    
+
+@pytest.mark.private    
 def test_correctly_converts_SBER_PAYMENT_2406_20231001_20240628_issue_42():
     sberbankPDF2Excel(no_github_module.path2_SBER_PAYMENT_2406_20231001_20240628_issue_42)
 
 # SBER_PAYMENT_2407__MIR_20240803__20240101_20240801_issue_44
 
+@pytest.mark.private
 def test_correctly_converts_SBER_PAYMENT_2407__MIR_20240803__20240101_20240801_issue_44():
     sberbankPDF2Excel(no_github_module.path2_SBER_PAYMENT_2407__MIR_20240803__20240101_20240801_issue_44)
-    
+
+@pytest.mark.private    
 def test_correctly_converts_SBER_PAYMENT_2407_issue52():
     sberbankPDF2Excel(no_github_module.path2_SBER_PAYMENT_2407_issue52)
-    
+
+@pytest.mark.private    
 def test_correctly_converts_SBER_SAVING2407_issue47():
     sberbankPDF2Excel(no_github_module.path2_SBER_SAVING_2407_issue47)
-    
+
+@pytest.mark.private    
 def test_correctly_converts_SBER_DEBIT_2408_issue_48():
     sberbankPDF2Excel(no_github_module.path2_SBER_DEBIT_2408_issue_48)
     
 class Test_SBER_CREDIT_2409:    
     
+    @pytest.mark.private
     def test_correctly_converts_SBER_CREDIT_2409_issue_50(self):
         sberbankPDF2Excel(no_github_module.path2_SBER_CREDIT_2409_issue_50)
-        
+    
+    @pytest.mark.private    
     def test_correctly_converts_SBER_CREDIT_2409_issue_54(self):
         sberbankPDF2Excel(no_github_module.path2_SBER_CREDIT_2409_issue_54)
-        
+    
+    @pytest.mark.private    
     def test_does_not_convert_wrong_SBER_CREDIT_2409_issue_54(self):
         with pytest.raises(RuntimeError) as excinfo:
             sberbankPDF2Excel(no_github_module.path2_SBER_CREDIT_2409_issue_54_wrong)
             
         assert isinstance(excinfo.value.__cause__, exceptions.InputFileStructureError)
 
+    @pytest.mark.private
     def test_correctly_converts_SBER_CREDIT_2409_issue_56_simulated_txt(self):
         sberbankPDF2Excel(no_github_module.path2_SBER_CREDIT_2409_issue_56_simulated_txt)
 
