@@ -155,7 +155,7 @@ def generate_PDFtext2Excel_argparser()->argparse.ArgumentParser:
     parser = argparse.ArgumentParser(add_help=False)
     parser.add_argument('input_file_name', 
                         type=str, 
-                        help='Файла для конвертации')
+                        help='Файл для конвертации')
     
     parser.add_argument('-o','--output', 
                         type=str, 
