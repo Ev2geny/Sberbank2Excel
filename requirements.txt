@@ -1,7 +1,0 @@
-# Currently being released with 3.12
-pdfminer.six
-pandas
-PyInstaller
-Unidecode
-XlsxWriter
-pytest
