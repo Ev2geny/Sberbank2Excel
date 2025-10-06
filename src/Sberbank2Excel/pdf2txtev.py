@@ -34,7 +34,7 @@ from pdfminer.layout import LTTextBoxHorizontal
 def _list_LTTextBoxHorizontal_2_matrix(list_LTTextBoxHorizontal:List[LTTextBoxHorizontal])\
         ->List[List[LTTextBoxHorizontal]]:
     """
-    Converts a list of LTTextBoxHorizontal on the page to a matrix, based on their coordinates
+    Converts a list of LTTextBoxHorizontal on the page to a matrix (a list of lists), based on their coordinates
     This matrix is meant to simulate how elements are located on the page
 
     Keyword arguments:
@@ -118,12 +118,12 @@ def _PDFpage2txt(page:PDFPage, laparams = None) -> str:
     return(_matrix_2_txt(matrix_of_LTTextBoxHorizontal))
 
 
-def pdf_2_text(pdf_file_name:str,
+def pdf_2_text(pdf_file_name: str,
                password='',
                page_numbers=None,
                maxpages=0,
                caching=True,
-               laparams=None)->str:
+               laparams=None) -> str:
     """
     This is a re-write of the function pdfminer.high_level.extract_text
     https://github.com/pdfminer/pdfminer.six/blob/0b44f7771462363528c109f263276eb254c4fcd0/pdfminer/high_level.py#L90
