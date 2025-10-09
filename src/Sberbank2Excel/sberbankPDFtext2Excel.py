@@ -144,7 +144,7 @@ def sberbankPDFtext2Excel(input_txt_file_name: str,
 
     return output_file_name
 
-def generate_PDFtext2Excel_argparser()->argparse.ArgumentParser:
+def generate_PDFtext2Excel_argparser() -> argparse.ArgumentParser:
     """
     The function generates the argparser object. It is used in this module and later on as a parent in other module
     """
