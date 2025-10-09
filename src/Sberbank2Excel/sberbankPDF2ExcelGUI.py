@@ -16,8 +16,8 @@ import traceback
 import sys
 import logging
 
-from sberbankPDF2Excel import sberbankPDF2Excel
-import version_info
+from Sberbank2Excel.sberbankPDF2Excel import sberbankPDF2Excel
+from Sberbank2Excel import version_info
 
 
 # defining global variable, which will hold files tuple
@@ -42,7 +42,7 @@ def btn_selectFiles_clicked():
     for file in files:
         SelectedFiles_ScrolledText.insert(INSERT, file+'\n')
 
-    SelectedFiles_ScrolledText.configure(state=DISABLED)
+    SelectedFiles_ScrolledText.configure(state = DISABLED)
     
 
 def btn_convertFiles_clicked():
@@ -52,7 +52,7 @@ def btn_convertFiles_clicked():
     """
     # empty scrollText widget
     print("Версия "+version_info.VERSION)
-    created_excel_files_scrollText.delete('1.0',END)
+    created_excel_files_scrollText.delete('1.0', END)
 
     qnt_files = len(files)
     qnt_files_converted = 0
@@ -89,7 +89,7 @@ help_about=Menu(menu)
 
 def help_about_clicked():
 
-    info_string = f'{version_info.NAME}\nВерсия={version_info.VERSION}\nАвтор={version_info.AUTHOR}\nГде скачать={version_info.PERMANENT_LOCATION}'
+    info_string = f'{version_info.NAME}\nВерсия={version_info.VERSION}\nАвтор={version_info.AUTHOR}\nГде скачать={version_info.HOMEPAGE}'
     print(info_string)
     messagebox.showinfo('', info_string)
 
@@ -143,23 +143,24 @@ Checkbutton(window, text="Игнорировать результаты свер
 reversed_transaction_order = IntVar()
 Checkbutton(window, text="Изменить порядок трансакций на обратный", variable=reversed_transaction_order).grid(row=12, sticky=W)
 
-if __name__ == '__main__':
-    
+def main():
     # logging.getLogger('pdfminer').setLevel(logging.INFO)
-    
+
     # root_logger = logging.getLogger()
     # root_logger.setLevel(logging.DEBUG)
     # # Adding file handler
     # file_handler = logging.FileHandler("sberbankPDF2ExcelGUI.log", encoding="utf-8")
     # # Creating formatter, which displays time, level, module name, line number and message
     # file_handler_formatter = logging.Formatter('%(levelname)s -%(name)s- %(module)s - %(lineno)d - %(funcName)s - %(message)s')
-    
+
     # # Adding formatter to file handler
     # file_handler.setFormatter(file_handler_formatter)
     # root_logger.addHandler(file_handler)
     # logger = logging.getLogger(__name__)
 
     # logger.debug( "\n************** Starting  testing*******************")
-    
+
     window.mainloop()
 
+if __name__ == '__main__':
+    main()

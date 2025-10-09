@@ -1,0 +1,61 @@
+[build-system]
+requires      = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+# ─────────────────────────────
+#        Project metadata
+# ─────────────────────────────
+[project]
+name            = "Sberbank2Excel"
+version         = "4.12.0_dev"
+description     = "Конвертация выписки сбербанка по карте из формата PDF в формат Excel"
+readme          = {file = "README.md", content-type = "text/markdown"}
+requires-python = ">=3.12"
+
+authors = [
+  {name = "Ev2geny", email = "ev2geny@gmail.com"}
+]
+
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "Operating System :: OS Independent"
+]
+
+dependencies = [
+  "pdfminer.six",
+  "pandas",
+  "Unidecode",
+  "XlsxWriter"
+]
+
+[project.optional-dependencies]
+# For development
+dev = [
+    "pytest",
+    "pyinstaller"
+]
+
+[project.urls]
+Homepage    = "https://github.com/Ev2geny/Sberbank2Excel"
+"Bug Tracker" = "https://github.com/Ev2geny/Sberbank2Excel/issues"
+
+[project.scripts]
+sberbankPDF2Excel    = "Sberbank2Excel.sberbankPDF2Excel:main"
+sberbankPDF2ExcelGUI = "Sberbank2Excel.sberbankPDF2ExcelGUI:main"
+
+# ─────────────────────────────
+#        Pytest
+#─────────────────────────────
+[tool.pytest.ini_options]
+markers = [
+    "private: mark test as private, not for public use, as requires private data"
+  ]
+
+# ─────────────────────────────
+#      Setuptools options
+# ─────────────────────────────
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]

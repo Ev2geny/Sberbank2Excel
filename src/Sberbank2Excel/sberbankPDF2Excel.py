@@ -3,10 +3,10 @@ import os
 from typing import Union
 import argparse
 
-import exceptions
-import extractors
-from pdf2txtev import pdf_2_txt_file
-from sberbankPDFtext2Excel import sberbankPDFtext2Excel, genarate_PDFtext2Excel_argparser
+from Sberbank2Excel import exceptions
+from Sberbank2Excel import extractors
+from Sberbank2Excel.pdf2txtev import pdf_2_txt_file
+from Sberbank2Excel.sberbankPDFtext2Excel import sberbankPDFtext2Excel, generate_PDFtext2Excel_argparser
 
 
 
@@ -83,7 +83,7 @@ def sberbankPDF2Excel(input_file_name: str,
 def main():
 
     parser = argparse.ArgumentParser(description='Конвертация выписки банка из формата PDF или из промежуточного текстового файла в формат Excel или CSV.',
-                                        parents=[genarate_PDFtext2Excel_argparser()])
+                                        parents=[generate_PDFtext2Excel_argparser()])
    
     parser.add_argument('-i','--interm', action='store_true', default=False, dest='leave_intermediate_txt_file', help='Не удалять промежуточный текстовый файт')
 

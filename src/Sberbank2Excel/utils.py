@@ -8,8 +8,8 @@ import re
 import pandas as pd
 from typing import *
 
-import exceptions
-import version_info
+from Sberbank2Excel import exceptions
+from Sberbank2Excel import version_info
 
 
 def get_float_from_money(money_str: str, process_no_sign_as_negative=False) -> float:
@@ -97,7 +97,7 @@ def write_df_to_file(df:pd.DataFrame,
             workbook = writer.book
             info_worksheet = workbook.add_worksheet('Info')
 
-            info_worksheet.write('A3', f'Файл создан утилитой "{version_info.NAME}", доступной для скачивания по ссылке {version_info.PERMANENT_LOCATION}')
+            info_worksheet.write('A3', f'Файл создан утилитой "{version_info.NAME}", доступной для скачивания по ссылке {version_info.HOMEPAGE}')
             info_worksheet.write('A4', f'Версия утилиты "{version_info.VERSION}"')
             info_worksheet.write('A5', f'Для выделения информации был использован экстрактор типа "{extractor_name}"')
             info_worksheet.write('A6', f'Ошибки при конвертации: "{errors}"')
