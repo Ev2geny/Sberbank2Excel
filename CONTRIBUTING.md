@@ -15,6 +15,7 @@
       - [Шаг 1. Создать новый модуль типа extractor\_XXXX.py](#шаг-1-создать-новый-модуль-типа-extractor_xxxxpy)
       - [Шаг 2. Зарегистрировать модуль экстрактора](#шаг-2-зарегистрировать-модуль-экстрактора)
       - [Шаг 3. Документация](#шаг-3-документация)
+  - [Создание запускаемого файла .exe](#создание-запускаемого-файла-exe)
 
 
 
@@ -85,7 +86,7 @@ python -m pytest -m "not private"
 ```
 Убедиться, что в директории `tests/test_data` созданы файлы `.xlsx`
 
-Запустить `sberbankPDF2Excel` как модуль
+Запустить `sberbankPDF2Excel` как модуль и убедиться, что он запускается
 
 ```
 python -m Sberbank2Excel.sberbankPDF2Excel
@@ -97,7 +98,7 @@ python -m Sberbank2Excel.sberbankPDF2Excel
 sberbankPDF2Excel
 ```
 
-Запустить `sberbankPDF2ExcelGUI` как модуль
+Запустить `sberbankPDF2ExcelGUI` как модуль и убедиться, что он запускается
 
 ```
 python -m Sberbank2Excel.sberbankPDF2ExcelGUI
@@ -169,3 +170,14 @@ extractors_generic.debug_extractor(SBER_CREDIT_2107, test_text_file_name=sys.arg
 Если в планах сделать [github pull request](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/about-pull-requests), то необходимо так же приложить анонимизированный графический образец новой выписки (см. [примеры](docs/format_examples))
 
 Пример полного набора изменений для добавления одного формата выписки можно посмотреть в [этом коммите](https://github.com/Ev2geny/Sberbank2Excel/commit/0f6c85e4b042ab088b89d5ea1dfe13fcf6f13037)
+
+## Создание запускаемого файла .exe
+
+Активировать виртульную среду (см. выше)
+
+Запустить
+
+```
+pyinstaller src/Sberbank2Excel/sberbankPDF2ExcelGUI.py
+```
+Проверить наличие и протестировать .exe файл в директории `dist`

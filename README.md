@@ -275,7 +275,7 @@ sberbankPDF2Excel
 
 #### Вариант "Изначальная установка"
 
-1.  Установите [python](https://python.org) версии 3.12 или выше для вашей операционной системы.  
+1.  Установите [python](https://python.org) версии 3.12  для вашей операционной системы.  
 Прим.: для Ubuntu Linux установка python детально описана в  [инстукции разработчика](CONTRIBUTING.md)
 
 1.  Установите пакет [pipx](https://pipx.pypa.io/stable/installation/).   
