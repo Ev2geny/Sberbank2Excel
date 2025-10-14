@@ -9,7 +9,7 @@ from Sberbank2Excel.utils import get_float_from_money, split_Sberbank_line
 from Sberbank2Excel.extractor import Extractor
 from Sberbank2Excel import extractors_generic
 
-class SBER_DEBIT_2408(Extractor):
+class SBER_DEBIT_2510(Extractor):
 
     def check_specific_signatures(self):
 
@@ -19,7 +19,7 @@ class SBER_DEBIT_2408(Extractor):
         test_vipiska_po_schetu = re.search(r'Выписка по счёту дебетовой карты', self.bank_text, re.IGNORECASE)
         # print(f"{test2=}")
         
-        test_data_zakritiya = re.search(r'Дата закрытия счёта', self.bank_text, re.IGNORECASE)
+        test_data_formirovania = re.search(r'Дата формирования', self.bank_text, re.IGNORECASE)
         
         test_dergunova_k_a = re.search(r'Дергунова К\. А\.', self.bank_text, re.IGNORECASE)
         
@@ -27,10 +27,13 @@ class SBER_DEBIT_2408(Extractor):
 
         test_ostatok_po_schetu = re.search(r'ОСТАТОК ПО СЧЁТУ', self.bank_text, re.IGNORECASE)
 
-        if not (test_sberbank  and
-                test_vipiska_po_schetu and
-                test_dya_proverki_podlinnosti and
-                test_dergunova_k_a) or test_ostatok_po_schetu:
+        if (not (test_sberbank  and
+                test_vipiska_po_schetu and 
+                test_dya_proverki_podlinnosti and 
+                test_data_formirovania) 
+            or 
+            test_ostatok_po_schetu or test_dergunova_k_a
+            ):
             raise exceptions.InputFileStructureError("Не найдены паттерны, соответствующие выписке")
 
     def get_period_balance(self)->float:
@@ -64,39 +67,16 @@ class SBER_DEBIT_2408(Extractor):
 
         return summa_popolneniy - summa_spisaniy
 
-    def split_text_on_entries(self)->list[str]:
+    def split_text_on_entries(self) -> list[str]:
         """
-        разделяет текстовый файл формата 2107_Stavropol на отдельные записи
-
-        пример одной записи
-    ------------------------------------------------------------------------------------------------------
-        03.07.2021 -> 12:52 -> 123456 -> Перевод с карты -> 3 500,00 -> 28 655,30
-        03.07.2021 -> SBOL перевод 1234****1234 Н. ИГОРЬ РОМАНОВИЧ
-    ------------------------------------------------------------------------------------------------------
-
-        либо такой
-    --------------------------------------------------------------------------------------------------
-        28.06.2021 -> 00:00 -> - -> Неизвестная категория(+)     +21107,75     22113,73
-        28.06.2021 -> Прочие выплаты
-    ----------------------------------------------------------------------------------------------------
-
-        ещё один пример (с 3 линиями)
-    ---------------------------------------------------------------------------------------------------------
-        03.07.2021 -> 11:54 -> 258077 -> Перевод с карты -> 4 720,00 -> 45 155,30
-        03.07.2021 -> SBOL перевод 1234****5678 А. ВАЛЕРИЯ
-        ИГОРЕВНА
-    ----------------------------------------------------------------------------------------------------------
-
-        либо такой с иностранной вылютой
-    ---------------------------------------------------------------------------------------------------------
-        08.07.2021 -> 18:27 -> 258077 -> Все для дома -> 193,91 -> 14593,30
-        09.07.2021 -> XXXXX XXXXX -> 2,09 €
-    ---------------------------------------------------------------------------------------------------------
-
+        разделяет текстовый на отдельные записи
         """
         
         # Удаляем куски текста, которые являются разделами между страницами PDF, не несущими информации
         cleaned_text = re.sub(r'Продолжение на следующей странице[\s\S]*?операции²\n', '', self.bank_text)
+        
+        print('Текст после удаления разделов между страницами')
+        print(cleaned_text)
         
         
         # extracting entries (operations) from text file on
@@ -109,7 +89,7 @@ class SBER_DEBIT_2408(Extractor):
             \d\d\.\d\d\.\d\d\d\d\s{1}                      # дата обработки
             [\s\S]*?                                       # any character, including new line. !!None-greedy!!
             (?=\d\d\.\d\d\.\d\d\d\d\s{1}\d\d:\d\d|         # lookahead до начала новой трансакции
-             Дергунова\sК\.\sА\.)                          # Либо да конца выписки
+            Дата\sформирования)                            # Либо да конца выписки
             """,
                                         cleaned_text, re.VERBOSE)
 
@@ -284,11 +264,16 @@ class SBER_DEBIT_2408(Extractor):
 
 
 if __name__ == '__main__':
+    
+    test_text_file_name = r'c:\_code\t\_SBER_DEBIT_2510_issue_69_Sherbakov.txt'
+    test_text_file_name = r'c:\_code\t\_SBER_PAYMENT_2510_my_2025.06.30_2025.10.12.txt'
+    
+    extractors_generic.debug_extractor(SBER_DEBIT_2510, test_text_file_name=test_text_file_name)
 
-    if len(sys.argv) < 2:
-        print('Не указано имя текстового файла для проверки экстрактора')
-        print(__doc__)
+    # if len(sys.argv) < 2:
+    #     print('Не указано имя текстового файла для проверки экстрактора')
+    #     print(__doc__)
 
-    else:
-        extractors_generic.debug_extractor(SBER_DEBIT_2408,
-                                           test_text_file_name=sys.argv[1])
+    # else:
+    #     extractors_generic.debug_extractor(SBER_DEBIT_2510,
+    #                                        test_text_file_name=sys.argv[1])
