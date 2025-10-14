@@ -31,7 +31,7 @@ class SBER_PAYMENT_2407(Extractor):
 
     def check_specific_signatures(self):
         """
-        Function tries to find some spesific signatures in the text (e.g. sberbank)
+        Function tries to find some specific signatures in the text (e.g. sberbank)
         If these signatures are not found, then exceptions.InputFileStructureError() is raised
         """
 
