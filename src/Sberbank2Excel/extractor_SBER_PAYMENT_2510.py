@@ -27,7 +27,7 @@ from Sberbank2Excel.utils import get_float_from_money, split_Sberbank_line
 from Sberbank2Excel.extractor import Extractor
 from Sberbank2Excel import extractors_generic
 
-class SBER_PAYMENT_2407(Extractor):
+class SBER_PAYMENT_2510(Extractor):
 
     def check_specific_signatures(self):
         """
@@ -35,27 +35,28 @@ class SBER_PAYMENT_2407(Extractor):
         If these signatures are not found, then exceptions.InputFileStructureError() is raised
         """
 
-        test_sberbank = re.search(r'сбербанк', self.bank_text, re.IGNORECASE)
+        test1 = re.search(r'сбербанк', self.bank_text, re.IGNORECASE)
         # print(f"{test1=}")
 
-        test_vipiska_po_plot_schetu = re.search(r'Выписка по платёжному счёту', self.bank_text, re.IGNORECASE)
+        test2 = re.search(r'Выписка по платёжному счёту', self.bank_text, re.IGNORECASE)
         # print(f"{test2=}")
 
         test_ostatok_po_schetu = re.search(r'ОСТАТОК ПО СЧЁТУ', self.bank_text, re.IGNORECASE)
         # print(f"{test2=}")
         
-        test_dlya_proverki_podlinnosti = re.search(r'Для проверки подлинности документа', self.bank_text, re.IGNORECASE)
+        test_data_formirovania = re.search(r'Дата формирования', self.bank_text, re.IGNORECASE)
         
-        # test_data_formirovania = re.search(r'Дата формирования', self.bank_text, re.IGNORECASE)
+        test_dlya_proverki_podlinnosti = re.search(r'Для проверки подлинности документа', self.bank_text, re.IGNORECASE)
         
         test_dergunova_k_a = re.search(r'Дергунова К\. А\.', self.bank_text, re.IGNORECASE)
 
-        if (test_sberbank and 
-            test_vipiska_po_plot_schetu and 
-            test_dlya_proverki_podlinnosti and
-            test_dergunova_k_a) and not (test_ostatok_po_schetu):
+        if (test1 and 
+            test2 and 
+            test_dlya_proverki_podlinnosti and 
+            test_data_formirovania) and not (test_ostatok_po_schetu or test_dergunova_k_a):
             
-            return
+            return # All OK
+        
         else:
             raise exceptions.InputFileStructureError("Не найдены паттерны, соответствующие выписке")
 
@@ -159,7 +160,7 @@ class SBER_PAYMENT_2407(Extractor):
             \d\d\.\d\d\.\d\d\d\d\t                                        # дата обработки и 1 табуляция
             [\s\S]*?                                                      # any character, including new line. !!None-greedy!!
             (?=\d\d\.\d\d\.\d\d\d\d\t\d\d:\d\d\t\d+\t|                    # Либо до начала новой трансакции
-             Дергунова\sК\.\sА\.)                                         # Либо да конца выписки
+            Дата\sформирования)                                           # Либо да конца выписки
             """,
             bank_text_cleaned, re.VERBOSE)
 
@@ -300,7 +301,7 @@ if __name__ == '__main__':
         print(__doc__)
 
     else:
-        extractors_generic.debug_extractor(SBER_PAYMENT_2407,
+        extractors_generic.debug_extractor(SBER_PAYMENT_2510,
                                            test_text_file_name=sys.argv[1])
 
 
