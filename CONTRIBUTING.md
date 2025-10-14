@@ -173,6 +173,6 @@ extractors_generic.debug_extractor(SBER_CREDIT_2107, test_text_file_name=sys.arg
 Запустить
 
 ```
-pyinstaller src/Sberbank2Excel/sberbankPDF2ExcelGUI.py
+pyinstaller src/Sberbank2Excel/sberbank2Excel.py
 ```
 Проверить наличие и протестировать .exe файл в директории `dist`
