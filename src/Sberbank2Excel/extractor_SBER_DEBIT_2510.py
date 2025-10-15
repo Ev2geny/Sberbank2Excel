@@ -264,16 +264,11 @@ class SBER_DEBIT_2510(Extractor):
 
 
 if __name__ == '__main__':
-    
-    test_text_file_name = r'c:\_code\t\_SBER_DEBIT_2510_issue_69_Sherbakov.txt'
-    test_text_file_name = r'c:\_code\t\_SBER_PAYMENT_2510_my_2025.06.30_2025.10.12.txt'
-    
-    extractors_generic.debug_extractor(SBER_DEBIT_2510, test_text_file_name=test_text_file_name)
+        
+    if len(sys.argv) < 2:
+        print('Не указано имя текстового файла для проверки экстрактора')
+        print(__doc__)
 
-    # if len(sys.argv) < 2:
-    #     print('Не указано имя текстового файла для проверки экстрактора')
-    #     print(__doc__)
-
-    # else:
-    #     extractors_generic.debug_extractor(SBER_DEBIT_2510,
-    #                                        test_text_file_name=sys.argv[1])
+    else:
+        extractors_generic.debug_extractor(SBER_DEBIT_2510,
+                                           test_text_file_name=sys.argv[1])
