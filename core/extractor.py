@@ -4,6 +4,7 @@ All real extractors need to inherit from it and overwrite  all @abstractmethod
 """
 
 from abc import ABC, abstractmethod
+from decimal import Decimal
 
 import exceptions
 
@@ -19,7 +20,7 @@ class Extractor(ABC):
         pass
 
     @abstractmethod
-    def get_period_balance(self) -> float:
+    def get_period_balance(self) -> Decimal:
         """Function gets information about transaction balance from the header of the banlk extract
 
         Returns:
@@ -75,7 +76,7 @@ class Extractor(ABC):
             # this would raise an exception if the text is not supported
             self.check_specific_signatures()
             
-            result = isinstance(self.get_period_balance(),float) and len(self.split_text_on_entries()) > 0
+            result = isinstance(self.get_period_balance(), Decimal) and len(self.split_text_on_entries()) > 0
 
             return result
 

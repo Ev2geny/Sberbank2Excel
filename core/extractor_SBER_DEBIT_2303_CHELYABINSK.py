@@ -4,9 +4,11 @@ from datetime import datetime
 import sys
 
 
-from utils import get_float_from_money
+from utils import get_decimal_from_money
 from utils import split_Sberbank_line
 import extractors_generic
+
+from decimal import Decimal
 
 from extractor import Extractor
 
@@ -24,7 +26,7 @@ class SBER_DEBIT_2303_CHELYABINSK(Extractor):
         if not test1:
             raise exceptions.InputFileStructureError("Не найдены паттерны, соответствующие выписке")
 
-    def get_period_balance(self) -> float:
+    def get_period_balance(self) -> Decimal:
         """
         Function gets information about transaction balance from the header of the banlk extract
         This balance is then returned as a float
@@ -53,13 +55,13 @@ class SBER_DEBIT_2303_CHELYABINSK(Extractor):
         if not popolneniye_karty:
             raise exceptions.InputFileStructureError('Не найдена структура с пополнением карты')
 
-        beznalichniye_num = get_float_from_money(beznalichniye.group(1))
+        beznalichniye_num = get_decimal_from_money(beznalichniye.group(1))
         # print(beznalichniye_num)
 
-        nalichniye_num = get_float_from_money(nalichniye.group(1))
+        nalichniye_num = get_decimal_from_money(nalichniye.group(1))
         # print(nalichniye_num)
 
-        popolneniye_karty_num = get_float_from_money(popolneniye_karty.group(1))
+        popolneniye_karty_num = get_decimal_from_money(popolneniye_karty.group(1))
         # print(popolneniye_karty_num)
 
         balance = popolneniye_karty_num - beznalichniye_num - nalichniye_num
@@ -149,7 +151,7 @@ class SBER_DEBIT_2303_CHELYABINSK(Extractor):
             result['description'] = line_parts[2]
 
         # Т.к. нет примера выписки, где присутствует сумма в валюте операции, то не будем извлекать эту информацию
-        result['value_account_currency'] = get_float_from_money(line_parts[-1],True)
+        result['value_account_currency'] = get_decimal_from_money(line_parts[-1], True)
 
         # ************* looking at lines after the 1st
         sublines = lines[1:]

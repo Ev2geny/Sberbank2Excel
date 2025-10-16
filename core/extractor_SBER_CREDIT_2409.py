@@ -21,8 +21,10 @@ import re
 from datetime import datetime
 import sys
 
-from utils import get_float_from_money
+from utils import get_decimal_from_money
 from utils import split_Sberbank_line
+
+from decimal import Decimal
 
 from extractor import Extractor
 
@@ -48,7 +50,7 @@ class SBER_CREDIT_2409(Extractor):
         if not (test_SberBank and test_Vipiska_po_schetu and test_OSTATOK_SREDSTV):
             raise exceptions.InputFileStructureError("Не найдены паттерны, соответствующие выписке")
 
-    def get_period_balance(self) -> float:
+    def get_period_balance(self) -> Decimal:
         """
         Function gets information about transaction balance from the header of the banl extract
         This balance is then returned as a float
@@ -70,8 +72,8 @@ class SBER_CREDIT_2409(Extractor):
 
         line_parts = res.group(1).split('\t')
 
-        summa_beginning = get_float_from_money(line_parts[0])
-        summa_end = get_float_from_money(line_parts[1])
+        summa_beginning = get_decimal_from_money(line_parts[0])
+        summa_end = get_decimal_from_money(line_parts[1])
 
 
         return summa_end - summa_beginning
@@ -172,7 +174,7 @@ class SBER_CREDIT_2409(Extractor):
             found = re.search(r'(.*?)\s(\S*)',
                               line_parts[2])  # processing string like '6,79 €'
             if found:
-                result['value_operational_currency'] = get_float_from_money(found.group(1), True)
+                result['value_operational_currency'] = get_decimal_from_money(found.group(1), True)
                 result['operational_currency'] = found.group(2)
             else:
                 raise exceptions.InputFileStructureError(
@@ -247,8 +249,8 @@ class SBER_CREDIT_2409(Extractor):
         result['authorisation_code'] = line_parts[2]
 
         result['category'] = line_parts[3]
-        result['value_rubles'] = get_float_from_money(line_parts[4], True)
-        result['remainder_account_currency'] = get_float_from_money(line_parts[5], True)
+        result['value_rubles'] = get_decimal_from_money(line_parts[4], True)
+        result['remainder_account_currency'] = get_decimal_from_money(line_parts[5], True)
 
         # ************** looking at the 2nd line and 3rd line in case of issue 56 
         line_parts = split_Sberbank_line(lines[1])
@@ -299,7 +301,7 @@ class SBER_CREDIT_2409(Extractor):
                 sub_transaction['category'] = result['category']
                 sub_transaction['authorisation_code'] = result['authorisation_code']
                 sub_transaction['description'] = line_parts[0]
-                sub_transaction['value_rubles'] = get_float_from_money(line_parts[1], True)
+                sub_transaction['value_rubles'] = get_decimal_from_money(line_parts[1], True)
                 
                 sub_transactions.append(sub_transaction)
                 

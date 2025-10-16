@@ -7,14 +7,15 @@ import unidecode
 import re
 import pandas as pd
 from typing import *
+from decimal import Decimal
 
 import exceptions
 import version_info
 
 
-def get_float_from_money(money_str: str, process_no_sign_as_negative=False) -> float:
+def get_decimal_from_money(money_str: str, process_no_sign_as_negative=False) -> Decimal:
     """
-    Converts string, representing money to a float.
+    Converts string, representing money to a Decimal number.
     If process_no_sign_as_negative is set to True, then a number will be negative in case no leading sign is available
 
     Example:
@@ -31,12 +32,13 @@ def get_float_from_money(money_str: str, process_no_sign_as_negative=False) -> f
     if money_str[0] == '+':
         leading_plus = True
 
-    money_float = float(money_str)
+    money_decimal = Decimal(money_str)
 
-    if (process_no_sign_as_negative and not leading_plus):
-        money_float = -1*money_float
+    if process_no_sign_as_negative and not leading_plus:
+        money_decimal = -1*money_decimal
 
-    return money_float
+    return money_decimal
+
 
 def split_Sberbank_line(line:str)->List[str]:
     """

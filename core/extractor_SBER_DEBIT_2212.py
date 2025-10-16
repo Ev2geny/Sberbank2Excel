@@ -4,8 +4,10 @@ from datetime import datetime
 import sys
 from typing import Any
 
-from utils import get_float_from_money
+from utils import get_decimal_from_money
 from utils import split_Sberbank_line
+
+from decimal import Decimal
 
 from extractor import Extractor
 import extractors_generic
@@ -25,7 +27,7 @@ class SBER_DEBIT_2212(Extractor):
         if (not test1  or not test2) or test_ostatok_po_schetu:
             raise exceptions.InputFileStructureError("Не найдены паттерны, соответствующие выписке")
 
-    def get_period_balance(self)->float:
+    def get_period_balance(self)-> Decimal:
         """
         функция ищет в тексте значения "ВСЕГО СПИСАНИЙ" и "ВСЕГО ПОПОЛНЕНИЙ" и возвращает разницу
         используется для контрольной проверки вычислений
@@ -53,8 +55,8 @@ class SBER_DEBIT_2212(Extractor):
         # print('summa_spisaniy ='+summa_spisaniy)
         # print('summa_popolneniy =' + summa_popolneniy)
 
-        summa_popolneniy = get_float_from_money(summa_popolneniy)
-        summa_spisaniy = get_float_from_money(summa_spisaniy)
+        summa_popolneniy = get_decimal_from_money(summa_popolneniy)
+        summa_spisaniy = get_decimal_from_money(summa_spisaniy)
 
         return summa_popolneniy - summa_spisaniy
 
@@ -169,7 +171,7 @@ class SBER_DEBIT_2212(Extractor):
         result['operation_date'] = datetime.strptime(result['operation_date'], '%d.%m.%Y %H:%M')
 
         result['category'] = line_parts[2]
-        result['value_account_currency'] = get_float_from_money(line_parts[3], True)
+        result['value_account_currency'] = get_decimal_from_money(line_parts[3], True)
         # result['remainder_account_currency'] = get_float_from_money(
         #     line_parts[4])
 
@@ -208,7 +210,7 @@ class SBER_DEBIT_2212(Extractor):
                 -->  11.08.2022	214722  6,00 BYN
                 """
                 
-                result['value_operational_currency'] = get_float_from_money(last_part_as_money.group(1), True)
+                result['value_operational_currency'] = get_decimal_from_money(last_part_as_money.group(1), True)
                 result['operational_currency'] = last_part_as_money.group(2)
             else:
                 # Обрабатываем вторую строчку "стандартной" трансакции
@@ -224,7 +226,7 @@ class SBER_DEBIT_2212(Extractor):
             result['description'] = line_parts[2]
             
             if last_part_as_money:
-                result['value_operational_currency'] = get_float_from_money(last_part_as_money.group(1), True)
+                result['value_operational_currency'] = get_decimal_from_money(last_part_as_money.group(1), True)
                 result['operational_currency'] = last_part_as_money.group(2)
             
             # Обрабатываем вот такую ситуацию (issue_39)

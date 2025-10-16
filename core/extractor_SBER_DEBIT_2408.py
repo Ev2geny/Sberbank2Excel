@@ -4,8 +4,10 @@ from datetime import datetime
 import sys
 from typing import Any
 
-from utils import get_float_from_money
+from utils import get_decimal_from_money
 from utils import split_Sberbank_line
+
+from decimal import Decimal
 
 from extractor import Extractor
 import extractors_generic
@@ -30,7 +32,7 @@ class SBER_DEBIT_2408(Extractor):
         if not (test_sberbank  and test_vipiska_po_schetu and test_dya_proverki_podlinnosti) or test_ostatok_po_schetu:
             raise exceptions.InputFileStructureError("Не найдены паттерны, соответствующие выписке")
 
-    def get_period_balance(self)->float:
+    def get_period_balance(self)-> Decimal:
         """
         функция ищет в тексте значения "ВСЕГО СПИСАНИЙ" и "ВСЕГО ПОПОЛНЕНИЙ" и возвращает разницу
         используется для контрольной проверки вычислений
@@ -56,8 +58,8 @@ class SBER_DEBIT_2408(Extractor):
         # print('summa_spisaniy ='+summa_spisaniy)
         # print('summa_popolneniy =' + summa_popolneniy)
 
-        summa_popolneniy = get_float_from_money(summa_popolneniy)
-        summa_spisaniy = get_float_from_money(summa_spisaniy)
+        summa_popolneniy = get_decimal_from_money(summa_popolneniy)
+        summa_spisaniy = get_decimal_from_money(summa_spisaniy)
 
         return summa_popolneniy - summa_spisaniy
 
@@ -93,22 +95,23 @@ class SBER_DEBIT_2408(Extractor):
         """
         
         # Удаляем куски текста, которые являются разделами между страницами PDF, не несущими информации
-        cleaned_text = re.sub(r'Продолжение на следующей странице[\s\S]*?операции²\n', '', self.bank_text)
+        cleaned_text = re.sub(r'Продолжение на следующей странице[\s\S]*?операции²\n', '', self.bank_text, re.VERBOSE)
         
         
         # extracting entries (operations) from text file on
-        individual_entries = re.findall(r"""
-            \d\d\.\d\d\.\d\d\d\d\s{1}\d\d:\d\d\s{1}        # Date and time like '06.07.2021 15:46' and one space
-            (?=\d{3,8}|-|0)                                # код авторизации, либо "-", либо 0 (issue 33). 
-                                                           # Код авторизациии который я видел всегда состоит и 6 цифр,
-                                                           # но на всякий случай укажем с 3 до 8
-            .*?\n                                          # Anything till end of the line including a line break
-            \d\d\.\d\d\.\d\d\d\d\s{1}                      # дата обработки
-            [\s\S]*?                                       # any character, including new line. !!None-greedy!!
-            (?=\d\d\.\d\d\.\d\d\d\d\s{1}\d\d:\d\d|         # lookahead до начала новой трансакции
-             Дергунова\sК\.\sА\.)                          # Либо да конца выписки
-            """,
-                                        cleaned_text, re.VERBOSE)
+        pattern = "\d{2}\.\d{2}\.\d{4}\s\d{2}\:\d{2}\s(?=\d{3,8}|-|0).*?\n\d{2}\.\d{2}\.\d{4}\s[\s\S]*?(?=\d{2}\.\d{2}\.\d{4}\s\d{2}\:\d{2}\s|Дата формирования)"
+        individual_entries = re.findall(pattern, cleaned_text)
+        #     \d\d\.\d\d\.\d\d\d\d\s{1}\d\d:\d\d\s{1}        # Date and time like '06.07.2021 15:46' and one space
+        #     (?=\d{3,8}|-|0)                                # код авторизации, либо "-", либо 0 (issue 33). 
+        #                                                    # Код авторизациии который я видел всегда состоит и 6 цифр,
+        #                                                    # но на всякий случай укажем с 3 до 8
+        #     .*?\n                                          # Anything till end of the line including a line break
+        #     \d\d\.\d\d\.\d\d\d\d\s{1}                      # дата обработки
+        #     [\s\S]*?                                       # any character, including new line. !!None-greedy!!
+        #     (?=\d\d\.\d\d\.\d\d\d\d\s{1}\d\d:\d\d|         # lookahead до начала новой трансакции
+        #      Дергунова\sК\.\sА\.)                          # Либо да конца выписки
+        #     """,
+        #                                 cleaned_text, re.VERBOSE)
 
         if len(individual_entries) == 0:
             raise exceptions.InputFileStructureError(
@@ -180,12 +183,12 @@ class SBER_DEBIT_2408(Extractor):
 
         result['category'] = line_parts[3]
 
-        result['value_account_currency'] = get_float_from_money(line_parts[4], True)
+        result['value_account_currency'] = get_decimal_from_money(line_parts[4], True)
         # result['remainder_account_currency'] = get_float_from_money(
         #     line_parts[4])
 
         if len(line_parts) > 5:
-            result['balance_account_currency'] = get_float_from_money(line_parts[5], False)
+            result['balance_account_currency'] = get_decimal_from_money(line_parts[5], False)
 
         # ************** looking at the 2nd line
         line_parts = split_Sberbank_line(lines[1])
@@ -219,7 +222,7 @@ class SBER_DEBIT_2408(Extractor):
                 -->  11.08.2022  6,00 BYN
                 """
                 
-                result['value_operational_currency'] = get_float_from_money(last_part_as_money.group(1), True)
+                result['value_operational_currency'] = get_decimal_from_money(last_part_as_money.group(1), True)
                 result['operational_currency'] = last_part_as_money.group(2)
             else:
                 # Обрабатываем вторую строчку "стандартной" трансакции
@@ -235,7 +238,7 @@ class SBER_DEBIT_2408(Extractor):
             result['description'] = line_parts[1]
             
             if last_part_as_money:
-                result['value_operational_currency'] = get_float_from_money(last_part_as_money.group(1), True)
+                result['value_operational_currency'] = get_decimal_from_money(last_part_as_money.group(1), True)
                 result['operational_currency'] = last_part_as_money.group(2)
             
             # Обрабатываем вот такую ситуацию (issue_39)
