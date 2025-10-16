@@ -65,7 +65,7 @@ def check_transactions_balance(input_pd: pd.DataFrame, balance: float, column_na
     Если разница одна копейка или больше, то выдаётся ошибка
     """
     calculated_balance = input_pd[column_name_for_balance_calculation].sum()
-    if (abs(balance-calculated_balance) >= 0.01):
+    if (balance-calculated_balance):
         raise exceptions.BalanceVerificationError(f"""
             Ошибка проверки балланса по трансакциям: 
                 Вычисленный баланс по информации в шапке выписки = {balance}
