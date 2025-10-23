@@ -7,7 +7,7 @@ build-backend = "setuptools.build_meta"
 # ─────────────────────────────
 [project]
 name            = "Sberbank2Excel"
-version         = "4.12.0_dev"
+version         = "5.0.0"
 description     = "Конвертация выписки сбербанка по карте из формата PDF в формат Excel"
 readme          = {file = "README.md", content-type = "text/markdown"}
 requires-python = "==3.12.*" # I have not tested with other versions
