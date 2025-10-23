@@ -10,7 +10,7 @@ name            = "Sberbank2Excel"
 version         = "4.12.0_dev"
 description     = "Конвертация выписки сбербанка по карте из формата PDF в формат Excel"
 readme          = {file = "README.md", content-type = "text/markdown"}
-requires-python = ">=3.12"
+requires-python = "==3.12.*" # I have not tested with other versions
 
 authors = [
   {name = "Ev2geny", email = "ev2geny@gmail.com"}

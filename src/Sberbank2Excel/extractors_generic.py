@@ -25,14 +25,15 @@ def determine_extractor_auto(pdf_text:str) -> type:
         raise exceptions.InputFileStructureError("Неизвecтный формат выписки, ни один из экстракторов не подходят")
 
     if len(supported_extractors) > 1 :
-        raise exceptions.InputFileStructureError(f"Непонятный формат выписки. Больше чем один экстрактор говорят, что понимают его \n {supported_extractors}")
+        raise exceptions.InputFileStructureError(f"Непонятный формат выписки. Больше чем один экстрактор говорят, "
+                                                 f"что понимают его \n {[extractor.__name__ for extractor in supported_extractors]}")
 
     # If only one supported extractor if found - then all OK
     return supported_extractors[0]
 
 def determine_extractor_by_name(extractor_name:str) -> type:
     """
-    Checks if the is an Extractor class available, which has a name, iqual to the 'extractor_name' string
+    Checks if the is an Extractor class available, which has a name, equal to the 'extractor_name' string
     If such extractor is available, then this class is returned, otherwise an exception is raised
     """
     extractor_names_set = set()
@@ -45,7 +46,7 @@ def determine_extractor_by_name(extractor_name:str) -> type:
 
         extractor_names_set.add(extractor.__name__ )
 
-    raise exceptions.UserInputError(f'Указанный формат файла "{extractor_name}" Неизвестен.\n См. смписок известных форматов \n {extractor_names_set}')
+    raise exceptions.UserInputError(f'Указанный формат файла "{extractor_name}" Неизвестен.\n См. список известных форматов \n {extractor_names_set}')
 
 def debug_extractor(extractor_type_object:type, test_text_file_name:str):
     """

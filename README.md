@@ -185,6 +185,8 @@ Sberbank2Excel, то возможны следующие варианты дей
 | Сбербанк | [SBER_SAVING_2407](/docs/format_examples/SBER_SAVING_2407.png)| Выписка из лицевого счёта по вкладу «Накопительный счет» образца июля 2024 года (ТДВФН). | НП| НП   | НП|
 | Сбербанк | [SBER_DEBIT_2408](/docs/format_examples/SBER_DEBIT_2408.png)| Дебетовая карта образца августа 2024 года  | OK         | ???  | ОК   |  |
 | Сбербанк | [SBER_CREDIT_2409](/docs/format_examples/SBER_CREDIT_2409.png)| Кредитная карта образца сентября 2024 года  | НП|НП  | ОК? |[51](https://github.com/Ev2geny/Sberbank2Excel/issues/51), [54](https://github.com/Ev2geny/Sberbank2Excel/issues/54), [55](https://github.com/Ev2geny/Sberbank2Excel/issues/55)  |
+| Сбербанк | [SBER_DEBIT_2510](/docs/format_examples/SBER_DEBIT_2510.png)| Дебетовая карта образца октября 2025 года  | НП         | НП  | ОК?   |  |
+| Сбербанк | [SBER_PAYMENT_2510](/docs/format_examples/SBER_PAYMENT_2510.png)| Платёжный счёт образца октября 2025 года  | НП | НП   | ОК| |
 
 **Легенда и сокращения**
 
