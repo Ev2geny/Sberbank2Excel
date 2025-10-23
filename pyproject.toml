@@ -42,7 +42,7 @@ Homepage    = "https://github.com/Ev2geny/Sberbank2Excel"
 [project.scripts]
 # sberbankPDF2Excel    = "Sberbank2Excel.sberbankPDF2Excel:main"
 # sberbankPDF2ExcelGUI = "Sberbank2Excel.sberbankPDF2ExcelGUI:main"
-sberbank2excel = "Sberbank2Excel.sberbank2Excel:main"  
+sberbank2Excel = "Sberbank2Excel.sberbank2Excel:main"  
 
 # ─────────────────────────────
 #        Pytest
