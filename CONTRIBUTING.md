@@ -80,39 +80,37 @@ python -m pip install -e .[dev]
 
 Запустить тесты.  
 Режим "not private" избегает запускать тесты, промаркированные как `private`. Это те тесты, для работы которых требуется
-приватные варианты выписок (а таких - большинство)
+приватные варианты выписок, недоступные в исходном коде (а таких - большинство)
 ```
 python -m pytest -m "not private"
 ```
 Убедиться, что в директории `tests/test_data` созданы файлы `.xlsx`
 
-Запустить `sberbankPDF2Excel` как модуль и убедиться, что он запускается
+Запустить `sberbank2Excel` как модуль и убедиться, что он запускается в режиме графического интерфейса
 
 ```
-python -m Sberbank2Excel.sberbankPDF2Excel
+python -m Sberbank2Excel.sberbank2Excel
 ```
 
-Запустить `sberbankPDF2Excel` из командной строки
+Запустить `sberbank2Excel` из командной строки и убедиться, что он запускается в режиме графического интерфейса
+
+Прим.: запускаемый файл `sberbank2Excel` (`sberbank2Excel.exe` Windows) должен был быть создан установке пакета 
+при помощи pip (см. выше), но это не полноценный .exe файл, создаваемый при помощи утилиты `pyinstaller`
+  
+```
+sberbank2Excel
+```
+Запустить `sberbank2Excel` из командной строки с аргументом и убедиться, что он запускается в режиме командной строки
 
 ```
-sberbankPDF2Excel
+sberbank2Excel -h
 ```
 
-Запустить `sberbankPDF2ExcelGUI` как модуль и убедиться, что он запускается
-
-```
-python -m Sberbank2Excel.sberbankPDF2ExcelGUI
-```
-
-Запустить `sberbankPDF2ExcelGUI` из командной строки
-
-```
-sberbankPDF2ExcelGUI
-```
 
 ## Внесение модификаций
 
 ### Создать новую ветку git
+
 
 Если в планах сделать [Pull Request](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/about-pull-requests) то создайте новую ветку git.   
 Например:
@@ -121,6 +119,7 @@ sberbankPDF2ExcelGUI
 git switch -c issue_xxx
 ```
 
+Для того чтобы ссылаться на [github issue](https://github.com/Ev2geny/Sberbank2Excel/issues), хорошо его создать заранее и описать там проблему / улучшение, которое вы собираетесь решать.
 
 
 ### Добавление новых форматов выписки
@@ -178,6 +177,6 @@ extractors_generic.debug_extractor(SBER_CREDIT_2107, test_text_file_name=sys.arg
 Запустить
 
 ```
-pyinstaller src/Sberbank2Excel/sberbankPDF2ExcelGUI.py
+pyinstaller src/Sberbank2Excel/sberbank2Excel.py
 ```
 Проверить наличие и протестировать .exe файл в директории `dist`
