@@ -75,9 +75,8 @@ class SBER_DEBIT_2510(Extractor):
         # Удаляем куски текста, которые являются разделами между страницами PDF, не несущими информации
         cleaned_text = re.sub(r'Продолжение на следующей странице[\s\S]*?операции²\n', '', self.bank_text)
         
-        print('Текст после удаления разделов между страницами')
-        print(cleaned_text)
-        
+        # print('Текст после удаления разделов между страницами')
+        # print(cleaned_text)
         
         # extracting entries (operations) from text file on
         individual_entries = re.findall(r"""
