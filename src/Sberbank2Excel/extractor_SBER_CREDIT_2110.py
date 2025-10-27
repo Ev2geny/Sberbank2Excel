@@ -25,7 +25,7 @@ from Sberbank2Excel import exceptions
 from Sberbank2Excel.utils import get_float_from_money, split_Sberbank_line
 from Sberbank2Excel.extractor import Extractor
 from Sberbank2Excel import extractors_generic
-class SBER_CREDIT_2107(Extractor):
+class SBER_CREDIT_2110(Extractor):
 
     def check_specific_signatures(self):
         """
@@ -265,7 +265,7 @@ if __name__ == '__main__':
         print(__doc__)
 
     else:
-        extractors_generic.debug_extractor(SBER_CREDIT_2107,
+        extractors_generic.debug_extractor(SBER_CREDIT_2110,
                                            test_text_file_name=sys.argv[1])
 
 

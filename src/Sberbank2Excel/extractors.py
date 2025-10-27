@@ -13,8 +13,8 @@ extractors_list.append(SBER_DEBIT_2107)
 from .extractor_SBER_DEBIT_2005 import SBER_DEBIT_2005
 extractors_list.append(SBER_DEBIT_2005)
 
-from .extractor_SBER_CREDIT_2110 import SBER_CREDIT_2107
-extractors_list.append(SBER_CREDIT_2107)
+from .extractor_SBER_CREDIT_2110 import SBER_CREDIT_2110
+extractors_list.append(SBER_CREDIT_2110)
 
 # from src.extractor_SBER_DEBIT_2111_VISA_draft import  SBER_DEBIT_2111_VISA
 # extractors_list.append(SBER_DEBIT_2111_VISA)
