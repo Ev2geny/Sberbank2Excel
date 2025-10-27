@@ -28,7 +28,7 @@ def test_correctly_converts_SBER_CREDIT_2110_txt():
     from . import no_github_module
     sberbankPDF2Excel(no_github_module.path2_SBER_CREDIT_2110_file_name_text)
 
-class Test_SBER_CREDIT_2107:
+class Test_SBER_DEBIT_2107:
 
     @pytest.mark.private
     def test_correctly_converts_SBER_DEBIT_2107_pdf(self):
