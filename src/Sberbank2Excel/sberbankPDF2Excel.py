@@ -7,6 +7,7 @@ from Sberbank2Excel import exceptions
 from Sberbank2Excel import extractors
 from Sberbank2Excel.pdf2txtev import pdf_2_txt_file
 from Sberbank2Excel.sberbankPDFtext2Excel import sberbankPDFtext2Excel, generate_PDFtext2Excel_argparser
+from Sberbank2Excel import version_info
 
 
 
@@ -82,8 +83,12 @@ def sberbankPDF2Excel(input_file_name: str,
 
 def main():
 
-    parser = argparse.ArgumentParser(description='Конвертация выписки банка из формата PDF или из промежуточного текстового файла в формат Excel или CSV.',
-                                        parents=[generate_PDFtext2Excel_argparser()])
+    description = (f'Конвертация выписки банка из формата PDF или из промежуточного текстового файла в формат Excel или CSV.\n'
+                   f'Версия {version_info.VERSION}')
+
+    parser = argparse.ArgumentParser(description=description,
+                                        parents=[generate_PDFtext2Excel_argparser()],
+                                        formatter_class=argparse.RawDescriptionHelpFormatter)
    
     parser.add_argument('-i','--interm', action='store_true', default=False, dest='leave_intermediate_txt_file', help='Не удалять промежуточный текстовый файт')
 
