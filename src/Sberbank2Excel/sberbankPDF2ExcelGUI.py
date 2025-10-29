@@ -7,6 +7,15 @@
 
 
 
+# https://github.com/Ev2geny/Sberbank2Excel/issues/74
+try:
+    import tkinter
+except ImportError as e:
+    raise RuntimeError(
+        "Tkinter не установлен. "
+        "На Ubuntu: sudo apt-get install python3.XX-tk или используйте интерпретатор Python, собранный с Tcl/Tk."
+    ) from e
+
 from tkinter import *
 import tkinter.filedialog
 from tkinter import scrolledtext
