@@ -46,7 +46,7 @@ class SBER_CREDIT_2110(Extractor):
     def get_period_balance(self) -> Decimal:
         """
         Function gets information about transaction balance from the header of the banl extract
-        This balance is then returned as a float
+        This balance is then returned as a Decimal
 
 
         ---------------------------------------------------
@@ -134,7 +134,7 @@ class SBER_CREDIT_2110(Extractor):
         If something unexpected is found, exception exceptions.InputFileStructureError() is raised
         Naming of the dictionary keys is not hard fixed, but shall correspond to what is returned by the function get_columns_info(self)
 
-        All numerical fields shall be returned as float
+        All numerical fields shall be returned as Decimal
 
         All dates / dates and times shall be returned as python datetime.datetime
 

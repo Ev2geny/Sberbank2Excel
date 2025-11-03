@@ -27,7 +27,7 @@ class SBER_DEBIT_2303_CHELYABINSK(Extractor):
     def get_period_balance(self) -> Decimal:
         """
         Function gets information about transaction balance from the header of the banlk extract
-        This balance is then returned as a float
+        This balance is then returned as a Decimal
 
 
         ---------------------------------------------------

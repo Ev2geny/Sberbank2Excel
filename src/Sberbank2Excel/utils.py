@@ -15,7 +15,7 @@ from Sberbank2Excel import version_info
 
 def get_decimal_from_money(money_str: str, process_no_sign_as_negative=False) -> Decimal:
     """
-    Converts string, representing money to a float.
+    Converts string, representing money to a Decimal.
     If process_no_sign_as_negative is set to True, then a number will be negative in case no leading sign is available
 
     Example:
@@ -56,7 +56,7 @@ def rename_sort_df(df:pd.DataFrame, columns_info:dict)->pd.DataFrame:
     df = df.rename(columns = columns_info)
     return df
 
-def check_transactions_balance(input_pd: pd.DataFrame, balance: float, column_name_for_balance_calculation:str)->None:
+def check_transactions_balance(input_pd: pd.DataFrame, balance: Decimal, column_name_for_balance_calculation:str)->None:
     """
     сравниваем вычисленный баланс периода (get_period_balance) и баланс периода, полученный сложением всех трансакций в
     pandas dataframe.

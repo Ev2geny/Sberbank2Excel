@@ -24,7 +24,7 @@ class Extractor(ABC):
         """Function gets information about transaction balance from the header of the banlk extract
 
         Returns:
-            float: balance of the period
+            Decimal: balance of the period
         """
         pass
 
