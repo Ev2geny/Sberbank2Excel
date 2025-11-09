@@ -135,6 +135,8 @@ def sberbankPDFtext2Excel(input_txt_file_name: str,
     if reversed_transaction_order:
         df = df.iloc[::-1]  # reversing the order of transactions
 
+    df = utils.conv_decimals_in_df_to_floats(df)
+
     utils.write_df_to_file(df, output_file_name,
                             extractor_name=extractor_type.__name__,
                             errors=error,
