@@ -18,11 +18,12 @@
 import re
 from datetime import datetime
 import sys
+from decimal import Decimal
 
 from typing import Any
 
 from Sberbank2Excel import exceptions
-from Sberbank2Excel.utils import get_float_from_money, split_Sberbank_line
+from Sberbank2Excel.utils import get_decimal_from_money, split_Sberbank_line
 from Sberbank2Excel.extractor import Extractor
 from Sberbank2Excel import extractors_generic
 
@@ -46,10 +47,10 @@ class SBER_PAYMENT_2212(Extractor):
         if (not test1  or not test2) or test_ostatok_po_schetu:
             raise exceptions.InputFileStructureError("Не найдены паттерны, соответствующие выписке")
 
-    def get_period_balance(self) -> float:
+    def get_period_balance(self) -> Decimal:
         """
         Function gets information about transaction balance from the header of the banl extract
-        This balance is then returned as a float
+        This balance is then returned as a Decimal
 
 
         ---------------------------------------------------
@@ -67,13 +68,13 @@ class SBER_PAYMENT_2212(Extractor):
 
         line_parts = res.group(1).split('\t')
 
-        summa_popolneniy = get_float_from_money(line_parts[3])
-        summa_spisaniy = get_float_from_money(line_parts[2])
+        summa_popolneniy = get_decimal_from_money(line_parts[3])
+        summa_spisaniy = get_decimal_from_money(line_parts[2])
 
         balance = summa_popolneniy - summa_spisaniy
 
-        ostatok_start_of_period = get_float_from_money(line_parts[0])
-        ostatok_end_of_period = get_float_from_money(line_parts[1])
+        ostatok_start_of_period = get_decimal_from_money(line_parts[0])
+        ostatok_end_of_period = get_decimal_from_money(line_parts[1])
 
         if not abs(balance - (ostatok_end_of_period - ostatok_start_of_period))<0.01:
             raise exceptions.InputFileStructureError(f'Что-то пошло не так:\n[ ВСЕГО ПОПОЛНЕНИЙ ({summa_popolneniy}) - ВСЕГО СПИСАНИЙ ({summa_spisaniy}) ] != [ОСТАТОК В КОНЦЕ ({ostatok_end_of_period}) - ОСТАТОК В НАЧАЛЕ ({ostatok_start_of_period})]  ')
@@ -143,7 +144,7 @@ class SBER_PAYMENT_2212(Extractor):
         If something unexpected is found, exception exceptions.InputFileStructureError() is raised
         Naming of the dictionary keys is not hard fixed, but shall correspond to what is returned by the function get_columns_info(self)
 
-        All numerical fields shall be returned as float
+        All numerical fields shall be returned as Decimal
 
         All dates / dates and times shall be returned as python datetime.datetime
 
@@ -201,8 +202,8 @@ class SBER_PAYMENT_2212(Extractor):
         result['operation_date'] = datetime.strptime(result['operation_date'], '%d.%m.%Y %H:%M')
 
         result['description'] = line_parts[2]
-        result['value_account_currency'] = get_float_from_money(line_parts[3])
-        # result['remainder_account_currency'] = get_float_from_money(line_parts[4])
+        result['value_account_currency'] = get_decimal_from_money(line_parts[3])
+        # result['remainder_account_currency'] = get_decimal_from_money(line_parts[4])
 
         # ************** looking at the 2nd line
         line_parts = split_Sberbank_line(lines[1])
@@ -226,7 +227,7 @@ class SBER_PAYMENT_2212(Extractor):
             found = re.search(r'(.*?)\s(\S*)',
                               line_parts[3])  # processing string like '6,79 €'
             if found:
-                result['value_operational_currency'] = get_float_from_money(found.group(1))
+                result['value_operational_currency'] = get_decimal_from_money(found.group(1))
                 result['operational_currency'] = found.group(2)
             else:
                 raise exceptions.InputFileStructureError(

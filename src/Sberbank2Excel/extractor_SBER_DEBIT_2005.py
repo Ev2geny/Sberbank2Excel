@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 from . import exceptions
 import re
 from datetime import datetime
@@ -11,7 +13,7 @@ import sys
 from typing import Any
 
 from Sberbank2Excel import exceptions
-from Sberbank2Excel.utils import get_float_from_money, split_Sberbank_line
+from Sberbank2Excel.utils import get_decimal_from_money, split_Sberbank_line
 from Sberbank2Excel.extractor import Extractor
 from Sberbank2Excel import extractors_generic
 
@@ -29,7 +31,7 @@ class SBER_DEBIT_2005(Extractor):
         if not test1  or not test2:
             raise exceptions.InputFileStructureError("Не найдены паттерны, соответствующие выписке")
 
-    def get_period_balance(self) -> float:
+    def get_period_balance(self) -> Decimal:
         """
         функция ищет в тексте значения "СУММА ПОПОЛНЕНИЙ" и "СУММА СПИСАНИЙ" и возвращает раницу
         используется для контрольной проверки вычислений
@@ -54,8 +56,8 @@ class SBER_DEBIT_2005(Extractor):
 
         # print(f"{summa_popolneniy=}")
         # print(f"{summa_spisaniy=}")
-        summa_popolneniy = get_float_from_money(summa_popolneniy)
-        summa_spisaniy = get_float_from_money(summa_spisaniy)
+        summa_popolneniy = get_decimal_from_money(summa_popolneniy)
+        summa_spisaniy = get_decimal_from_money(summa_spisaniy)
 
         return summa_popolneniy - summa_spisaniy
 
@@ -127,9 +129,9 @@ class SBER_DEBIT_2005(Extractor):
 
         result['operation_date'] = line_parts[0]
         result['description'] = line_parts[1]
-        result['value_account_currency'] = get_float_from_money(line_parts[2],
+        result['value_account_currency'] = get_decimal_from_money(line_parts[2],
                                                                 True)
-        result['remainder_account_currency'] = get_float_from_money(
+        result['remainder_account_currency'] = get_decimal_from_money(
             line_parts[3])
 
         # ************* looking at lines between 1st and the last
@@ -156,7 +158,7 @@ class SBER_DEBIT_2005(Extractor):
             found = re.search(r'[(](.*?)(\w\w\w)[)]', line_parts[
                 2])  # processing string like (33,31 EUR)
             if found:
-                result['value_operational_currency'] = get_float_from_money(
+                result['value_operational_currency'] = get_decimal_from_money(
                     found.group(1), True)
                 result['operational_currency'] = found.group(2)
             else:

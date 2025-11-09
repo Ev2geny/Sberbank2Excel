@@ -2,6 +2,7 @@
 Code, generic for extractors functionality
 """
 import logging
+from decimal import Decimal
 from pprint import pprint
 
 from Sberbank2Excel.extractors import extractors_list
@@ -103,7 +104,7 @@ Some wrong text, which cannot be correct
     print("Testing 'get_period_balance()'")
     print("Cheking on file, which shall work. If code continues, everything is OK")
     print(f"period_balance = {extractor.get_period_balance()}")
-    assert isinstance(extractor.get_period_balance(), float)
+    assert isinstance(extractor.get_period_balance(), Decimal)
 
     print("Cheking on file, which shall NOT work. If code continues, everything is OK")
     try:
