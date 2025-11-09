@@ -4,6 +4,8 @@
 '''
 from decimal import Decimal
 
+from typing import TypeVar
+
 import unidecode
 import re
 import pandas as pd
@@ -118,9 +120,29 @@ def write_df_to_file(df:pd.DataFrame,
     else:
         raise exceptions.UserInputError(f"not supported output file format '{output_file_format}' is given to the function 'write_df_to_file'")
 
+T = TypeVar('T')
+
+
+def dec_to_float(x:T) -> float | T:
+    """
+    Converts Decimal to float, otherwise returns the input unchanged
+    """
+    if isinstance(x, Decimal):
+        return float(x)
+    return x
+
+
+def conv_decimals_in_df_to_floats(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Converts all Decimal values in pandas dataframe to float
+    """
+    df = df.map(dec_to_float)
+    
+    return df
+
 def main():
     print('this module is not designed to work standalone')
-
+    
 if __name__=='__main__':
     main()
     
