@@ -2,6 +2,7 @@
 '''
 Разные отдельностоящие функции, которые используются в других модулях
 '''
+from decimal import Decimal
 
 import unidecode
 import re
@@ -12,13 +13,13 @@ from Sberbank2Excel import exceptions
 from Sberbank2Excel import version_info
 
 
-def get_float_from_money(money_str: str, process_no_sign_as_negative=False) -> float:
+def get_decimal_from_money(money_str: str, process_no_sign_as_negative=False) -> Decimal:
     """
-    Converts string, representing money to a float.
+    Converts string, representing money to a Decimal.
     If process_no_sign_as_negative is set to True, then a number will be negative in case no leading sign is available
 
     Example:
-    get_float_from_money('1 189,40', True) -> -1189.4
+    get_decimal_from_money('1 189,40', True) -> -1189.4
     """
     
     money_str = unidecode.unidecode(money_str)
@@ -31,12 +32,12 @@ def get_float_from_money(money_str: str, process_no_sign_as_negative=False) -> f
     if money_str[0] == '+':
         leading_plus = True
 
-    money_float = float(money_str)
+    money_decimal = Decimal(money_str)
 
     if (process_no_sign_as_negative and not leading_plus):
-        money_float = -1*money_float
+        money_decimal = -1 * money_decimal
 
-    return money_float
+    return money_decimal
 
 def split_Sberbank_line(line:str)->List[str]:
     """
@@ -55,7 +56,7 @@ def rename_sort_df(df:pd.DataFrame, columns_info:dict)->pd.DataFrame:
     df = df.rename(columns = columns_info)
     return df
 
-def check_transactions_balance(input_pd: pd.DataFrame, balance: float, column_name_for_balance_calculation:str)->None:
+def check_transactions_balance(input_pd: pd.DataFrame, balance: Decimal, column_name_for_balance_calculation:str)->None:
     """
     сравниваем вычисленный баланс периода (get_period_balance) и баланс периода, полученный сложением всех трансакций в
     pandas dataframe.
@@ -63,7 +64,7 @@ def check_transactions_balance(input_pd: pd.DataFrame, balance: float, column_na
     Если разница одна копейка или больше, то выдаётся ошибка
     """
     calculated_balance = input_pd[column_name_for_balance_calculation].sum()
-    if (abs(balance-calculated_balance) >= 0.01):
+    if balance-calculated_balance:
         raise exceptions.BalanceVerificationError(f"""
             Ошибка проверки балланса по трансакциям: 
                 Вычисленный баланс по информации в шапке выписки = {balance}
