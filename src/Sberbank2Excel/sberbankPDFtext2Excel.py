@@ -138,9 +138,9 @@ def sberbankPDFtext2Excel(input_txt_file_name: str,
     df = utils.conv_decimals_in_df_to_floats(df)
 
     utils.write_df_to_file(df, output_file_name,
-                            extractor_name=extractor_type.__name__,
-                            errors=error,
-                            output_file_format=output_file_type)
+                           extractor_name=extractor_type.__name__,
+                           errors=error,
+                           output_file_format=output_file_type)
 
     # print(f"Создан файл {output_file_name}")
 
