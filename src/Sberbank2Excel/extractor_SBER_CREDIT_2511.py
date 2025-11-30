@@ -44,8 +44,10 @@ class SBER_CREDIT_2511(Extractor):
         # print(f"{test2=}")
         
         test_OSTATOK_SREDSTV = re.search(r'ОСТАТОК СРЕДСТВ', self.bank_text, re.IGNORECASE)
+        
+        test_data_formirovaniya = re.search(r'Дата формирования документа', self.bank_text, re.IGNORECASE)
 
-        if not (test_SberBank and test_Vipiska_po_schetu and test_OSTATOK_SREDSTV):
+        if not (test_SberBank and test_Vipiska_po_schetu and test_OSTATOK_SREDSTV and test_data_formirovaniya):
             raise exceptions.InputFileStructureError("Не найдены паттерны, соответствующие выписке")
 
     def get_period_balance(self) -> Decimal:
@@ -120,12 +122,14 @@ class SBER_CREDIT_2511(Extractor):
         
         # extracting entries (operations) from text file on
         individual_entries = re.findall(r"""
-            \d\d\.\d\d\.\d\d\d\d\t\d\d:\d\d\t\d{3,8}                       # Structure like '02.09.2024	09:28	097626'  
+            \d\d\.\d\d\.\d\d\d\d\t\d\d:\d\d                                # Structure like '20.11.2025	12:05' 
+            .*\n                                                           # всё до конца строки
+            \d\d\.\d\d\.\d\d\d\d\t\d{3,8}                                  #20.11.2025	531496
             [\s\S]*?                                                       # any character, including new line. !!None-greedy!!
-            (?=\d\d\.\d\d\.\d\d\d\d\s{1}\d\d:\d\d|                         # lookahead до начала следующей транзакции
-            Дергунова)                                                     # Либо да конца выписки
+            (?=\d\d\.\d\d\.\d\d\d\d\t\d\d:\d\d|                            # lookahead до начала следующей транзакции
+            \*\nДата\sформирования\sдокумента)                             # Либо да конца выписки
             """,
-                                        cleaned_text, re.VERBOSE)
+            cleaned_text, re.VERBOSE)
 
         if len(individual_entries) == 0:
             raise exceptions.InputFileStructureError(
@@ -143,17 +147,17 @@ class SBER_CREDIT_2511(Extractor):
         Типа:
             а) Без валюты операции
             
-            26.09.2024 -> Kurgan OICO WEB
+            26.09.2024 -> 687410 -> Kurgan OICO WEB
             
             б) С валютой операции
             
-            26.09.2024 -> Kurgan OICO WEB -> 6,79 €
+            26.09.2024 -> 687410 -> Kurgan OICO WEB -> 6,79 €
         
         """
 
         line_parts = split_Sberbank_line(line)
 
-        if len(line_parts) < 2 or len(line_parts) > 3 and not re.search(r'^\d{2}\.\d{2}\.\d{4}', line_parts[1]):
+        if len(line_parts) < 3 or len(line_parts) > 4 and not re.search(r'^\d{2}\.\d{2}\.\d{4}\t\d{2}:\d{3,8}', line_parts[1]):
             raise exceptions.Bank2ExcelError(
                 "Ожидалась строка из 2 или 3 частей и начинающаяся с дд.мм.гггг. получено:\n" + line)
 
@@ -164,13 +168,14 @@ class SBER_CREDIT_2511(Extractor):
         # https://docs.python.org/3/library/datetime.html#strftime-and-strptime-behavior
         result['processing_date'] = datetime.strptime(result['processing_date'], '%d.%m.%Y')
 
+        result['authorisation_code'] = line_parts[1]
         
-        result['description'] = line_parts[1]
+        result['description'] = line_parts[2]
 
         # Выделяем сумму в валюте оперции, если присуиствует
-        if len(line_parts) == 3:
+        if len(line_parts) == 4:
             found = re.search(r'(.*?)\s(\S*)',
-                              line_parts[2])  # processing string like '6,79 €'
+                              line_parts[3  ])  # processing string like '6,79 €'
             if found:
                 result['value_operational_currency'] = get_decimal_from_money(found.group(1), True)
                 result['operational_currency'] = found.group(2)
@@ -196,39 +201,24 @@ class SBER_CREDIT_2511(Extractor):
         Выделяем данные из одной записи в dictionary
 
     ------------------------------------------------------------------------------------------------------
-        03.07.2021 12:52 -> Перевод с карты -> 3 500,00
-        03.07.2021 123456 -> SBOL перевод 1234****1234 Н. ИГОРЬ РОМАНОВИЧ
+       23.10.2025	17:28	Прочие расходы	6 698,00	341 511,00
+       24.10.2025	232688	MOSKVA YM*ozon. Операция по карте ****1234
     ------------------------------------------------------------------------------------------------------
-
-        либо такой
-    --------------------------------------------------------------------------------------------------
-        28.06.2021 00:00 -> Неизвестная категория(+)     +21107,75
-        28.06.2021 - -> Прочие выплаты
-    ----------------------------------------------------------------------------------------------------
 
         ещё один пример (с 3 линиями)
         ---------------------------------------------------------------------------------------------------------
-        03.07.2021 11:54 -> Перевод с карты -> 4 720,00
-        03.07.2021 258077 -> SBOL перевод 1234****5678 А. ВАЛЕРИЯ
-        ИГОРЕВНА
+       23.10.2025	17:28	Прочие расходы	6 698,00	341 511,00
+       24.10.2025	232688	MOSKVA YM*ozon. Операция по карте ****1234
+       some text
         ----------------------------------------------------------------------------------------------------------
 
         либо такой с иностранной вылютой
     ---------------------------------------------------------------------------------------------------------
-        08.07.2021 18:27 -> Все для дома -> 193,91
-        09.07.2021 -> 254718 -> XXXXX XXXXX -> 2,09 €
+       23.10.2025	17:28	Прочие расходы	6 698,00	341 511,00
+       24.10.2025	232688	MOSKVA YM*ozon. Операция по карте ****1234    89,99 $
     ---------------------------------------------------------------------------------------------------------
 
-        В последнем примере:
 
-    {'authorisation_code': '254718',
-     'category': 'Все для дома',
-     'description': 'XXXXX XXXXX',
-     'operation_date': datetime.datetime(2021,7,8,18,27),
-     'processing_date': datetime.datetime(2021,7,9,0,0),
-     'value_account_currency': -193.91б
-     'operational_currency': '€'
-     }
         """
         lines = entry.split('\n')
         lines = list(filter(None, lines))
@@ -244,11 +234,11 @@ class SBER_CREDIT_2511(Extractor):
         result['operation_date'] = line_parts[0] + " " + line_parts[1]
         result['operation_date'] = datetime.strptime(result['operation_date'], '%d.%m.%Y %H:%M')
         
-        result['authorisation_code'] = line_parts[2]
+        # result['authorisation_code'] = line_parts[2]
 
-        result['category'] = line_parts[3]
-        result['value_rubles'] = get_decimal_from_money(line_parts[4], True)
-        result['remainder_account_currency'] = get_decimal_from_money(line_parts[5], True)
+        result['category'] = line_parts[2]
+        result['value_rubles'] = get_decimal_from_money(line_parts[3], True)
+        result['remainder_account_currency'] = get_decimal_from_money(line_parts[4], True)
 
         # ************** looking at the 2nd line and 3rd line in case of issue 56 
         line_parts = split_Sberbank_line(lines[1])
@@ -269,47 +259,18 @@ class SBER_CREDIT_2511(Extractor):
             next_line = 2
 
         # **********  Обрабатываем строки, следующие за строкой с датой обработки
-        # sub_transactions будет хранить вложенные транзакции, если они есть. 
-        # См. https://github.com/Ev2geny/Sberbank2Excel/issues/54
-        sub_transactions: list[dict] = []
-                
-        
+ 
+                       
         for line in lines[next_line:]:
             line_parts = split_Sberbank_line(line)
             
-            if len(line_parts) > 2:
-                raise exceptions.InputFileStructureError("Ожидалась строка с 1-2 частями, получено: \n" + line)
+            if len(line_parts) > 1:
+                raise exceptions.InputFileStructureError("Ожидалась строка с 1 частью, получено: \n" + line)
+
+            result['description'] += ' ' + line_parts[0]
             
-            if len(line_parts) == 1:
-                # Если строка содержит только одну часть, то значит это не может быть форматом "Описание -> сумма"
-                # проверяем, была ли уже найдена хотя бы одна вложенная транзакция
-                if len(sub_transactions) > 0:
-                    # Ожидаем, что если была найдена хотя бы одна вложенная транзакция, то все последующие строки должны 
-                    # быть также вложенными транзакциями формата "Описание -> сумма"
-                    raise exceptions.InputFileStructureError("Ожидалась строка с описанием и суммой, получено: \n" + line)
-                
-                result['description'] = result['description'] + ' ' + line_parts[0]
-                # continue
-            
-            else:
-            
-                sub_transaction = dict()
-                sub_transaction['operation_date'] = result['operation_date']
-                sub_transaction['processing_date'] = result['processing_date']
-                sub_transaction['category'] = result['category']
-                sub_transaction['authorisation_code'] = result['authorisation_code']
-                sub_transaction['description'] = line_parts[0]
-                sub_transaction['value_rubles'] = get_decimal_from_money(line_parts[1], True)
-                
-                sub_transactions.append(sub_transaction)
-                
-        # In this case return only dictionary
-        if len(sub_transactions) == 0:
-            return result        
-        
-        # In this case return list of dictionaries
-        else:
-            return [result] + sub_transactions
+        return result
+    
 
 
 

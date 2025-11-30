@@ -34,13 +34,18 @@ class SBER_CREDIT_2110(Extractor):
         If these signatures are not found, then exceptions.InputFileStructureError() is raised
         """
 
-        test1 = re.search(r'сбербанк', self.bank_text, re.IGNORECASE)
+        test_sberbank = re.search(r'сбербанк', self.bank_text, re.IGNORECASE)
         # print(f"{test1=}")
 
-        test2 = re.search(r'Выписка по счёту кредитной карты', self.bank_text, re.IGNORECASE)
+        test_vipiska_po_schetu_kereditnoy = re.search(r'Выписка по счёту кредитной карты', self.bank_text, re.IGNORECASE)
         # print(f"{test2=}")
 
-        if not test1  or not test2:
+        test_data_formirovaniya = re.search(r'Дата формирования документа', self.bank_text, re.IGNORECASE)
+        
+        if not (test_sberbank  
+                and test_vipiska_po_schetu_kereditnoy 
+                and not test_data_formirovaniya # это только в SBER_CREDIT_2511
+                ):
             raise exceptions.InputFileStructureError("Не найдены паттерны, соответствующие выписке")
 
     def get_period_balance(self) -> Decimal:
