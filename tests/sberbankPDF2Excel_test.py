@@ -181,6 +181,24 @@ def test_correctly_converts_SBER_DEBIT_2510_issue_69():
 def test_correctly_converts_SBER_PAYMENT_2510():
     from . import no_github_module
     sberbankPDF2Excel(no_github_module.path2_SBER_PAYMENT_2510_issue70)
+    
+class Test_SBER_CREDIT_2511:
+    @pytest.mark.private
+    def test_correctly_converts_SBER_CREDIT_2511_pdf(self):
+        from . import no_github_module
+        sberbankPDF2Excel(no_github_module.path2_SBER_CREDIT_2511_pdf)
+        
+    @pytest.mark.private
+    def test_correctly_converts_SBER_CREDIT_2511_simulate_local_currency(self):
+        from . import no_github_module
+        sberbankPDF2Excel(no_github_module.path2_SBER_CREDIT_2511_simulate_local_currency)
+        
+    @pytest.mark.private
+    def test_correctly_converts_SBER_CREDIT_2511_simulate_more_lines(self):
+        from . import no_github_module
+        sberbankPDF2Excel(no_github_module.path2_SBER_CREDIT_2511_simulate_more_lines)
+        
+
 
 if __name__ == "__main__":
     print("Running tests")
