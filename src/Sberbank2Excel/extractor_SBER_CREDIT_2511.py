@@ -259,18 +259,47 @@ class SBER_CREDIT_2511(Extractor):
             next_line = 2
 
         # **********  Обрабатываем строки, следующие за строкой с датой обработки
- 
-                       
+        # sub_transactions будет хранить вложенные транзакции, если они есть.
+        # См. https://github.com/Ev2geny/Sberbank2Excel/issues/54
+        sub_transactions: list[dict] = []
+
+
         for line in lines[next_line:]:
             line_parts = split_Sberbank_line(line)
             
-            if len(line_parts) > 1:
-                raise exceptions.InputFileStructureError("Ожидалась строка с 1 частью, получено: \n" + line)
+            if len(line_parts) > 2:
+                raise exceptions.InputFileStructureError("Ожидалась строка с 1-2 частями, получено: \n" + line)
 
-            result['description'] += ' ' + line_parts[0]
+            if len(line_parts) == 1:
+                # Если строка содержит только одну часть, то значит это не может быть форматом "Описание -> сумма"
+                # проверяем, была ли уже найдена хотя бы одна вложенная транзакция
+                if len(sub_transactions) > 0:
+                    # Ожидаем, что если была найдена хотя бы одна вложенная транзакция, то все последующие строки должны
+                    # быть также вложенными транзакциями формата "Описание -> сумма"
+                    raise exceptions.InputFileStructureError("Ожидалась строка с описанием и суммой, получено: \n" + line)
+
+                result['description'] = result['description'] + ' ' + line_parts[0]
+                # continue
             
-        return result
-    
+            else:
+
+                sub_transaction = dict()
+                sub_transaction['operation_date'] = result['operation_date']
+                sub_transaction['processing_date'] = result['processing_date']
+                sub_transaction['category'] = result['category']
+                sub_transaction['authorisation_code'] = result['authorisation_code']
+                sub_transaction['description'] = line_parts[0]
+                sub_transaction['value_rubles'] = get_decimal_from_money(line_parts[1], True)
+
+                sub_transactions.append(sub_transaction)
+
+        # In this case return only dictionary
+        if len(sub_transactions) == 0:
+            return result
+
+        # In this case return list of dictionaries
+        else:
+            return [result] + sub_transactions
 
 
 
