@@ -238,7 +238,7 @@ class SBER_CREDIT_2511(Extractor):
 
         result['category'] = line_parts[2]
         result['value_rubles'] = get_decimal_from_money(line_parts[3], True)
-        result['remainder_account_currency'] = get_decimal_from_money(line_parts[4], True)
+        result['remainder_account_currency'] = get_decimal_from_money(line_parts[4], False)
 
         # ************** looking at the 2nd line and 3rd line in case of issue 56 
         line_parts = split_Sberbank_line(lines[1])
