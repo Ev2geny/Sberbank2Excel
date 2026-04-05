@@ -212,6 +212,11 @@ def test_correctly_converts_SBER_DEBIT_2603_issue_80():
 def test_correctly_converts_SBER_PAYMENT_2604_issue_81():
     from . import no_github_module
     sberbankPDF2Excel(no_github_module.path2_SBER_PAYMENT_2604_issue_81)
+    
+@pytest.mark.private
+def test_correctly_converts_SBER_SAVING_2604_issue_82():
+    from . import no_github_module
+    sberbankPDF2Excel(no_github_module.path2__SBER_SAVING_2604_issue_82)
 
 if __name__ == "__main__":
     print("Running tests")
