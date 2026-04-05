@@ -37,61 +37,43 @@ class SBER_SAVING_2604(Extractor):
         If these signatures are not found, then exceptions.InputFileStructureError() is raised
         """
 
-        test1 = re.search(r'Выписка из лицевого счёта по вкладу «[^\n]+»', self.bank_text, re.IGNORECASE)
+        test_individualnaya_vipiska_po_schetu = re.search(r'Индивидуальная выписка по счёту «[^\n]+»', self.bank_text, re.IGNORECASE)
         
-        # https://github.com/Ev2geny/Sberbank2Excel/issues/60#issuecomment-2693269147
-        test_issue_60 = re.search(r'Выписка по (счёту|вкладу) «[^\n]+»', self.bank_text, re.IGNORECASE)
+        test_dop_filtry = re.search(r'Дополнительно заполненные фильтры', self.bank_text, re.IGNORECASE)
         
-        spesific_pattern_SBER_SAVING_2407 = re.search(r'Дата предыдущей операции по счёту', self.bank_text, re.IGNORECASE)
-
-
-        if not ((test1 or test_issue_60) and spesific_pattern_SBER_SAVING_2407):
+        test_dergunova = re.search(r'Дергунова', self.bank_text, re.IGNORECASE)
+        
+        if test_individualnaya_vipiska_po_schetu and test_dop_filtry and not test_dergunova:
+            return
+        else:
             raise exceptions.InputFileStructureError("Не найдены паттерны, соответствующие выписке")
 
     def get_period_balance(self) -> Decimal:
         """
-        Function gets information about transaction balance from the header of the banl extract
-        This balance is then returned as a Decimal
-
-
-        ---------------------------------------------------
-        Пополнение	621,18	Списание	621,18
-        -------------------------------------------------------
-        :param :
-        :return:
         """
+            
+        res_popolneniy = re.search(r'Пополнение\t(.+)', self.bank_text)
+        
+        if not res_popolneniy:
+            raise exceptions.InputFileStructureError(
+                'Не найдена структура с пополнениями')
+        
+        summa_popolneniy = res_popolneniy.group(1) 
+        
+        
+        res_spisaniy = re.search(r'Списание\t(.+)', self.bank_text)
+        
+        if not res_spisaniy:
+            raise exceptions.InputFileStructureError(
+                'Не найдена структура сo списаниями')
+        
+        summa_spisaniy = res_spisaniy.group(1)
+        
 
-        popolnenie_spisanie_re = re.search(r'Пополнение\t([\d,\s]*)\tСписание\t([\d,\s]*)', self.bank_text)
-        if not popolnenie_spisanie_re:
-            raise exceptions.InputFileStructureError('Не найдена структура с пополнениями и списаниями')
+        summa_popolneniy = get_decimal_from_money(summa_popolneniy)
+        summa_spisaniy = get_decimal_from_money(summa_spisaniy)
 
-        # line_parts = res.group(1).split('\t')
-
-        summa_popolneniy = get_decimal_from_money(popolnenie_spisanie_re.group(1))
-        # print(f"summa_popolneniy = {summa_popolneniy}")
-        summa_spisaniy = get_decimal_from_money(popolnenie_spisanie_re.group(2))
-        # print(f"summa_spisaniy = {summa_spisaniy}")
-
-        balance = summa_popolneniy - summa_spisaniy
-        # print(f"balance = {balance}")
-
-        """
-        ИТОГО ПО ОПЕРАЦИЯМ ЗА ПЕРИОД  09.03.2020 - 23.02.2023
-        Остаток средств	0,00	Остаток средств	100,00
-        """
-        ostatok_sredstv_re = re.search(r'ИТОГО ПО ОПЕРАЦИЯМ ЗА ПЕРИОД.+\nОстаток\sсредств\t([\d,\s]*)\tОстаток средств\t([\d,\s]*)', self.bank_text)
-        if not ostatok_sredstv_re:
-            raise exceptions.InputFileStructureError('Не найдена структура с остатками средств на начало и конец периода')
-
-        # print(f"ostatok_sredstv_re.group(1) = {ostatok_sredstv_re.group(1)}")
-
-        ostatok_start_of_period = get_decimal_from_money(ostatok_sredstv_re.group(1))
-        ostatok_end_of_period = get_decimal_from_money(ostatok_sredstv_re.group(2))
-
-        if not abs(balance - (ostatok_end_of_period - ostatok_start_of_period))<0.01:
-            raise exceptions.InputFileStructureError(f'Что-то пошло не так:\n[ ВСЕГО ПОПОЛНЕНИЙ ({summa_popolneniy}) - ВСЕГО СПИСАНИЙ ({summa_spisaniy}) ] != [ОСТАТОК В КОНЦЕ ({ostatok_end_of_period}) - ОСТАТОК В НАЧАЛЕ ({ostatok_start_of_period})]  ')
-
-        return balance
+        return summa_popolneniy - summa_spisaniy
 
     def split_text_on_entries(self)->list[str]:
         """
@@ -131,25 +113,6 @@ class SBER_SAVING_2604(Extractor):
 
         All dates / dates and times shall be returned as python datetime.datetime
 
-
-        Выделяем данные из одной записи в dictionary
-
-        ---------------------------------------------
-        27.07.2022	Списание	3	-230,00	10,00
-        к/с 12345678901234567890	№ 12345678-90
-        --------------------------------------------
-
-
-        В последнем примере:
-
-    {'authorisation_code': '254718',
-     'category': 'Все для дома',
-     'description': 'XXXXX XXXXX',
-     'operation_date': datetime.datetime(2021,7,8,18,27),
-     'processing_date': datetime.datetime(2021,7,9,0,0),
-     'value_account_currency': -193.91б
-     'operational_currency': '€'
-     }
         """
         lines = entry.split('\n')
         lines = list(filter(None, lines))
@@ -162,9 +125,9 @@ class SBER_SAVING_2604(Extractor):
         # ************** looking at the 1st line
         line_parts = split_Sberbank_line(lines[0])
 
-        if not len(line_parts) == 5:
+        if not len(line_parts) == 4:
             raise exceptions.InputFileStructureError(
-                "Первая строка трансакции должна состоять из 5 частей")
+                "Первая строка трансакции должна состоять из 4 частей")
 
         result['operation_date'] = line_parts[0]
         # https://docs.python.org/3/library/datetime.html#strftime-and-strptime-behavior
@@ -181,7 +144,7 @@ class SBER_SAVING_2604(Extractor):
             result['code'] = code_part
 
         result['value'] = get_decimal_from_money(line_parts[3])
-        result['remaining_value'] = get_decimal_from_money(line_parts[4])
+        # result['remaining_value'] = get_decimal_from_money(line_parts[4])
         # result['remainder_account_currency'] = get_decimal_from_money(line_parts[4])
 
         # ************** looking at the 2nd line
