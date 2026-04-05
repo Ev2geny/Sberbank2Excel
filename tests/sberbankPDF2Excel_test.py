@@ -203,5 +203,10 @@ class Test_SBER_CREDIT_2511:
         from . import no_github_module
         sberbankPDF2Excel(no_github_module.path2_SBER_CREDIT_2511_issue_79)
 
+@pytest.mark.private    
+def test_correctly_converts_SBER_DEBIT_2603_issue_80():
+    from . import no_github_module
+    sberbankPDF2Excel(no_github_module.path2_SBER_DEBIT_2603_issue_80)
+
 if __name__ == "__main__":
     print("Running tests")
