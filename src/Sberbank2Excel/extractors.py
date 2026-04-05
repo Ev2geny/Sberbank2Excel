@@ -63,6 +63,9 @@ extractors_list.append(SBER_CREDIT_2511)
 from .extractor_SBER_DEBIT_2603 import SBER_DEBIT_2603
 extractors_list.append(SBER_DEBIT_2603)
 
+from .extractor_SBER_PAYMENT_2604 import SBER_PAYMENT_2604
+extractors_list.append(SBER_PAYMENT_2604)
+
 
 def get_list_extractors_in_text():
     return [extractor.__name__ for extractor in extractors_list]

@@ -189,6 +189,7 @@ Sberbank2Excel, то возможны следующие варианты дей
 | Сбербанк | [SBER_PAYMENT_2510](/docs/format_examples/SBER_PAYMENT_2510.png)| Платёжный счёт образца октября 2025 года  | НП | НП   | ОК| |
 | Сбербанк | [SBER_CREDIT_2511](/docs/format_examples/SBER_CREDIT_2511.png)| Кредитная карта образца ноября 2025 года  | НП|НП  | ОК? |  |
 | Сбербанк | [SBER_DEBIT_2603](/docs/format_examples/SBER_DEBIT_2603.png)| Дебетовая карта образца марта 2026 года  | НП         | НП  | ОК?   |  |
+| Сбербанк | [SBER_PAYMENT_2604](/docs/format_examples/SBER_PAYMENT_2604.png)| Платёжный счёт образца апреля 2026 года  | НП | НП   | ОК| |
 
 **Легенда и сокращения**
 
