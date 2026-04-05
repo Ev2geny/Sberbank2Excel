@@ -63,38 +63,30 @@ class SBER_PAYMENT_2604(Extractor):
 
     def get_period_balance(self) -> Decimal:
         """
-        Function gets information about transaction balance from the header of the banl extract
-        This balance is then returned as a Decimal
-
-
-        ---------------------------------------------------
-        СУММА ПОПОЛНЕНИЙ -> СУММА СПИСАНИЙ -> СУММА СПИСАНИЙ БАНКА
-        1 040,00 -> 601,80 -> 437,46
-        -------------------------------------------------------
-        :param :
-        :return:
         """
+            
+        res_popolneniy = re.search(r'Пополнение\t(.+)', self.bank_text)
+        
+        if not res_popolneniy:
+            raise exceptions.InputFileStructureError(
+                'Не найдена структура с пополнениями')
+        
+        summa_popolneniy = res_popolneniy.group(1) 
+        
+        
+        res_spisaniy = re.search(r'Списание\t(.+)', self.bank_text)
+        
+        if not res_spisaniy:
+            raise exceptions.InputFileStructureError(
+                'Не найдена структура сo списаниями')
+        
+        summa_spisaniy = res_spisaniy.group(1)
+        
 
-        res = re.search(r'ОСТАТОК\sНА.*ВСЕГО\sПОПОЛНЕНИЙ\tВСЕГО\sСПИСАНИЙ.*\n(.*?)\n', self.bank_text, re.MULTILINE)
-        if not res:
-            pass
-            raise exceptions.InputFileStructureError('Не найдена структура с пополнениями и списаниями')
+        summa_popolneniy = get_decimal_from_money(summa_popolneniy)
+        summa_spisaniy = get_decimal_from_money(summa_spisaniy)
 
-        line_parts = res.group(1).split('\t')
-
-        summa_popolneniy = get_decimal_from_money(line_parts[1])
-        summa_spisaniy = get_decimal_from_money(line_parts[2])
-
-        balance = summa_popolneniy - summa_spisaniy
-
-        ostatok_start_of_period = get_decimal_from_money(line_parts[0])
-        ostatok_end_of_period = get_decimal_from_money(line_parts[3])
-
-        # Удаляем это т.к. Сбер сам не правильно выводит информацию в шапку https://github.com/Ev2geny/Sberbank2Excel/issues/52
-        # if not abs(balance - (ostatok_end_of_period - ostatok_start_of_period))<0.01:
-        #     raise exceptions.InputFileStructureError(f'Что-то пошло не так:\n[ ВСЕГО ПОПОЛНЕНИЙ ({summa_popolneniy}) - ВСЕГО СПИСАНИЙ ({summa_spisaniy}) ] != [ОСТАТОК В КОНЦЕ ({ostatok_end_of_period}) - ОСТАТОК В НАЧАЛЕ ({ostatok_start_of_period})]  ')
-
-        return balance
+        return summa_popolneniy - summa_spisaniy
 
     def split_text_on_entries(self)->list[str]:
         """
