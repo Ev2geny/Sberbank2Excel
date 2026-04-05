@@ -39,29 +39,25 @@ class SBER_DEBIT_2603(Extractor):
 
     def get_period_balance(self) -> Decimal:
         """
-        функция ищет в тексте значения "ВСЕГО СПИСАНИЙ" и "ВСЕГО ПОПОЛНЕНИЙ" и возвращает разницу
-        используется для контрольной проверки вычислений
-
-        Пример текста
-        ----------------------------------------------------------
-        ОСТАТОК НА 30.06.2021     ВСЕГО ПОПОЛНЕНИЙ     ВСЕГО СПИСАНИЙ     ОСТАТОК НА 06.07.2021
-        28 542,83->232 344,00->248 822,49->12 064,34
-        ----------------------------------------------------------
-
         """
-
-        res = re.search(r'ОСТАТОК НА.*?ВСЕГО ПОПОЛНЕНИЙ.*?ВСЕГО СПИСАНИЙ.*?ОСТАТОК НА.*?\n(.*?)\n', self.bank_text, re.MULTILINE)
-        if not res:
+            
+        res_popolneniy = re.search(r'Пополнение\t(.+)', self.bank_text)
+        
+        if not res_popolneniy:
             raise exceptions.InputFileStructureError(
-                'Не найдена структура с остатками и пополнениями')
-
-        line_parts = res.group(1).split('\t')
-
-        summa_spisaniy = line_parts[2]
-        summa_popolneniy = line_parts[1]
-
-        # print('summa_spisaniy ='+summa_spisaniy)
-        # print('summa_popolneniy =' + summa_popolneniy)
+                'Не найдена структура с пополнениями')
+        
+        summa_popolneniy = res_popolneniy.group(1) 
+        
+        
+        res_spisaniy = re.search(r'Списание\t(.+)', self.bank_text)
+        
+        if not res_spisaniy:
+            raise exceptions.InputFileStructureError(
+                'Не найдена структура сo списаниями')
+        
+        summa_spisaniy = res_spisaniy.group(1)
+        
 
         summa_popolneniy = get_decimal_from_money(summa_popolneniy)
         summa_spisaniy = get_decimal_from_money(summa_spisaniy)
