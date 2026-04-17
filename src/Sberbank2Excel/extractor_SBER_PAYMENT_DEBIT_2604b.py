@@ -1,5 +1,5 @@
 """
-Модуль экстрактора информации из текстового файла выписки типа SBER_PAYMENT_2406
+Модуль экстрактора информации из текстового файла выписки типа SBER_PAY_DEB_2604b
 
 Для отладки модуля сделать следующее:
 
@@ -28,7 +28,7 @@ from Sberbank2Excel.utils import get_decimal_from_money, split_Sberbank_line
 from Sberbank2Excel.extractor import Extractor
 from Sberbank2Excel import extractors_generic
 
-class SBER_PAYMENT_2604b(Extractor):
+class SBER_PAYMENT_DEBIT_2604b(Extractor):
 
     def check_specific_signatures(self):
         """
@@ -36,11 +36,11 @@ class SBER_PAYMENT_2604b(Extractor):
         If these signatures are not found, then exceptions.InputFileStructureError() is raised
         """
 
-        test1 = re.search(r'сбербанк', self.bank_text, re.IGNORECASE)
-        # print(f"{test1=}")
+        test_sberbank = re.search(r'сбербанк', self.bank_text, re.IGNORECASE)
 
-        test2 = re.search(r'Выписка по платёжному счёту', self.bank_text, re.IGNORECASE)
-        # print(f"{test2=}")
+        test_vipiska_po_schetu_debitovoy = re.search(r'Выписка по счёту дебетовой карты', self.bank_text, re.IGNORECASE)
+        test_vipiska_po_platezhnomu = re.search(r'Выписка по платёжному счёту', self.bank_text, re.IGNORECASE)
+
 
         test_ostatok_po_schetu = re.search(r'ОСТАТОК ПО СЧЁТУ', self.bank_text, re.IGNORECASE)
         # print(f"{test2=}")
@@ -51,8 +51,8 @@ class SBER_PAYMENT_2604b(Extractor):
         
         test_dergunova_k_a = re.search(r'Дергунова К\. А\.', self.bank_text, re.IGNORECASE)
 
-        if (test1 and 
-            test2 and 
+        if (test_sberbank and 
+            (test_vipiska_po_schetu_debitovoy or test_vipiska_po_platezhnomu) and 
             test_dlya_proverki_podlinnosti and 
             test_data_formirovania) and not (test_ostatok_po_schetu or test_dergunova_k_a):
             

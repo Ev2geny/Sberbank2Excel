@@ -191,7 +191,7 @@ Sberbank2Excel, то возможны следующие варианты дей
 | Сбербанк | [SBER_DEBIT_2603](/docs/format_examples/SBER_DEBIT_2603.png)| Дебетовая карта образца марта 2026 года  | НП         | НП  | ОК?   |  |
 | Сбербанк | [SBER_PAYMENT_2604](/docs/format_examples/SBER_PAYMENT_2604.png)| Платёжный счёт образца апреля 2026 года  | НП | НП   | ОК| |
 | Сбербанк | [SBER_SAVING_2604](/docs/format_examples/SBER_SAVING_2604.png)| Выписка по счёту «Накопительный счет» образца апреля 2026 года (ТДВФН). | НП| НП   | НП|
-| Сбербанк | [SBER_PAYMENT_2604b](/docs/format_examples/SBER_PAYMENT_2604b.png)| Платёжный счёт образца апреля 2026 года, вариант Б | НП | НП   | ОК| |
+| Сбербанк | [SBER_PAYMENT_DEBIT_2604b_pay](/docs/format_examples/SBER_PAYMENT_DEBIT_2604b_pay.png) <br> [SBER_PAYMENT_DEBIT_2604b_debit](/docs/format_examples/SBER_PAYMENT_DEBIT_2604b_debit.jpg)| Платёжный счёт а так же Выписка по счёту дебетовой карты образца апреля 2026 года, вариант Б | НП | НП   | ОК| |
 
 **Легенда и сокращения**
 
