@@ -54,29 +54,31 @@ class SBER_CREDIT_2605(Extractor):
         """
         Function gets information about transaction balance from the header of the banl extract
         This balance is then returned as a Decimal
-
-
-        ---------------------------------------------------
-        СУММА ПОПОЛНЕНИЙ -> СУММА СПИСАНИЙ -> СУММА СПИСАНИЙ БАНКА
-        1 040,00 -> 601,80 -> 437,46
-        -------------------------------------------------------
-        :param :
-        :return:
         """
+            
+        res_popolneniy = re.search(r'Пополнение\t(.+)', self.bank_text)
+        
+        if not res_popolneniy:
+            raise exceptions.InputFileStructureError(
+                'Не найдена структура с пополнениями')
+        
+        summa_popolneniy = res_popolneniy.group(1) 
+        
+        
+        res_spisaniy = re.search(r'Списание\t(.+)', self.bank_text)
+        
+        if not res_spisaniy:
+            raise exceptions.InputFileStructureError(
+                'Не найдена структура сo списаниями')
+        
+        summa_spisaniy = res_spisaniy.group(1)
+        
 
-        res = re.search(r'ОСТАТОК ПО СЧЁТУ НА \d\d\.\d\d\.\d\d\d\d\tОСТАТОК ПО СЧЁТУ НА \d\d\.\d\d\.\d\d\d\d\n(.*?)\n', self.bank_text, re.MULTILINE)
- 
-        if not res:
-            pass
-            raise exceptions.InputFileStructureError('Не найдена структура с пополнениями и списаниями')
+        summa_popolneniy = get_decimal_from_money(summa_popolneniy)
+        summa_spisaniy = get_decimal_from_money(summa_spisaniy)
 
-        line_parts = res.group(1).split('\t')
+        return summa_popolneniy - summa_spisaniy
 
-        summa_beginning = get_decimal_from_money(line_parts[0])
-        summa_end = get_decimal_from_money(line_parts[1])
-
-
-        return summa_end - summa_beginning
 
     def split_text_on_entries(self)->list[str]:
         """
@@ -114,7 +116,9 @@ class SBER_CREDIT_2605(Extractor):
 
         """
         # Удаляем куски текста, которые являются разделами между страницами PDF, не несущими информации
-        cleaned_text = re.sub(r'Продолжение на следующей странице[\s\S]*?Сумма в валюте операции²\n', '', self.bank_text)
+        cleaned_text = re.sub(r'Продолжение на следующей странице[\s\S]*?код авторизации\tоперации.{1}\n',
+                              '',
+                              self.bank_text)
         
         # print("*********** cleaned_text ***********")
         # print(cleaned_text)
