@@ -137,7 +137,7 @@ class SBER_PAYMENT_DEBIT_2604b(Extractor):
         bank_text_cleaned = re.sub(r"""
                                    Продолжение\sна\sследующей\sстранице
                                    [\s\S]+?                                # Any character, including new line. !!None-greedy!!
-                                   код\sавторизации\tоперации²
+                                   код\sавторизации\tоперации.{1}    
                                    """,
                                    repl='', 
                                    string=self.bank_text, 
@@ -287,7 +287,7 @@ if __name__ == '__main__':
         print(__doc__)
 
     else:
-        extractors_generic.debug_extractor(SBER_PAYMENT_2604b,
+        extractors_generic.debug_extractor(SBER_PAYMENT_DEBIT_2604b,
                                            test_text_file_name=sys.argv[1])
 
 
