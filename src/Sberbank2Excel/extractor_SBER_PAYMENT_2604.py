@@ -151,7 +151,7 @@ class SBER_PAYMENT_2604(Extractor):
             \d\d\.\d\d\.\d\d\d\d\t\d\d:\d\d\t\d+\t                        # Линия типа    29.06.2022	08:44	736015                             
             .*?\n                                                         # Anything till end of the line including a line break
             \d\d\.\d\d\.\d\d\d\d\t                                        # дата обработки и 1 табуляция
-            [\s\S]*?                                                      # any character, including new line. !!None-greedy!!
+            \D[\s\S]*?                                                    # none-digit, followed by any characters, including new line. !!None-greedy!!
             (?=\d\d\.\d\d\.\d\d\d\d\t\d\d:\d\d\t\d+\t|                    # Либо до начала новой трансакции
             Дата\sформирования)                                           # Либо да конца выписки
             """,
