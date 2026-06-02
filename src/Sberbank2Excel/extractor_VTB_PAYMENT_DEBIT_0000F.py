@@ -1,3 +1,7 @@
+# Created-By: FazziCLAY (fazziclay@gmail.com)
+# SPDX-FileContributor: Tool: DeepSeek
+# Конвертирует выписку по счёту дебетовой карты банка ВТБ, работает ТОЛЬКО с текстом библиотеки pypdf
+
 import re
 from datetime import datetime
 import sys
