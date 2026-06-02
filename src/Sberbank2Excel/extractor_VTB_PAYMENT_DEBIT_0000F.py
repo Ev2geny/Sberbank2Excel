@@ -30,7 +30,7 @@ class VTB_PAYMENT_DEBIT_0000F(Extractor):
 
     def get_period_balance(self) -> Decimal:
         """
-        Извлекает итоговый баланс на конец периода из строки "Баланс на конец периода".
+        Извлекает итоговый баланс на конец периода.
         """
         match = re.search(
             r'Баланс на конец периода\s+([\d\s]+\.\d{2})\s+RUB',
@@ -45,51 +45,51 @@ class VTB_PAYMENT_DEBIT_0000F(Extractor):
     def split_text_on_entries(self) -> List[str]:
         """
         Разделяет текст выписки на отдельные транзакции.
-        Каждая транзакция начинается со строки вида:
-        ДД.ММ.ГГГГ   Приход   Расход   Комиссия   Описание...
         """
-        # Находим начало блока операций
+        # 1. Выделяем участок с операциями
         start_marker = 'Операции по счёту'
         start_idx = self.bank_text.find(start_marker)
         if start_idx == -1:
             raise exceptions.InputFileStructureError(
                 'Не найден раздел "Операции по счёту"'
             )
-        # Конец выписки – последняя фраза
         end_marker = 'Спасибо, что Вы с нами!'
         end_idx = self.bank_text.find(end_marker, start_idx)
         if end_idx == -1:
             end_idx = len(self.bank_text)
-
         operations_text = self.bank_text[start_idx:end_idx]
 
-        # Удаляем строки-заголовки таблицы, номера страниц и т.п.
-        header_patterns = [
-            r'Сумма операции в валюте\s*',
-            r'счета/карты\s*',
-            r'Дата и время\s+Дата обработки\s+Сумма операции в\s*',
-            r'Комиссия\s+Описание операции\s*',
-            r'операции\s+банком\s+валюте операции\s*',
-            r'Приход\s+Расход\s*',
-            r'Продолжение на следующей странице\s*',
-            r'^[ ]*\d+[ ]*$',             # одинокие номера страниц (например, "1")
-        ]
-        for pat in header_patterns:
-            operations_text = re.sub(pat, '', operations_text, flags=re.MULTILINE)
+        # 2. Удаляем повторяющиеся заголовки таблицы
+        header_block_pattern = re.compile(
+            r'Сумма\s+операции\s+в\s+валюте\s+'
+            r'счета/карты\s+'
+            r'Дата\s+и\s+время\s+Дата\s+обработки\s+Сумма\s+операции\s+в\s+'
+            r'Комиссия\s+Описание\s+операции\s+'
+            r'операции\s+банком\s+валюте\s+операции\s+'
+            r'Приход\s+Расход',
+            re.DOTALL | re.IGNORECASE
+        )
+        operations_text = header_block_pattern.sub('', operations_text)
 
-        # Паттерн начала транзакции: дата + три денежные суммы + начало описания
-        # Суммы могут содержать разделители тысяч (пробелы/запятые)
-        start_pattern = re.compile(
-            r'^(\d{2}\.\d{2}\.\d{4})\s+'                 # дата операции (только дата, без времени)
-            r'(\d[\d\s,]*\.\d{2})\s+'                    # Приход
-            r'(\d[\d\s,]*\.\d{2})\s+'                    # Расход
-            r'(\d[\d\s,]*\.\d{2})\s+'                    # Комиссия
+        # 3. Удаляем строки с номерами страниц
+        operations_text = re.sub(
+            r'^\s*\d+\s*$',
+            '',
+            operations_text,
+            flags=re.MULTILINE
+        )
+
+        # 4. Ищем начала транзакций – теперь суммы могут быть без десятичной части
+        first_line_pattern = re.compile(
+            r'^(\d{2}\.\d{2}\.\d{4})\s+'                 # дата
+            r'(-?\d[\d\s,]*(?:\.\d{2})?)\s+'             # приход (может быть 0 или 400.00)
+            r'(-?\d[\d\s,]*(?:\.\d{2})?)\s+'             # расход
+            r'(-?\d[\d\s,]*(?:\.\d{2})?)\s+'             # комиссия
             r'(.*)',                                     # начало описания
             re.MULTILINE
         )
 
-        # Ищем все начала транзакций
-        starts = list(start_pattern.finditer(operations_text))
+        starts = list(first_line_pattern.finditer(operations_text))
         if not starts:
             raise exceptions.InputFileStructureError(
                 "Не найдено ни одной транзакции в формате ВТБ"
@@ -106,7 +106,7 @@ class VTB_PAYMENT_DEBIT_0000F(Extractor):
 
     def decompose_entry_to_dict(self, entry: str) -> dict:
         """
-        Разбирает блок одной транзакции в словарь.
+        Разбирает блок транзакции.
         """
         lines = [line.strip() for line in entry.split('\n') if line.strip()]
         if len(lines) < 3:
@@ -114,32 +114,38 @@ class VTB_PAYMENT_DEBIT_0000F(Extractor):
                 f"Ожидалось минимум 3 строки в блоке транзакции:\n{entry}"
             )
 
-        # ---- Первая строка: дата, приход, расход, комиссия, описание (начало) ----
+        # Вспомогательная функция для парсинга суммы: убираем пробелы и запятые, Decimal
+        def parse_amount(text: str) -> Decimal:
+            cleaned = text.replace(' ', '').replace(',', '')
+            return Decimal(cleaned)
+
+        # ---- Первая строка: дата, приход, расход, комиссия, описание (опционально) ----
         first_line = lines[0]
         m1 = re.match(
             r'^(\d{2}\.\d{2}\.\d{4})\s+'
-            r'(\d[\d\s,]*\.\d{2})\s+'
-            r'(\d[\d\s,]*\.\d{2})\s+'
-            r'(\d[\d\s,]*\.\d{2})\s+'
-            r'(.*)',
+            r'(-?\d[\d\s,]*(?:\.\d{2})?)\s+'
+            r'(-?\d[\d\s,]*(?:\.\d{2})?)\s+'
+            r'(-?\d[\d\s,]*(?:\.\d{2})?)'          # после комиссии пробелы не обязательны
+            r'(?:\s+(.*))?$',                     # описание может отсутствовать
             first_line
         )
         if not m1:
             raise exceptions.InputFileStructureError(
                 f"Не удалось разобрать первую строку транзакции:\n{first_line}"
             )
-        operation_date_str = m1.group(1)  # только дата
-        income = get_decimal_from_money(m1.group(2))
-        expense = get_decimal_from_money(m1.group(3))
-        commission = get_decimal_from_money(m1.group(4))
-        description_start = m1.group(5).strip()
+        operation_date_str = m1.group(1)
+        income = parse_amount(m1.group(2))
+        expense = parse_amount(m1.group(3))
+        commission = parse_amount(m1.group(4))
+        description_start = (m1.group(5) or '').strip()
 
-        # ---- Вторая строка: дата обработки, сумма в валюте операции ----
+        # ---- Вторая строка: дата обработки, сумма в валюте операции, валюта, возможно описание ----
         second_line = lines[1]
         m2 = re.match(
             r'^(\d{2}\.\d{2}\.\d{4})\s+'
-            r'(-?[\d\s,]+\.\d{2})\s+'
-            r'([A-Z]{3})',
+            r'(-?[\d\s,]+\.\d{2})\s+'       # сумма в валюте операции всегда с копейками
+            r'([A-Z]{3})'
+            r'(?:\s+(.*))?$',
             second_line
         )
         if not m2:
@@ -147,14 +153,15 @@ class VTB_PAYMENT_DEBIT_0000F(Extractor):
                 f"Не удалось разобрать вторую строку транзакции:\n{second_line}"
             )
         processing_date_str = m2.group(1)
-        oper_amount = get_decimal_from_money(m2.group(2))
+        oper_amount = parse_amount(m2.group(2))
         oper_currency = m2.group(3)
+        description_second = (m2.group(4) or '').strip()
 
-        # ---- Третья строка: время, валютные коды (опционально), описание (продолжение) ----
+        # ---- Третья строка: время, валютные коды (опционально), остаток описания ----
         third_line = lines[2]
         m3 = re.match(
             r'^(\d{2}:\d{2}:\d{2})\s+'
-            r'(?:[A-Z]{3}\s+[A-Z]{3}\s+)?'   # иногда "RUB RUB"
+            r'(?:[A-Z]{3}\s+[A-Z]{3}\s+)?'
             r'(.*)',
             third_line
         )
@@ -163,30 +170,32 @@ class VTB_PAYMENT_DEBIT_0000F(Extractor):
                 f"Не удалось разобрать третью строку транзакции:\n{third_line}"
             )
         time_str = m3.group(1)
-        description_cont = m3.group(2).strip()
+        description_third = m3.group(2).strip()
 
-        # Полная дата операции
         full_operation_date = datetime.strptime(
             f"{operation_date_str} {time_str}", '%d.%m.%Y %H:%M:%S'
         )
         processing_date = datetime.strptime(processing_date_str, '%d.%m.%Y').date()
 
-        # Собираем описание
-        description_parts = [description_start, description_cont]
-        # Добавляем все оставшиеся строки (если есть)
+        # Собираем описание из всех частей
+        desc_parts = []
+        if description_start:
+            desc_parts.append(description_start)
+        if description_second:
+            desc_parts.append(description_second)
+        if description_third:
+            desc_parts.append(description_third)
         for extra_line in lines[3:]:
-            description_parts.append(extra_line)
-        full_description = ' '.join(filter(None, description_parts))
+            desc_parts.append(extra_line)
+        full_description = ' '.join(desc_parts)
 
-        # Вычисляем сумму в валюте счёта (приход – расход)
         value_account_currency = income - expense
 
-        # Пытаемся выделить категорию (первая фраза до точки)
+        # Категория – первое предложение описания (до точки)
         category = ''
-        if '. ' in full_description:
+        if full_description and '. ' in full_description:
             category = full_description.split('. ')[0].strip()
-        else:
-            # если нет точки, берём первые несколько слов
+        elif full_description:
             words = full_description.split()
             category = ' '.join(words[:3]) if words else ''
 
@@ -202,15 +211,9 @@ class VTB_PAYMENT_DEBIT_0000F(Extractor):
         }
 
     def get_column_name_for_balance_calculation(self) -> str:
-        """
-        Имя поля, используемое для вычисления итогового баланса периода.
-        """
         return 'value_account_currency'
 
     def get_columns_info(self) -> dict:
-        """
-        Возвращает сопоставление внутренних ключей → названия колонок для Excel.
-        """
         return {
             'operation_date': 'Дата и время операции',
             'processing_date': 'Дата обработки банком',
