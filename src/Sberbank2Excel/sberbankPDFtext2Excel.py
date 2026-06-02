@@ -189,9 +189,9 @@ def generate_PDFtext2Excel_argparser() -> argparse.ArgumentParser:
     
     parser.add_argument('-p', '--pdflib', 
                         type=str,
-                        default='pdfminer', 
+                        default='auto', 
                         dest='pdflib', 
-                        choices = ["pdfminer", "pypdf"],
+                        choices = ["auto", "pdfminer", "pypdf"],
                         help = 'Библиотека использующаяся при конвертации PDF в TXT' )
     
     parser.add_argument('-t', '--type', 
