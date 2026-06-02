@@ -5,7 +5,8 @@ import argparse
 
 from Sberbank2Excel import exceptions
 from Sberbank2Excel import extractors
-from Sberbank2Excel.pdf2txtev import pdf_2_txt_file
+from Sberbank2Excel.pdf2txtev import pdf_2_txt_file as pdf_2_txt_file_pdfminer
+from Sberbank2Excel.pdf_pypdf_lib import pdf_2_txt_file as pdf_2_txt_file_pypdf
 from Sberbank2Excel.sberbankPDFtext2Excel import sberbankPDFtext2Excel, generate_PDFtext2Excel_argparser
 from Sberbank2Excel import version_info
 
@@ -16,6 +17,7 @@ from Sberbank2Excel import version_info
 def sberbankPDF2Excel(input_file_name: str,
                       output_file_name: Union[str, None] = None,
                       format: str = 'auto',
+                      pdf_lib: str = 'pdfminer',
                       leave_intermediate_txt_file: bool = False,
                       perform_balance_check=True,
                       output_file_type: str = "xlsx",
@@ -62,10 +64,14 @@ def sberbankPDF2Excel(input_file_name: str,
 
     try:
         if extension == ".pdf":
-            pdf_2_txt_file(input_file_name, tmp_txt_file_name)
+            if pdf_lib == "pdfminer":
+                pdf_2_txt_file_pdfminer(input_file_name, tmp_txt_file_name)
+            elif pdf_lib == "pypdf":
+                pdf_2_txt_file_pypdf(input_file_name, tmp_txt_file_name)
 
         created_file_name = sberbankPDFtext2Excel(tmp_txt_file_name,
                                                   output_file_name,
+                                                  pdf_lib=pdf_lib,
                                                   format=format,
                                                   perform_balance_check = perform_balance_check,
                                                   output_file_type=output_file_type,

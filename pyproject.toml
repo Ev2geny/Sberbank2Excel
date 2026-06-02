@@ -25,7 +25,8 @@ dependencies = [
   "pdfminer.six",
   "pandas",
   "Unidecode",
-  "XlsxWriter"
+  "XlsxWriter",
+  "pypdf"
 ]
 
 [project.optional-dependencies]

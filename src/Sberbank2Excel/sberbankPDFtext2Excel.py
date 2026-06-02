@@ -44,6 +44,7 @@ class bcolors:
 
 def sberbankPDFtext2Excel(input_txt_file_name: str,
                           output_file_name: str | None = None,
+                          pdf_lib="pdfminer",
                           format='auto',
                           perform_balance_check=True,
                           output_file_type='xlsx',
@@ -90,7 +91,7 @@ def sberbankPDFtext2Excel(input_txt_file_name: str,
                 extractor_type = extractor
                 break
         else:
-            raise exceptions.UserInputError(f"Задан неизвестный формат {format}")
+            raise exceptions.UserInputError(f"Задан неизвестный формат {format} (попробуйте выбрать другой pdflib)")
 
         print(r"Конвертируем файл как формат " + format)
 
@@ -98,7 +99,15 @@ def sberbankPDFtext2Excel(input_txt_file_name: str,
     # in this case extractor_type is not a function, but a class
     # if you call it like this extractor_type() it returns an object with the type of extractor_type
     actual_extractor: Extractor = extractor_type(file_text)
-
+    try:
+        r = actual_extractor.check_pdf_lib_support(pdf_lib)
+        if r == False:
+            # Fallback если заленились выкидывать ошибку и вернули False
+            raise exceptions.PdfLibNotSupported(f"Внутренняя ошибка: экстрактор не поддерживает библиотеку {pdf_lib}, переключите")
+            
+    except exceptions.PdfLibNotSupported as e:
+        raise e
+        
     # extracting entries (operations) from big text to list of dictionaries
     individual_entries = actual_extractor.get_entries()
 
@@ -178,6 +187,13 @@ def generate_PDFtext2Excel_argparser() -> argparse.ArgumentParser:
                         choices = extractors.get_list_extractors_in_text(),
                         help = 'Формат выписки. Если не указан, определяется автоматически' )
     
+    parser.add_argument('-p', '--pdflib', 
+                        type=str,
+                        default='pdfminer', 
+                        dest='pdflib', 
+                        choices = ["pdfminer", "pypdf"],
+                        help = 'Библиотека использующаяся при конвертации PDF в TXT' )
+    
     parser.add_argument('-t', '--type', 
                         type=str,
                         default='xlsx', 
@@ -205,6 +221,7 @@ def main():
     sberbankPDFtext2Excel(input_txt_file_name=args.input_file_name,
                           output_file_name = args.output_Excel_file_name,
                           format=args.format,
+                          pdf_lib=args.pdflib,
                           perform_balance_check = args.perform_balance_check,
                           output_file_type=args.output_file_type,
                           reversed_transaction_order=args.reversed_transaction_order)
