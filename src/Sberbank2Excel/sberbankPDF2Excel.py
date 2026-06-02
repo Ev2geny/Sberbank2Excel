@@ -5,7 +5,8 @@ import argparse
 
 from Sberbank2Excel import exceptions
 from Sberbank2Excel import extractors
-from Sberbank2Excel.pdf2txtev import pdf_2_txt_file
+from Sberbank2Excel.pdf2txtev import pdf_2_txt_file as pdf_2_txt_file_pdfminer
+from Sberbank2Excel.pdf_pypdf_lib import pdf_2_txt_file as pdf_2_txt_file_pypdf
 from Sberbank2Excel.sberbankPDFtext2Excel import sberbankPDFtext2Excel, generate_PDFtext2Excel_argparser
 from Sberbank2Excel import version_info
 
@@ -16,6 +17,7 @@ from Sberbank2Excel import version_info
 def sberbankPDF2Excel(input_file_name: str,
                       output_file_name: Union[str, None] = None,
                       format: str = 'auto',
+                      pdf_lib: str = 'auto',
                       leave_intermediate_txt_file: bool = False,
                       perform_balance_check=True,
                       output_file_type: str = "xlsx",
@@ -39,6 +41,8 @@ def sberbankPDF2Excel(input_file_name: str,
     """
 
     print(f"{format=}")
+    if pdf_lib == "auto":
+        pdf_lib = None
 
     print("*"*30)
     print("Конвертируем файл " + input_file_name)
@@ -61,18 +65,32 @@ def sberbankPDF2Excel(input_file_name: str,
         output_file_name = path 
 
     try:
-        if extension == ".pdf":
-            pdf_2_txt_file(input_file_name, tmp_txt_file_name)
+        has_true = False
+        errors = []
+        for pdf_lib_c in ["pdfminer", "pypdf"] if pdf_lib is None else [pdf_lib]:
+            try:
+                if extension == ".pdf":
+                    if pdf_lib_c == "pdfminer":
+                        pdf_2_txt_file_pdfminer(input_file_name, tmp_txt_file_name)
+                    elif pdf_lib_c == "pypdf":
+                        pdf_2_txt_file_pypdf(input_file_name, tmp_txt_file_name)
 
-        created_file_name = sberbankPDFtext2Excel(tmp_txt_file_name,
-                                                  output_file_name,
-                                                  format=format,
-                                                  perform_balance_check = perform_balance_check,
-                                                  output_file_type=output_file_type,
-                                                  reversed_transaction_order=reversed_transaction_order)
-
-        if (not leave_intermediate_txt_file) and (not extension == ".txt"):
-            os.remove(tmp_txt_file_name)
+                created_file_name = sberbankPDFtext2Excel(tmp_txt_file_name,
+                                                        output_file_name,
+                                                        pdf_lib=pdf_lib_c,
+                                                        format=format,
+                                                        perform_balance_check = perform_balance_check,
+                                                        output_file_type=output_file_type,
+                                                        reversed_transaction_order=reversed_transaction_order)
+                has_true = True
+            except Exception as e:
+                errors.append(e)
+                
+        if has_true:
+            if (not leave_intermediate_txt_file) and (not extension == ".txt"):
+                os.remove(tmp_txt_file_name)
+        else:
+            raise Exception(*errors)
 
     except:
         raise
